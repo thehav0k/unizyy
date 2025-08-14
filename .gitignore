@@ -1,0 +1,98 @@
+# ==============================
+# C++ / CMake / CLion .gitignore
+# Generated for unizyy project
+# ==============================
+
+# Build directories & artifacts
+/build/
+/build-*/
+/cmake-build-*/
+/CMakeFiles/
+/CMakeCache.txt
+/Makefile
+/install_manifest.txt
+/compile_commands.json
+/Testing/
+/CTestTestfile.cmake
+/*.ninja
+/.ninja_deps
+/.ninja_log
+
+# CLion / IntelliJ
+.idea/
+*.iml
+
+# Config / generated CMake scripts
+/cmake_install.cmake
+/**/CMakeFiles/
+**/CMakeCache.txt
+
+# Binary outputs & intermediate objects
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+*.exe
+*.out
+*.app
+unizyy
+/Debug/
+/Release/
+/RelWithDebInfo/
+
+# Profiling / debugging
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+core.*
+
+# OS / Editor noise
+.DS_Store
+Thumbs.db
+~$*
+*.swp
+*.swo
+*.orig
+
+# Logs & temp
+*.log
+*.tmp
+/tmp/
+
+# Generated database data (keep directory, ignore contents)
+Database/*.dat
+Database/*.bin
+Database/pr_notices.txt
+Database/simulation_state.dat
+
+# Token text files
+Meal Tokens/
+Meal\ Tokens/
+
+# If you want to keep an empty Database directory, add a .gitkeep (created separately)
+!Database/.gitkeep
+
+# Ignore meal review text dumps if added later
+*.token.txt
+
+# Ignore backup / archive
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Local scripts or notes
+local_*/
+notes*/
+
+# End of file
+

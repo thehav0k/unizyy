@@ -1,0 +1,134 @@
+//
+// Created by Md. Asif Khan on 8/8/25.
+//
+
+#ifndef STUDENT_H
+#define STUDENT_H
+#include "user.h"
+#include <string>
+#include <vector>
+#include <fstream>
+#include "../../Core/Utils/StringHelper.h"
+
+#include "../../Core/Models/department.h"
+#include "../../Core/Models/hall.h"
+using namespace std;
+
+
+class Student : public User {
+private:
+    char name[60];
+    int age;
+    char studentID[15];
+    int classRoll;
+    department dept;
+    int batch;
+    Halls hall;
+    double balance; // balace in bdt // initially 0.0
+    // balace will be set to 6000 at the start of every month
+
+public:
+    Student(const string &email, const string &password, const string &name, int age, const string &studentID,
+            int classRoll, department dept, int batch, Halls hall)
+        : User(email, password), age(age), classRoll(classRoll),
+          dept(dept), batch(batch), hall(hall) {
+
+        // store as char array
+        //use as string
+        // thats why conversion
+        StringHelper::stringToCharArray(name, this->name);
+        StringHelper::stringToCharArray(studentID, this->studentID);
+    }
+
+    // Default constructor
+    Student() : User(), age(0), classRoll(0), dept(department::Department_of_Computer_Science_and_Engineering), batch(0), hall(Halls::Al_Beruni_Hall) {
+        name[0] = '\0';
+        studentID[0] = '\0';
+    }
+
+    // Getters return strings (using StringHelper)
+    string getName() const {
+        return StringHelper::charArrayToString(name);
+    }
+
+    void setName(const string &name) {
+        StringHelper::stringToCharArray(name, this->name);
+    }
+
+    int getAge() const {
+        return age;
+    }
+
+    void setAge(int age) {
+        Student::age = age;
+    }
+
+    string getStudentID() const {
+        return StringHelper::charArrayToString(studentID);
+    }
+
+    void setStudentID(const string &studentID) {
+        StringHelper::stringToCharArray(studentID, this->studentID);
+    }
+
+    int getClassRoll() const {
+        return classRoll;
+    }
+
+    void setClassRoll(int classRoll) {
+        Student::classRoll = classRoll;
+    }
+
+    department getDepartment() const {
+        return dept;
+    }
+
+    void setDepartment(department dept) {
+        Student::dept = dept;
+    }
+
+    int getBatch() const {
+        return batch;
+    }
+
+    void setBatch(int batch) {
+        Student::batch = batch;
+    }
+
+    Halls getHall() const {
+        return hall;
+    }
+
+    void setHall(Halls hall) {
+        Student::hall = hall;
+    }
+
+    // sob function er prototype
+    void display() const;
+
+    void ChangePassword(const string &newPassword);
+
+    void BuyMealToken();
+
+    void TakeMeal();
+
+    void ReviewMeal();
+
+
+    void ViewResult();
+
+    void ViewNotice();
+
+    void ViewClassSchedule();
+
+    void ViewTransportSchedule();
+
+    // Static database operations
+    static vector<Student> loadAllStudents();
+    static bool addStudentToDB(const Student& student);
+    static bool updateStudentInDB(const string& studentID, const Student& updatedStudent);
+    static bool deleteStudentFromDB(const string& studentID);
+    static Student* findStudentByEmail(const string& email);
+    static Student* findStudentByID(const string& studentID);
+};
+#endif //STUDENT_H
