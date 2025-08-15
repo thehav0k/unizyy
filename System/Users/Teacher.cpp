@@ -12,7 +12,7 @@ using namespace std;
 
 // Constructors
 Teacher::Teacher(const string &email, const string &password, const string &name,
-                 const string &department, AcademicPosition rank)
+                 const string &department, designation rank)
     : User(email, password), AP(rank) {
     // Use StringHelper for conversion
     StringHelper::stringToCharArray(name, this->name);
@@ -21,7 +21,7 @@ Teacher::Teacher(const string &email, const string &password, const string &name
 }
 
 Teacher::Teacher() : User(), dept(department::Department_of_Computer_Science_and_Engineering),
-                     AP(AcademicPosition::Lecturer) {
+                     AP(designation::Lecturer) {
     name[0] = '\0';
 }
 
@@ -46,15 +46,15 @@ string Teacher::getDepartmentName() const {
     return toString(dept);
 }
 
-void Teacher::setRank(AcademicPosition AP) {
+void Teacher::setRank(designation AP) {
     this->AP = AP;
 }
 
-AcademicPosition Teacher::getRank() const {
+designation Teacher::getRank() const {
     return AP;
 }
 
-AcademicPosition Teacher::getDesignation() const {
+designation Teacher::getDesignation() const {
     return getRank();  // Alias method for interface compatibility
 }
 
@@ -92,4 +92,75 @@ bool Teacher::deleteTeacherFromDB(const string& email) {
 
 Teacher* Teacher::findTeacherByEmail(const string& email) {
     return DatabaseManager::findTeacherByEmail(email);
+}
+
+// Notice management methods
+Notice Teacher::createNotice(const string& title, const string& description, NoticeType type) const {
+    Notice notice(title, description, type, getName(), getEmail());
+    notice.setTargetDepartment(dept);
+    return notice;
+}
+
+Notice Teacher::createDetailedNotice(const string& title, const string& description, NoticeType type,
+                                   const string& targetAudience) const {
+    Notice notice(title, description, type, getName(), getEmail());
+    notice.setTargetDepartment(dept);
+    notice.setTargetAudience(targetAudience);
+    return notice;
+}
+
+bool Teacher::publishNotice(const Notice& notice) const {
+    // Use the Notice class's saveToFile method which uses DatabaseManager
+    return notice.saveToFile("notices");
+}
+
+vector<Notice> Teacher::getMyPublishedNotices() const {
+    // Get all notices and filter by author email
+    vector<Notice> allNotices = Notice::loadFromFile("notices");
+
+    vector<Notice> myNotices;
+    for (const auto& notice : allNotices) {
+        if (notice.getAuthorEmail() == getEmail()) {
+            myNotices.push_back(notice);
+        }
+    }
+    return myNotices;
+}
+
+bool Teacher::updateNotice(size_t noticeID, const Notice& updatedNotice) const {
+    // Load all notices
+    vector<Notice> allNotices = Notice::loadFromFile("notices");
+
+    // Find and update the notice if it belongs to this teacher
+    bool found = false;
+    for (auto& notice : allNotices) {
+        if (notice.getNoticeID() == noticeID && notice.getAuthorEmail() == getEmail()) {
+            notice = updatedNotice;
+            found = true;
+            break;
+        }
+    }
+
+    if (found) {
+        // Save all notices back to file
+        DatabaseManager::saveObjects(allNotices, "notices");
+        return true;
+    }
+    return false;
+}
+
+bool Teacher::withdrawNotice(size_t noticeID) const {
+    vector<Notice> allNotices = Notice::loadFromFile("notices");
+
+    auto it = allNotices.begin();
+    while (it != allNotices.end()) {
+        if (it->getNoticeID() == noticeID && it->getAuthorEmail() == getEmail()) {
+            it = allNotices.erase(it);
+            DatabaseManager::saveObjects(allNotices, "notices");
+            return true;
+        } else {
+            it++;
+        }
+    }
+    return false;
 }

@@ -31,8 +31,19 @@ private:
     void handleCourseManagement();
     void handleStudentGrading();
     void handleAttendance();
+    void handleNoticeManagement();
     void handleProfile();
     void handleLogout();
+
+    // Notice-specific methods
+    void createNotice();
+    void viewMyNotices();
+    void viewAllNotices();
+    void searchNotices();
+    void editMyNotice();
+    void deleteMyNotice();
+    void displayNoticesList(const std::vector<Notice>& notices);
+    NoticeType selectNoticeType();
 };
 
 #endif //TEACHER_INTERFACE_H

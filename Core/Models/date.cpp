@@ -2,14 +2,17 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
-#include <fstream>
-#include <filesystem>
 
 using namespace std;
 
+// Static variables for simulation
+static Date simulatedDate;
+static bool isSimulating = false;
+static int simulatedHour = -1; // -1 means use real time
+
 // Constructors
 Date::Date() {
-    time_t now = time(0);
+    time_t now = time(nullptr);
     tm* ltm = localtime(&now);
     day = ltm->tm_mday;
     month = ltm->tm_mon + 1;
@@ -131,9 +134,9 @@ Date Date::getPreviousDay() const {
     return prevDay;
 }
 
-// Operators
+// Comparison operators
 bool Date::operator==(const Date& other) const {
-    return day == other.day && month == other.month && year == other.year;
+    return (day == other.day && month == other.month && year == other.year);
 }
 
 bool Date::operator!=(const Date& other) const {
@@ -149,24 +152,21 @@ bool Date::operator<(const Date& other) const {
 bool Date::operator>(const Date& other) const {
     return other < *this;
 }
-// token er date expiry check korar jnno
+
 bool Date::operator<=(const Date& other) const {
-    return *this < other || *this == other;
+    return (*this < other) || (*this == other);
 }
 
 bool Date::operator>=(const Date& other) const {
-    return *this > other || *this == other;
+    return (*this > other) || (*this == other);
 }
-
-// Static members for simulation
-bool Date::simulationActive = false;
-Date Date::simulatedDate = Date();
-int Date::simulatedHour = -1;
 
 // Static functions
 Date Date::getCurrentDate() {
-    if (simulationActive) return simulatedDate;
-    return Date();
+    if (isSimulating) {
+        return simulatedDate;
+    }
+    return {};
 }
 
 Date Date::getTomorrowDate() {
@@ -175,95 +175,113 @@ Date Date::getTomorrowDate() {
 }
 
 Date Date::SimulateDate(size_t n) {
-    if (!simulationActive) {
-        simulatedDate = getCurrentDate();
-        time_t now = time(0); simulatedHour = localtime(&now)->tm_hour;
-        simulationActive = true;
+    if (!isSimulating) {
+        simulatedDate = Date();
+        isSimulating = true;
     }
-    for (size_t i = 0; i < n; i++) simulatedDate = simulatedDate.getNextDay();
-    saveSimulationState();
+
+    for (size_t i = 0; i < n; ++i) {
+        simulatedDate = simulatedDate.getNextDay();
+    }
+
     return simulatedDate;
 }
 
 Date Date::SimulateMonths(size_t n) {
-    if (!simulationActive) {
-        simulatedDate = getCurrentDate();
-        time_t now = time(0); simulatedHour = localtime(&now)->tm_hour;
-        simulationActive = true;
+    if (!isSimulating) {
+        simulatedDate = Date();
+        isSimulating = true;
     }
-    int totalMonths = simulatedDate.getMonth() - 1 + static_cast<int>(n);
-    int newYear = simulatedDate.getYear() + totalMonths / 12;
-    int newMonth = totalMonths % 12 + 1;
-    int newDay = simulatedDate.getDay();
-    int daysInMonth[] = {31,28,31,30,31,30,31,31,30,31,30,31};
-    if (newMonth == 2 && ((newYear % 4 == 0 && newYear % 100 != 0) || (newYear % 400 == 0))) daysInMonth[1] = 29;
-    if (newDay > daysInMonth[newMonth-1]) newDay = daysInMonth[newMonth-1];
-    simulatedDate = Date(newDay, newMonth, newYear);
-    saveSimulationState();
+
+    simulatedDate.month += static_cast<int>(n);
+
+    while (simulatedDate.month > 12) {
+        simulatedDate.month -= 12;
+        simulatedDate.year++;
+    }
+
     return simulatedDate;
 }
 
 void Date::SimulateHours(size_t n) {
-    if (!simulationActive) {
-        simulatedDate = getCurrentDate();
-        time_t now = time(0); simulatedHour = localtime(&now)->tm_hour;
-        simulationActive = true;
+    if (simulatedHour == -1) {
+        time_t now = time(nullptr);
+        tm* ltm = localtime(&now);
+        simulatedHour = ltm->tm_hour;
     }
-    size_t total = simulatedHour + n;
-    size_t addDays = total / 24;
-    simulatedHour = static_cast<int>(total % 24);
-    for (size_t i = 0; i < addDays; ++i) simulatedDate = simulatedDate.getNextDay();
-    saveSimulationState();
+
+    simulatedHour += static_cast<int>(n);
+
+    while (simulatedHour >= 24) {
+        simulatedHour -= 24;
+        SimulateDate(1); // Advance to next day
+    }
 }
 
 void Date::setSimulatedDate(const Date& d) {
-    simulationActive = true;
     simulatedDate = d;
-    time_t now = time(0); simulatedHour = localtime(&now)->tm_hour;
-    saveSimulationState();
+    isSimulating = true;
 }
 
 void Date::setSimulatedDateTime(const Date& d, int hour) {
-    simulationActive = true;
     simulatedDate = d;
-    simulatedHour = hour < 0 ? 0 : (hour > 23 ? 23 : hour);
-    saveSimulationState();
+    simulatedHour = hour;
+    isSimulating = true;
 }
 
 int Date::getSimulatedHour() {
-    if (!simulationActive) return -1;
-    return simulatedHour;
-}
+    if (simulatedHour != -1) {
+        return simulatedHour;
+    }
 
-bool Date::isSimulationActive() { return simulationActive; }
+    time_t now = time(nullptr);
+    tm* ltm = localtime(&now);
+    return ltm->tm_hour;
+}
 
 void Date::resetSimulation() {
-    simulationActive = false;
+    isSimulating = false;
     simulatedHour = -1;
-    saveSimulationState();
+    // simulatedDate will be ignored when isSimulating is false
 }
 
-bool Date::saveSimulationState() {
-    try {
-        filesystem::create_directories("Database");
-        ofstream out("Database/simulation_state.dat", ios::binary | ios::trunc);
-        if (!out.is_open()) return false;
-        out.write(reinterpret_cast<const char*>(&simulationActive), sizeof(simulationActive));
-        out.write(reinterpret_cast<const char*>(&simulatedDate), sizeof(simulatedDate));
-        out.write(reinterpret_cast<const char*>(&simulatedHour), sizeof(simulatedHour));
-        return true;
-    } catch (...) { return false; }
+bool Date::isSimulationActive() {
+    return isSimulating;
 }
 
-bool Date::loadSimulationState() {
-    ifstream in("Database/simulation_state.dat", ios::binary);
-    if (!in.is_open()) return false;
-    bool active; Date d; int hour;
-    if (!in.read(reinterpret_cast<char*>(&active), sizeof(active))) return false;
-    if (!in.read(reinterpret_cast<char*>(&d), sizeof(d))) return false;
-    if (!in.read(reinterpret_cast<char*>(&hour), sizeof(hour))) return false;
-    simulationActive = active;
-    simulatedDate = d;
-    simulatedHour = hour;
-    return true;
+// Time methods for MenuInterface
+string Date::getCurrentTimeString() {
+    Date currentDate = getCurrentDate();
+    int currentHour = getSimulatedHour();
+
+    time_t now = time(nullptr);
+    tm* ltm = localtime(&now);
+    int currentMinute = ltm->tm_min;
+
+    stringstream ss;
+    ss << currentDate.year << "-"
+       << setfill('0') << setw(2) << currentDate.month << "-"
+       << setfill('0') << setw(2) << currentDate.day << " "
+       << setfill('0') << setw(2) << currentHour << ":"
+       << setfill('0') << setw(2) << currentMinute;
+    return ss.str();
+}
+
+string Date::getCurrentDateTimeString() {
+    Date currentDate = getCurrentDate();
+    int currentHour = getSimulatedHour();
+
+    time_t now = time(nullptr);
+    tm* ltm = localtime(&now);
+    int currentMinute = ltm->tm_min;
+    int currentSecond = ltm->tm_sec;
+
+    stringstream ss;
+    ss << currentDate.year << "-"
+       << setfill('0') << setw(2) << currentDate.month << "-"
+       << setfill('0') << setw(2) << currentDate.day << " "
+       << setfill('0') << setw(2) << currentHour << ":"
+       << setfill('0') << setw(2) << currentMinute << ":"
+       << setfill('0') << setw(2) << currentSecond;
+    return ss.str();
 }

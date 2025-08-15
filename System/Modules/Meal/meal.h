@@ -46,10 +46,10 @@ enum class MealRating {
 };
 
 enum class TokenStatus {
-    ACTIVE = 0,      // Token is valid and unused
-    USED = 1,        // Token has been used to get meal
-    EXPIRED = 2,     // Token has expired
-    REVIEWED = 3     // Token has been used and reviewed // then the token is to be deleted
+    ACTIVE = 0,
+    USED = 1,
+    EXPIRED = 2,
+    REVIEWED = 3
 };
 
 class Meal {
@@ -59,9 +59,8 @@ private:
     double price; // price in bdt
     int availableQuantity;
     bool isAvailable;
-    // Use char array to store date string directly (DD-MM-YYYY format)
-    char date[12]; // "DD-MM-YYYY" + null terminator
-    char time[10]; // for recording buying time
+    char date[12]; // Date class er object ke char array te rakhar jnno
+    char time[10];
     Halls hallName;
 
     // Caching (similar to DatabaseManager pattern)
@@ -103,10 +102,6 @@ public:
     void displayMeal() const;
     bool isExpired() const;
 
-    // Binary file operations
-    void writeToBinaryFile(ofstream& out) const;
-    void readFromBinaryFile(ifstream& in);
-
     // Static utility functions
     static string mealTypeToString(MealType type);
     static MealType stringToMealType(const string& typeStr);
@@ -130,11 +125,6 @@ public:
 
     // Instance method for saving current meal (add or update based on composite key)
     bool saveMealToDatabase() const;
-    // Direct file helpers
-    bool writeDirectlyToFile(const string& filename) const;
-    bool readDirectlyFromFile(const string& filename);
-    static bool writeDirectlyToDatabase();
-    static vector<Meal> loadDirectlyFromDatabase();
 };
 
 class MealToken {
@@ -175,30 +165,24 @@ public:
     // Token operations
     bool isValid() const;
     bool isExpired() const;
-    bool canBeUsed() const; // new helper
+    bool canBeUsed() const;
     void markAsUsed();
     void markAsReviewed();
     void displayToken() const;
     void saveToFile(const string& folderPath) const;
 
-    // Binary file operations
-    void writeToBinaryFile(ofstream& out) const;
-    void readFromBinaryFile(ifstream& in);
-
-    // Serialization (new stable format with header handled by TokenManager)
-    void serialize(ofstream& out) const;
-    static bool deserialize(ifstream& in, MealToken& outToken);
 
     // Static utility functions
     static string generateTokenNumber();
     static string tokenStatusToString(TokenStatus status);
 };
 
+// Meal review er class
 class MealReview {
 private:
-    char Name[100];          // Student name
-    char tokenNumber[20];     // Token used for this meal
-    char mealName[100];       // Meal name for this review
+    char Name[100];
+    char tokenNumber[20];
+    char mealName[100];
     MealRating rating;
     char comment[300];
     Date reviewDate;
@@ -224,9 +208,6 @@ public:
     // Display
     void displayReview() const;
 
-    // Binary file operations
-    void writeToBinaryFile(ofstream& out) const;
-    void readFromBinaryFile(ifstream& in);
 
     // Static utility functions
     static string ratingToString(MealRating rating);
@@ -252,22 +233,21 @@ public:
     vector<MealToken> getActiveTokens() const { return activeTokens; }
     vector<MealToken> getUsedTokens() const { return usedTokens; }
 
-    // Review operations
+    // Review er function gula
     bool addReview(const string& studentEmail, const string& tokenNumber,
                   MealRating rating, const string& comment);
     vector<MealReview> getMealReviews(const string& mealName) const;
     vector<MealReview> getHallReviews(const string& hallName) const;
 
-    // File operations
+    // File -> vector er kaj
     void saveAllTokens();
     void loadAllTokens();
     void cleanupExpiredTokens();
 
-    // Review operations using DatabaseManager
+    // Review dis vallagena
     void saveAllReviews();
     void loadAllReviews();
 
-    // Display operations
     void displayStudentTokens(const string& studentEmail) const;
     void displayAllReviews() const;
 
@@ -277,7 +257,7 @@ private:
 };
 
 
-// Utility functions
+// Helper functiongula
 class MealUtils {
 public:
     static bool isWithinMealTime(MealType type);

@@ -106,6 +106,7 @@ public:
     static size_t getStudentCount();
     static size_t getTeacherCount();
     static size_t getAdminCount();
+    static size_t getSystemAdminCount();
     static size_t getDiningAuthorityCount();
     static void displayDatabaseStats();
 };

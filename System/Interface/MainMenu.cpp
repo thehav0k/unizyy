@@ -19,25 +19,23 @@ MainMenu::MainMenu(Auth* auth) : authSystem(auth), isRunning(true) {}
 
 void MainMenu::displayWelcomeBanner() {
     clearScreen();
-    cout << "\n🏛️  UNIVERSITY MANAGEMENT SYSTEM 2025" << endl;
-    cout << "═══════════════════════════════════════════════════════════" << endl;
-    cout << "🎓 Comprehensive University Management Solution" << endl;
-    cout << "👥 Student | 👨‍🏫 Teacher | 🔧 Admin | 🍽️  Dining Management" << endl;
-    cout << "📅 Current Date: " << getCurrentTimeString() << endl;
-    cout << "════════════════════════════════════════════��══════════════" << endl;
+    cout << "\nUNIZY : JAHANGIRNAGAR UNIVERSITY MANAGEMENT SYSTEM" << endl;
+    cout << "==========================================================" << endl;
+    cout << "Current Date: " << getCurrentTimeString() << endl;
+    cout << "==========================================================" << endl;
 }
 
 void MainMenu::displayMenu() {
     displayWelcomeBanner();
 
-    cout << "\n🚀 MAIN MENU OPTIONS:" << endl;
-    cout << "━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << endl;
-    cout << "⏰ 0. Simulate Date & Time" << endl;
-    cout << "🔐 1. Login to System" << endl;
-    cout << "📝 2. Register New Account" << endl;
-    cout << "ℹ️  3. About System & Features" << endl;
-    cout << "🚪 4. Exit Application" << endl;
-    cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << endl;
+    cout << "\nMAIN MENU OPTIONS:" << endl;
+    cout << "----------------------------------------------------------" << endl;
+    cout << "0. Simulate Date & Time" << endl;
+    cout << "1. Login to System" << endl;
+    cout << "2. Register New Account" << endl;
+    cout << "3. About System & Features" << endl;
+    cout << "4. Exit Application" << endl;
+    cout << "----------------------------------------------------------" << endl;
 }
 
 int MainMenu::getChoice() {
@@ -48,7 +46,6 @@ int MainMenu::getChoice() {
         cout << "Please enter your choice (0-4): ";
         getline(cin, input);
 
-        // Check if input is empty
         if (input.empty()) {
             displayError("Please enter a number between 0-4.");
             continue;
@@ -71,7 +68,7 @@ int MainMenu::getChoice() {
 void MainMenu::processChoice(int choice) {
     switch (choice) {
         case 0:
-            // simulate date
+
             {
                 displayHeader("SIMULATE DATE & TIME");
                 cout << "1. Set specific date (DD-MM-YYYY)" << endl;
@@ -137,7 +134,6 @@ void MainMenu::handleLogin() {
     User* user = authSystem->login(email, password);
     if (user) {
         displaySuccess("Login successful!");
-        cout << "Welcome, " << email << "!" << endl;
 
         // Determine user type and launch appropriate interface
         if (auto* student = dynamic_cast<Student*>(user)) {
@@ -192,16 +188,15 @@ void MainMenu::handleRegistration() {
                 string email = Auth::getValidatedEmail();
                 string password = Auth::getValidatedPassword();
 
-                // Get other required fields with basic validation
                 int age;
                 while (true) {
                     cout << "Enter Age (16-35): ";
                     cin >> age;
                     if (age >= 16 && age <= 35) {
-                        cout << "✅ Age is valid!" << endl;
+                        cout << "[OK] Age is valid!" << endl;
                         break;
                     }
-                    cout << "❌ Age must be between 16 and 35. Please try again." << endl;
+                    cout << "[ERROR] Age must be between 16 and 35. Please try again." << endl;
                 }
 
                 int classRoll;
@@ -228,9 +223,21 @@ void MainMenu::handleRegistration() {
                 cout << "4. AFM Kamaluddin Hall" << endl;
                 cout << "5. Moulana Bhasani Hall" << endl;
                 cout << "6. Bangabondhu Sheikh Majibur Rahman Hall" << endl;
-                cout << "Enter choice (1-6): ";
+                cout << "7. Jatiya Kabi Kazi Nazrul Islam Hall" << endl;
+                cout << "8. Rabindra Nath Tagore Hall" << endl;
+                cout << "9. Shahid Tajuddin Ahmed Hall" << endl;
+                cout << "10. Shahid Sheikh Russel Hall" << endl;
+                cout << "11. Shaheed Rafiq Jabbar Hall" << endl;
+                cout << "12. Nawab Faizunnesa Hall" << endl;
+                cout << "13. Fazilatunnesa Hall" << endl;
+                cout << "14. Jahanara Imam Hall" << endl;
+                cout << "15. Preetilata Hall" << endl;
+                cout << "16. Begum Khaleda Zia Hall" << endl;
+                cout << "17. Sheikh Hasina Hall" << endl;
+                cout << "18. Bir Pratik Taramon Bibi Hall" << endl;
+                cout << "Enter choice (1-18): ";
                 cin >> hallChoice;
-                cin.ignore(); // Clear the newline
+                cin.ignore();
 
                 // Map dept and hall
                 department dept = department::Department_of_Computer_Science_and_Engineering;
@@ -239,11 +246,25 @@ void MainMenu::handleRegistration() {
 
                 Halls hall = Halls::Al_Beruni_Hall;
                 switch (hallChoice) {
+                    case 1: hall = Halls::Al_Beruni_Hall; break;
                     case 2: hall = Halls::Meer_Mosharraf_Hossain_Hall; break;
                     case 3: hall = Halls::Shaheed_Salam_Barkat_Hall; break;
                     case 4: hall = Halls::AFM_Kamaluddin_Hall; break;
                     case 5: hall = Halls::Moulana_Bhasani_Hall; break;
                     case 6: hall = Halls::Bangabondhu_Sheikh_Majibur_Rahman_Hall; break;
+                    case 7: hall = Halls::Jatiya_Kabi_Kazi_Nazrul_Islam_Hall; break;
+                    case 8: hall = Halls::Rabindra_Nath_Tagore_Hall; break;
+                    case 9: hall = Halls::Shahid_Tajuddin_Ahmed_Hall; break;
+                    case 10: hall = Halls::Shahid_Sheikh_Russel_Hall; break;
+                    case 11: hall = Halls::Shaheed_Rafiq_Jabbar_Hall; break;
+                    case 12: hall = Halls::Nawab_Faizunnesa_Hall; break;
+                    case 13: hall = Halls::Fazilatunnesa_Hall; break;
+                    case 14: hall = Halls::Jahanara_Imam_Hall; break;
+                    case 15: hall = Halls::Preetilata_Hall; break;
+                    case 16: hall = Halls::Begum_Khaleda_Zia_Hall; break;
+                    case 17: hall = Halls::Sheikh_Hasina_Hall; break;
+                    case 18: hall = Halls::Bir_Pratik_Taramon_Bibi_Hall; break;
+                    default: hall = Halls::Al_Beruni_Hall; break;
                 }
 
                 success = authSystem->registerStudent(studentID, name, email, age, classRoll, dept, batch, hall, password);
@@ -272,10 +293,10 @@ void MainMenu::handleRegistration() {
                 cin >> rankChoice;
                 cin.ignore();
 
-                AcademicPosition rank = AcademicPosition::Professor;
-                if (rankChoice == 2) rank = AcademicPosition::AssociateProfessor;
-                else if (rankChoice == 3) rank = AcademicPosition::AssistantProfessor;
-                else if (rankChoice == 4) rank = AcademicPosition::Lecturer;
+                designation rank = designation::Professor;
+                if (rankChoice == 2) rank = designation::AssociateProfessor;
+                else if (rankChoice == 3) rank = designation::AssistantProfessor;
+                else if (rankChoice == 4) rank = designation::Lecturer;
 
                 success = authSystem->registerTeacher(name, email, dept, rank, password);
                 break;
@@ -357,10 +378,10 @@ void MainMenu::handleAbout() {
     cout << "   • Time-based validation system" << endl;
 
     cout << "\nNew Registration Experience:" << endl;
-    cout << "   • ✅ Instant email validation feedback" << endl;
-    cout << "   • ✅ Real-time password requirement checking" << endl;
-    cout << "   • ✅ Immediate duplicate email/ID detection" << endl;
-    cout << "   • ✅ Clear error messages and requirements" << endl;
+    cout << "   • Instant email validation feedback" << endl;
+    cout << "   • Real-time password requirement checking" << endl;
+    cout << "   • Immediate duplicate email/ID detection" << endl;
+    cout << "   • Clear error messages and requirements" << endl;
 
     pauseForInput();
 }
@@ -368,7 +389,7 @@ void MainMenu::handleAbout() {
 void MainMenu::handleExit() {
     displayHeader("EXIT SYSTEM");
     cout << "Thank you for using the University Management System!" << endl;
-    cout << "Have a great day! 👋" << endl;
+    cout << "Have a great day!" << endl;
     isRunning = false;
 }
 

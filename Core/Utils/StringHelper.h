@@ -102,6 +102,14 @@ public:
         return false; // Only spaces
     }
 
+    static bool isValidstudentID(const string& studentID) {
+        if (studentID.length() != 11) return false;
+        for (const char c : studentID) {
+            if (!isdigit(c)) return false;
+        }
+        return true;
+    }
+
 };
 
 #endif //STRINGUTILS_H

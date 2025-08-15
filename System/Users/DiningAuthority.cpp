@@ -52,11 +52,11 @@ void DiningAuthority::createMeal(const string& mealName, const string& descripti
 
     // Save to database
     if (newMeal.saveMealToDatabase()) {
-        cout << "✅ Meal '" << mealName << "' created successfully for " << currentHall << "!" << endl;
+        cout << "Meal '" << mealName << "' created successfully for " << currentHall << "!" << endl;
         cout << "Details: " << description << " | Price: $" << fixed << setprecision(2) << price
              << " | Quantity: " << quantity << endl;
     } else {
-        cout << "❌ Failed to save meal to database!" << endl;
+        cout << "Failed to save meal to database!" << endl;
     }
 }
 
@@ -69,14 +69,14 @@ void DiningAuthority::updateMealAvailability(const string& mealName, bool availa
             meal.setIsAvailable(available);
             meal.saveMealToDatabase();
             found = true;
-            cout << "✅ Meal availability updated: " << mealName << " is now "
+            cout << "Meal availability updated: " << mealName << " is now "
                  << (available ? "available" : "unavailable") << endl;
             break;
         }
     }
 
     if (!found) {
-        cout << "❌ Meal not found: " << mealName << endl;
+        cout << "Meal not found: " << mealName << endl;
     }
 }
 
@@ -90,14 +90,14 @@ void DiningAuthority::updateMealQuantity(const string& mealName, int newQuantity
             meal.setAvailableQuantity(newQuantity);
             meal.saveMealToDatabase();
             found = true;
-            cout << "✅ Meal quantity updated: " << mealName << " | Old: " << oldQuantity
-                 << " → New: " << newQuantity << " servings" << endl;
+            cout << "[SUCCESS] Meal quantity updated: " << mealName << " | Old: " << oldQuantity
+                 << " -> New: " << newQuantity << " servings" << endl;
             break;
         }
     }
 
     if (!found) {
-        cout << "❌ Meal not found: " << mealName << endl;
+        cout << "[ERROR] Meal not found: " << mealName << endl;
     }
 }
 
@@ -111,14 +111,14 @@ void DiningAuthority::updateMealPrice(const string& mealName, double newPrice) {
             meal.setPrice(newPrice);
             meal.saveMealToDatabase();
             found = true;
-            cout << "✅ Meal price updated: " << mealName << " | Old: $" << fixed << setprecision(2) << oldPrice
-                 << " → New: $" << newPrice << endl;
+            cout << "[SUCCESS] Meal price updated: " << mealName << " | Old: $" << fixed << setprecision(2) << oldPrice
+                 << " -> New: $" << newPrice << endl;
             break;
         }
     }
 
     if (!found) {
-        cout << "❌ Meal not found: " << mealName << endl;
+        cout << "[ERROR] Meal not found: " << mealName << endl;
     }
 }
 
@@ -129,17 +129,17 @@ void DiningAuthority::removeMeal(const string& mealName) {
     for (const auto& meal : meals) {
         if (meal.getMealName() == mealName) {
             if (Meal::deleteMealFromDatabase(meal.getDate(), meal.getHallName(), meal.getMealType())) {
-                cout << "✅ Meal '" << mealName << "' removed successfully!" << endl;
+                cout << "Meal '" << mealName << "' removed successfully!" << endl;
                 found = true;
             } else {
-                cout << "❌ Failed to remove meal from database!" << endl;
+                cout << "Failed to remove meal from database!" << endl;
             }
             break;
         }
     }
 
     if (!found) {
-        cout << "❌ Meal not found: " << mealName << endl;
+        cout << "Meal not found: " << mealName << endl;
     }
 }
 
@@ -148,11 +148,11 @@ void DiningAuthority::viewAllMeals() const {
     vector<Meal> meals = Meal::loadMealsByHall(getHallName());
 
     if (meals.empty()) {
-        cout << "📋 No meals available in " << getHallName() << endl;
+        cout << "No meals available in " << getHallName() << endl;
         return;
     }
 
-    cout << "\n🍽️ === MEALS IN " << getHallName() << " ===" << endl;
+    cout << "\n=== MEALS IN " << getHallName() << " ===" << endl;
     cout << "Total Meals: " << meals.size() << endl;
     cout << "Manager: " << getName() << endl;
     cout << string(80, '=') << endl;
@@ -174,11 +174,11 @@ void DiningAuthority::viewMealsByType(MealType type) const {
     }
 
     if (mealsOfType.empty()) {
-        cout << "📋 No " << Meal::mealTypeToString(type) << " meals found in " << getHallName() << endl;
+        cout << "No " << Meal::mealTypeToString(type) << " meals found in " << getHallName() << endl;
         return;
     }
 
-    cout << "\n🍽️ === " << Meal::mealTypeToString(type) << " MEALS IN " << getHallName() << " ===" << endl;
+    cout << "\n=== " << Meal::mealTypeToString(type) << " MEALS IN " << getHallName() << " ===" << endl;
     cout << "Found: " << mealsOfType.size() << " meals" << endl;
     cout << string(80, '=') << endl;
 
@@ -198,10 +198,10 @@ void DiningAuthority::viewMealsByDate(const Date& date) const {
         }
     }
 
-    cout << "\n📅 === MEALS FOR " << date.toString() << " IN " << getHallName() << " ===" << endl;
+    cout << "\n=== MEALS FOR " << date.toString() << " IN " << getHallName() << " ===" << endl;
 
     if (hallMeals.empty()) {
-        cout << "📋 No meals scheduled for " << date.toString() << " in " << getHallName() << endl;
+        cout << "No meals scheduled for " << date.toString() << " in " << getHallName() << endl;
     } else {
         for (const auto& meal : hallMeals) {
             meal.displayMeal();
@@ -219,7 +219,7 @@ void DiningAuthority::viewUpcomingMeals() const {
     Date today;
     vector<Meal> meals = Meal::loadMealsByHall(getHallName());
 
-    cout << "\n📅 === UPCOMING MEALS IN " << getHallName() << " ===" << endl;
+    cout << "\n=== UPCOMING MEALS IN " << getHallName() << " ===" << endl;
     bool found = false;
 
     for (const auto& meal : meals) {
@@ -232,43 +232,43 @@ void DiningAuthority::viewUpcomingMeals() const {
     }
 
     if (!found) {
-        cout << "📋 No upcoming meals scheduled in " << getHallName() << endl;
+        cout << "No upcoming meals scheduled in " << getHallName() << endl;
     }
 }
 
 // Simplified token and review methods
 void DiningAuthority::viewActiveTokens() const {
-    cout << "\n🎫 === ACTIVE TOKENS FOR " << getHallName() << " ===" << endl;
+    cout << "\n=== ACTIVE TOKENS FOR " << getHallName() << " ===" << endl;
     cout << "Note: Token management system not yet implemented." << endl;
     cout << "This feature will be available in future updates." << endl;
 }
 
 void DiningAuthority::viewUsedTokens() const {
-    cout << "\n🎫 === USED TOKENS FOR " << getHallName() << " ===" << endl;
+    cout << "\n=== USED TOKENS FOR " << getHallName() << " ===" << endl;
     cout << "Note: Token management system not yet implemented." << endl;
     cout << "This feature will be available in future updates." << endl;
 }
 
 void DiningAuthority::viewFoodReviews() const {
-    cout << "\n⭐ === FOOD REVIEWS FOR " << getHallName() << " ===" << endl;
+    cout << "\n=== FOOD REVIEWS FOR " << getHallName() << " ===" << endl;
     cout << "Note: Review management system not yet implemented." << endl;
     cout << "This feature will be available in future updates." << endl;
 }
 
 void DiningAuthority::viewReviewsByMeal(const string& mealName) const {
-    cout << "\n⭐ === REVIEWS FOR " << mealName << " ===" << endl;
+    cout << "\n=== REVIEWS FOR " << mealName << " ===" << endl;
     cout << "Note: Review management system not yet implemented." << endl;
     cout << "This feature will be available in future updates." << endl;
 }
 
 void DiningAuthority::viewHallReviews() const {
-    cout << "\n⭐ === REVIEWS FOR " << getHallName() << " ===" << endl;
+    cout << "\n=== REVIEWS FOR " << getHallName() << " ===" << endl;
     cout << "Note: Review management system not yet implemented." << endl;
     cout << "This feature will be available in future updates." << endl;
 }
 
 void DiningAuthority::respondToReview(const string& tokenNumber, const string& response) {
-    cout << "\n📝 === RESPONDING TO REVIEW ===" << endl;
+    cout << "\n=== RESPONDING TO REVIEW ===" << endl;
     cout << "Token: " << tokenNumber << endl;
     cout << "Response: " << response << endl;
     cout << "Hall: " << getHallName() << endl;
@@ -278,30 +278,30 @@ void DiningAuthority::respondToReview(const string& tokenNumber, const string& r
 
 // Notice Management (simplified)
 void DiningAuthority::postNotice(const string& title, const string& content) {
-    cout << "\n📢 === POSTING NOTICE ===" << endl;
+    cout << "\n=== POSTING NOTICE ===" << endl;
     cout << "Title: " << title << endl;
     cout << "Content: " << content << endl;
     cout << "Hall: " << getHallName() << endl;
-    cout << "✅ Notice posted successfully!" << endl;
+    cout << "Notice posted successfully!" << endl;
     cout << "Note: Notice persistence not yet implemented." << endl;
 }
 
 void DiningAuthority::viewNotices() const {
-    cout << "\n📢 === NOTICES FOR " << getHallName() << " ===" << endl;
+    cout << "\n=== NOTICES FOR " << getHallName() << " ===" << endl;
     cout << "Note: Notice management system not yet implemented." << endl;
     cout << "This feature will be available in future updates." << endl;
 }
 
 void DiningAuthority::removeNotice(const string& title) {
-    cout << "\n📢 === REMOVING NOTICE ===" << endl;
+    cout << "\n=== REMOVING NOTICE ===" << endl;
     cout << "Title: " << title << endl;
-    cout << "✅ Notice removed successfully!" << endl;
+    cout << "Notice removed successfully!" << endl;
     cout << "Note: Notice persistence not yet implemented." << endl;
 }
 
 // Analytics and Reports (simplified)
 void DiningAuthority::generateDailyReport(const Date& date) const {
-    cout << "\n📊 === DAILY REPORT FOR " << date.toString() << " ===" << endl;
+    cout << "\n=== DAILY REPORT FOR " << date.toString() << " ===" << endl;
     cout << "Hall: " << getHallName() << endl;
     cout << "Manager: " << getName() << endl;
 
@@ -319,13 +319,13 @@ void DiningAuthority::generateDailyReport(const Date& date) const {
 }
 
 void DiningAuthority::viewPopularMeals() const {
-    cout << "\n🏆 === POPULAR MEALS IN " << getHallName() << " ===" << endl;
+    cout << "\n=== POPULAR MEALS IN " << getHallName() << " ===" << endl;
     cout << "Note: Popularity analytics not yet implemented." << endl;
     cout << "This feature will be available with token usage data." << endl;
 }
 
 void DiningAuthority::viewRevenueReport() const {
-    cout << "\n💰 === REVENUE REPORT FOR " << getHallName() << " ===" << endl;
+    cout << "\n=== REVENUE REPORT FOR " << getHallName() << " ===" << endl;
 
     vector<Meal> meals = Meal::loadMealsByHall(getHallName());
     double totalRevenue = 0.0;
@@ -351,32 +351,32 @@ void DiningAuthority::updateInventory(const string& mealName, int consumedQuanti
             meal.saveMealToDatabase();
             found = true;
 
-            cout << "✅ Inventory updated for " << mealName << endl;
+            cout << "Inventory updated for " << mealName << endl;
             cout << "Consumed: " << consumedQuantity << " | Remaining: " << newQuantity << endl;
             break;
         }
     }
 
     if (!found) {
-        cout << "❌ Meal not found: " << mealName << endl;
+        cout << "Meal not found: " << mealName << endl;
     }
 }
 
 void DiningAuthority::viewLowStockMeals() const {
-    cout << "\n⚠️ === LOW STOCK MEALS IN " << getHallName() << " ===" << endl;
+    cout << "\n=== LOW STOCK MEALS IN " << getHallName() << " ===" << endl;
 
     vector<Meal> meals = Meal::loadMealsByHall(getHallName());
     bool foundLowStock = false;
 
     for (const auto& meal : meals) {
         if (meal.getAvailableQuantity() < 10) { // Consider less than 10 as low stock
-            cout << "🔴 " << meal.getMealName() << " - Only " << meal.getAvailableQuantity() << " left" << endl;
+            cout << "[LOW STOCK] " << meal.getMealName() << " - Only " << meal.getAvailableQuantity() << " left" << endl;
             foundLowStock = true;
         }
     }
 
     if (!foundLowStock) {
-        cout << "✅ All meals have sufficient stock!" << endl;
+        cout << "All meals have sufficient stock!" << endl;
     }
 }
 
@@ -392,14 +392,14 @@ void DiningAuthority::restockMeal(const string& mealName, int additionalQuantity
             meal.saveMealToDatabase();
             found = true;
 
-            cout << "✅ " << mealName << " restocked!" << endl;
+            cout << mealName << " restocked!" << endl;
             cout << "Added: " << additionalQuantity << " | New total: " << newQuantity << endl;
             break;
         }
     }
 
     if (!found) {
-        cout << "❌ Meal not found: " << mealName << endl;
+        cout << "Meal not found: " << mealName << endl;
     }
 }
 
@@ -459,10 +459,10 @@ bool DiningAuthority::canManageHall(const string& hallName) const {
 
 // Override virtual functions from User
 void DiningAuthority::display() const {
-    cout << "\n🏛️ === DINING AUTHORITY PROFILE ===" << endl;
+    cout << "\n=== DINING AUTHORITY PROFILE ===" << endl;
     cout << "Name: " << getName() << endl;
     cout << "Email: " << getEmail() << endl;
     cout << "Hall: " << getHallName() << endl;
-    cout << "🍽️ Managed Meals: " << getMealsByHall().size() << endl;
+    cout << "Managed Meals: " << getMealsByHall().size() << endl;
     cout << "=================================" << endl;
 }

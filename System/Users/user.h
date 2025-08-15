@@ -41,6 +41,15 @@ public:
         StringHelper::stringToCharArray(password, this->password);
     }
 
+    // Password change functionality
+    bool changePassword(const string& currentPassword, const string& newPassword) {
+        if (getPassword() != currentPassword) {
+            return false; // Current password doesn't match
+        }
+        setPassword(newPassword);
+        return true;
+    }
+
     // Virtual destructor for polymorphic classes
     virtual ~User() = default;
 

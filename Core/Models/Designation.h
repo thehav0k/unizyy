@@ -5,23 +5,23 @@
 #ifndef DESIGNATION_H
 #define DESIGNATION_H
 
-enum class AcademicPosition {
+enum class designation {
     Professor,
     AssociateProfessor,
     AssistantProfessor,
     Lecturer
 };
 
-static inline const char* toString(AcademicPosition AP) {
+static inline const char* toString(designation AP) {
     switch (AP) {
-        case AcademicPosition::Professor: return "Professor";
-        case AcademicPosition::AssociateProfessor: return "Associate Professor";
-        case AcademicPosition::AssistantProfessor: return "Assistant Professor";
-        case AcademicPosition::Lecturer: return "Lecturer";
+        case designation::Professor: return "Professor";
+        case designation::AssociateProfessor: return "Associate Professor";
+        case designation::AssistantProfessor: return "Assistant Professor";
+        case designation::Lecturer: return "Lecturer";
         default: return "Unknown Rank";
     }
 }
-static inline const char* toEnum(AcademicPosition AP) {
+static inline const char* toEnum(designation AP) {
     return toString(AP);
 }
 #endif //DESIGNATION_H

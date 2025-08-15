@@ -79,6 +79,34 @@ inline Halls stringToHalls(const string& hallStr) {
     return Halls::Al_Beruni_Hall; // Default
 }
 
+// Check if a hall is for male students (1 for male, 0 for female)
+inline int getHallGender(Halls hall) {
+    switch (hall) {
+        case Halls::Al_Beruni_Hall:
+        case Halls::Meer_Mosharraf_Hossain_Hall:
+        case Halls::Shaheed_Salam_Barkat_Hall:
+        case Halls::AFM_Kamaluddin_Hall:
+        case Halls::Moulana_Bhasani_Hall:
+        case Halls::Bangabondhu_Sheikh_Majibur_Rahman_Hall:
+        case Halls::Jatiya_Kabi_Kazi_Nazrul_Islam_Hall:
+        case Halls::Rabindra_Nath_Tagore_Hall:
+        case Halls::Shahid_Tajuddin_Ahmed_Hall:
+        case Halls::Shahid_Sheikh_Russel_Hall:
+        case Halls::Shaheed_Rafiq_Jabbar_Hall:
+            return 1; // Male halls
+        case Halls::Nawab_Faizunnesa_Hall:
+        case Halls::Fazilatunnesa_Hall:
+        case Halls::Jahanara_Imam_Hall:
+        case Halls::Preetilata_Hall:
+        case Halls::Begum_Khaleda_Zia_Hall:
+        case Halls::Sheikh_Hasina_Hall:
+        case Halls::Bir_Pratik_Taramon_Bibi_Hall:
+            return 0; // Female halls
+        default:
+            return 1; // Default to male
+    }
+}
+
 class Hall {
 private:
     char hallName[100];

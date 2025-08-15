@@ -386,6 +386,16 @@ size_t DatabaseManager::getAdminCount() {
     return cachedAdmins.size();
 }
 
+size_t DatabaseManager::getSystemAdminCount() {
+    size_t count = 0;
+    for (const auto& admin : cachedAdmins) {
+        if (admin.getAdminType() == AdminType::SystemAdmin) {
+            count++;
+        }
+    }
+    return count;
+}
+
 size_t DatabaseManager::getDiningAuthorityCount() {
     return cachedDiningAuthorities.size();
 }

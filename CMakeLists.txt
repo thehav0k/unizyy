@@ -17,11 +17,13 @@ include_directories(System/Interface)
 set(SOURCES
     main.cpp
     Core/Models/date.cpp
+    Core/Models/Notice.cpp
     Core/Database/DatabaseManager.cpp
     System/Users/student.cpp
     System/Users/Admin.cpp
     System/Users/Teacher.cpp
     System/Users/DiningAuthority.cpp
+    System/Users/NoticeManager.cpp
     System/Users/PublicRelationsAdmin.cpp
     System/Authentication/auth.cpp
     System/Modules/Meal/meal.cpp
@@ -31,6 +33,7 @@ set(SOURCES
     System/Interface/AdminInterface.cpp
     System/Interface/TeacherInterface.cpp
     System/Interface/DiningAuthorityInterface.cpp
+    System/Interface/PublicRelationsAdminInterface.cpp
 )
 
 add_executable(unizyy ${SOURCES})

@@ -7,6 +7,7 @@
 
 #include <string>
 using namespace std;
+
 class Date {
 private:
     int day;
@@ -57,14 +58,12 @@ public:
     static void setSimulatedDate(const Date& d);
     static void setSimulatedDateTime(const Date& d, int hour); // set date and hour
     static int getSimulatedHour();
-    static bool isSimulationActive(); // new helper
-    static void resetSimulation();
-    static bool saveSimulationState();
-    static bool loadSimulationState();
-private:
-    static bool simulationActive;
-    static Date simulatedDate;
-    static int simulatedHour; // 0-23 when simulation active
+    static void resetSimulation(); // Reset simulation to current real date/time
+    static bool isSimulationActive(); // Check if simulation is currently active
+
+    // New time methods for MenuInterface
+    static string getCurrentTimeString(); // Returns YYYY-MM-DD HH:MM format (no seconds)
+    static string getCurrentDateTimeString(); // Returns YYYY-MM-DD HH:MM:SS format
 };
 
 #endif // DATE_H

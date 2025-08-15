@@ -6,8 +6,11 @@
 #include "StudentInterface.h"
 #include "../Authentication/auth.h"
 #include "../../Core/Models/date.h"
+#include "../../Core/Database/DatabaseManager.h"
+#include "../../Core/Utils/StringHelper.h"
 #include <iostream>
 #include <limits>
+#include <iomanip>
 
 using namespace std;
 
@@ -20,15 +23,13 @@ void StudentInterface::displayStudentDashboard() {
     clearScreen();
     displayHeader("STUDENT DASHBOARD");
     cout << "Welcome, " << currentStudent->getName() << "!" << endl;
-    cout << "Hall: " << hallToString(currentStudent->getHall()) << endl;
-    cout << "Email: " << currentStudent->getEmail() << endl;
     cout << "Student ID: " << currentStudent->getStudentID() << endl;
+    cout << "Hall: " << hallToString(currentStudent->getHall()) << endl;
     displaySeparator('-', 60);
 }
 
 void StudentInterface::displayMenu() {
     displayStudentDashboard();
-
     cout << "\nSTUDENT MENU OPTIONS:" << endl;
     cout << "0. Simulate Date" << endl;
     cout << "1. Meal Token Operations" << endl;
@@ -139,8 +140,6 @@ void StudentInterface::handleMealTokenOperations() {
 
 void StudentInterface::handleBuyToken() {
     displayHeader("BUY MEAL TOKEN");
-
-    // Display available halls
     displayAvailableHalls();
 
     cout << "\nEnter hall choice: ";
@@ -157,9 +156,7 @@ void StudentInterface::handleBuyToken() {
 
     string selectedHall = halls[hallChoice - 1];
 
-    // Display meal types
     displayMealTypes();
-
     cout << "\nEnter meal type (1-3): ";
     int mealTypeChoice;
     cin >> mealTypeChoice;
@@ -176,7 +173,19 @@ void StudentInterface::handleBuyToken() {
             return;
     }
 
-    // Check if student can buy token
+    displayMealDetailsForPurchase(selectedHall, selectedType);
+
+    cout << "\nDo you want to proceed with purchasing this meal token? (y/n): ";
+    char confirm;
+    cin >> confirm;
+    cin.ignore();
+
+    if (confirm != 'y' && confirm != 'Y') {
+        displayInfo("Token purchase cancelled.");
+        pauseForInput();
+        return;
+    }
+
     Date tomorrow = Date::getTomorrowDate();
     if (!tokenManager->canBuyToken(currentStudent->getEmail(), selectedType, tomorrow)) {
         displayError("You already have a token for this meal type tomorrow!");
@@ -184,10 +193,9 @@ void StudentInterface::handleBuyToken() {
         return;
     }
 
-    // Create sample meal (in real implementation, load from dining authority's meals)
     string mealName = "Sample " + Meal::mealTypeToString(selectedType);
     Meal sampleMeal(mealName, "Delicious meal from " + selectedHall,
-                   selectedType, 15.50, 50, tomorrow.toString(), "12:00", selectedHall);
+                   selectedType, 85.50, 50, tomorrow.toString(), "12:00", selectedHall);
 
     // Buy token
     string tokenNumber = tokenManager->buyToken(currentStudent->getEmail(), selectedHall, selectedType, sampleMeal);
@@ -199,7 +207,7 @@ void StudentInterface::handleBuyToken() {
         cout << "Hall: " << selectedHall << endl;
         cout << "Meal Type: " << Meal::mealTypeToString(selectedType) << endl;
         cout << "Valid For: " << tomorrow.toString() << endl;
-        cout << "Amount Paid: $15.50" << endl;
+        cout << "Amount Paid: ৳85.50 BDT" << endl;
 
         displayInfo("Token details saved in 'Meal Tokens' folder.");
     } else {
@@ -288,6 +296,75 @@ void StudentInterface::displayMealTypes() {
     cout << "3. Dinner (7:00 PM - 10:30 PM)" << endl;
 }
 
+void StudentInterface::displayMealDetailsForPurchase(const string& hallName, MealType mealType) {
+    displayHeader("MEAL DETAILS PREVIEW");
+
+    Date tomorrow = Date::getTomorrowDate();
+
+    // Try to load actual meal data from database
+    vector<Meal> availableMeals = Meal::loadMealsByHall(hallName);
+    vector<Meal> matchingMeals;
+
+    // Filter meals by type and date
+    for (const auto& meal : availableMeals) {
+        if (meal.getMealType() == mealType && meal.getDate() == tomorrow.toString()) {
+            matchingMeals.push_back(meal);
+        }
+    }
+
+    if (!matchingMeals.empty()) {
+        cout << "🍽️  TOMORROW'S " << Meal::mealTypeToString(mealType) << " AT " << hallName << endl;
+        displaySeparator('=', 60);
+
+        const Meal& meal = matchingMeals[0];
+        meal.displayMeal();
+
+    } else {
+        cout << "🍽️  SAMPLE " << Meal::mealTypeToString(mealType) << " AT " << hallName << endl;
+        displaySeparator('=', 60);
+
+        cout << "📋 Meal Details:" << endl;
+        cout << "   Meal Name: Sample " << Meal::mealTypeToString(mealType) << endl;
+        cout << "   Description: Delicious meal from " << hallName << endl;
+
+        // Display sample meal items based on meal type
+        cout << "🥘 Meal Items:" << endl;
+        switch (mealType) {
+            case MealType::BREAKFAST:
+                cout << "   • Paratha/Roti with Butter" << endl;
+                cout << "   • Omelet/Boiled Egg" << endl;
+                cout << "   • Mixed Vegetables" << endl;
+                cout << "   • Tea/Coffee" << endl;
+                cout << "   • Fruits (Seasonal)" << endl;
+                break;
+            case MealType::LUNCH:
+                cout << "   • Steamed Rice" << endl;
+                cout << "   • Fish/Chicken Curry" << endl;
+                cout << "   • Dal (Lentil Soup)" << endl;
+                cout << "   • Mixed Vegetables" << endl;
+                cout << "   • Salad" << endl;
+                break;
+            case MealType::DINNER:
+                cout << "   • Rice/Roti" << endl;
+                cout << "   • Meat/Fish Curry" << endl;
+                cout << "   • Dal" << endl;
+                cout << "   • Vegetables" << endl;
+                cout << "   • Sweet Dish" << endl;
+                break;
+        }
+
+        cout << "💰 Price: ৳85.50 BDT" << endl;
+        cout << "📅 Valid For: " << tomorrow.toString() << endl;
+        cout << "🏛️  Hall: " << hallName << endl;
+        cout << "✅ Availability: Available" << endl;
+        cout << "📦 Quantity: 50+ portions available" << endl;
+
+        displayInfo("Note: This is sample meal information. Actual meals may vary.");
+    }
+
+    displaySeparator('-', 60);
+}
+
 void StudentInterface::handleViewProfile() {
     displayHeader("STUDENT PROFILE");
     currentStudent->display();
@@ -321,20 +398,244 @@ void StudentInterface::handleChangePassword() {
         return;
     }
 
+    if (!StringHelper::validatePassword(newPassword)) {
+        displayError("New password doesn't meet requirements:");
+        cout << "   • At least 6 characters long" << endl;
+        cout << "   • Must contain at least one uppercase letter" << endl;
+        cout << "   • Must contain at least one lowercase letter" << endl;
+        cout << "   • Must contain at least one digit" << endl;
+        pauseForInput();
+        return;
+    }
+
     currentStudent->setPassword(newPassword);
-    displaySuccess("Password changed successfully!");
+
+    if (DatabaseManager::updateStudent(currentStudent->getStudentID(), *currentStudent)) {
+        displaySuccess("Password changed successfully and saved to database!");
+    } else {
+        displayError("Password changed in session but failed to save to database!");
+    }
+
     pauseForInput();
 }
 
 void StudentInterface::handleViewNotices() {
-    displayHeader("NOTICES");
-    displayInfo("Notice viewing functionality will be implemented.");
+    clearScreen();
+    displayHeader("VIEW NOTICES");
+
+    cout << "1. View All Active Notices" << endl;
+    cout << "2. Search Notices" << endl;
+    cout << "3. Filter by Notice Type" << endl;
+    cout << "4. View Notice Details" << endl;
+    cout << "5. Back to Main Menu" << endl;
+
+    int choice;
+    cout << "Select option (1-5): ";
+    cin >> choice;
+    cin.ignore();
+
+    switch (choice) {
+        case 1:
+            viewAllActiveNotices();
+            break;
+        case 2:
+            searchNotices();
+            break;
+        case 3:
+            filterNoticesByType();
+            break;
+        case 4:
+            viewNoticeDetails();
+            break;
+        case 5:
+            return;
+        default:
+            displayError("Invalid choice!");
+            pauseForInput();
+    }
+}
+
+void StudentInterface::viewAllActiveNotices() {
+    clearScreen();
+    displayHeader("ALL ACTIVE NOTICES");
+
+    auto allNotices = Notice::loadFromFile("notices");
+    vector<Notice> activeNotices;
+
+    // Filter for active notices only
+    for (const auto& notice : allNotices) {
+        if (notice.getIsActive()) {
+            activeNotices.push_back(notice);
+        }
+    }
+
+    if (activeNotices.empty()) {
+        displayInfo("No active notices available.");
+        pauseForInput();
+        return;
+    }
+
+    cout << "Found " << activeNotices.size() << " active notice(s):" << endl;
+    displaySeparator('-', 50);
+    displayNoticesList(activeNotices);
     pauseForInput();
 }
 
+void StudentInterface::searchNotices() {
+    clearScreen();
+    displayHeader("SEARCH NOTICES");
+
+    string keyword;
+    cout << "Enter search keyword: ";
+    getline(cin, keyword);
+
+    if (keyword.empty()) {
+        displayError("Search keyword cannot be empty!");
+        pauseForInput();
+        return;
+    }
+
+    auto allNotices = Notice::loadFromFile("notices");
+    vector<Notice> results;
+
+    for (const auto& notice : allNotices) {
+        if (notice.getIsActive() &&
+            (notice.getTitle().find(keyword) != string::npos ||
+             notice.getDescription().find(keyword) != string::npos)) {
+            results.push_back(notice);
+        }
+    }
+
+    if (results.empty()) {
+        displayInfo("No notices found matching '" + keyword + "'.");
+    } else {
+        cout << "Found " << results.size() << " notice(s) matching '" << keyword << "':" << endl;
+        displaySeparator('-', 50);
+        displayNoticesList(results);
+    }
+
+    pauseForInput();
+}
+
+void StudentInterface::filterNoticesByType() {
+    clearScreen();
+    displayHeader("FILTER BY NOTICE TYPE");
+
+    cout << "Select notice type:" << endl;
+    cout << "1. General" << endl;
+    cout << "2. Academic" << endl;
+    cout << "3. Event" << endl;
+    cout << "4. Emergency" << endl;
+    cout << "5. Exam" << endl;
+    cout << "6. Admission" << endl;
+
+    int choice;
+    cout << "Enter choice (1-6): ";
+    cin >> choice;
+    cin.ignore();
+
+    NoticeType selectedType;
+    switch (choice) {
+        case 1: selectedType = NoticeType::GENERAL; break;
+        case 2: selectedType = NoticeType::ACADEMIC; break;
+        case 3: selectedType = NoticeType::EVENT; break;
+        case 4: selectedType = NoticeType::EMERGENCY; break;
+        case 5: selectedType = NoticeType::EXAM; break;
+        case 6: selectedType = NoticeType::ADMISSION; break;
+        default:
+            displayError("Invalid choice!");
+            pauseForInput();
+            return;
+    }
+
+    auto allNotices = Notice::loadFromFile("notices");
+    vector<Notice> filteredNotices;
+
+    for (const auto& notice : allNotices) {
+        if (notice.getIsActive() && notice.getNoticeType() == selectedType) {
+            filteredNotices.push_back(notice);
+        }
+    }
+
+    clearScreen();
+    displayHeader("NOTICES: " + NoticeTypeHelper::toString(selectedType));
+
+    if (filteredNotices.empty()) {
+        displayInfo("No active notices found for this type.");
+    } else {
+        cout << "Found " << filteredNotices.size() << " notice(s) of type " << NoticeTypeHelper::toString(selectedType) << ":" << endl;
+        displaySeparator('-', 50);
+        displayNoticesList(filteredNotices);
+    }
+
+    pauseForInput();
+}
+
+void StudentInterface::viewNoticeDetails() {
+    clearScreen();
+    displayHeader("VIEW NOTICE DETAILS");
+
+    size_t noticeID;
+    cout << "Enter notice ID to view details: ";
+    cin >> noticeID;
+    cin.ignore();
+
+    auto allNotices = Notice::loadFromFile("notices");
+    Notice* selectedNotice = nullptr;
+
+    for (auto& notice : allNotices) {
+        if (notice.getNoticeID() == noticeID && notice.getIsActive()) {
+            selectedNotice = &notice;
+            break;
+        }
+    }
+
+    if (!selectedNotice) {
+        displayError("Notice not found or inactive.");
+        pauseForInput();
+        return;
+    }
+
+    clearScreen();
+    displayHeader("NOTICE DETAILS");
+
+    cout << "Notice ID: " << selectedNotice->getNoticeID() << endl;
+    cout << "Title: " << selectedNotice->getTitle() << endl;
+    cout << "Type: " << selectedNotice->getNoticeTypeString() << endl;
+    cout << "Author: " << selectedNotice->getAuthorName() << endl;
+    cout << "Created: " << selectedNotice->getCreatedDate().toString() << endl;
+    cout << "Target Audience: " << selectedNotice->getTargetAudience() << endl;
+    cout << "Status: " << (selectedNotice->getIsActive() ? "Active" : "Inactive") << endl;
+    displaySeparator('-', 50);
+    cout << "Description:" << endl;
+    cout << selectedNotice->getDescription() << endl;
+
+    pauseForInput();
+}
+
+void StudentInterface::displayNoticesList(const vector<Notice>& notices) {
+    cout << left << setw(5) << "ID"
+         << setw(30) << "Title"
+         << setw(15) << "Type"
+         << setw(15) << "Author"
+         << setw(12) << "Created" << endl;
+    displaySeparator('-', 77);
+
+    for (const auto& notice : notices) {
+        cout << left << setw(5) << notice.getNoticeID()
+             << setw(30) << (notice.getTitle().length() > 28 ?
+                            notice.getTitle().substr(0, 25) + "..." : notice.getTitle())
+             << setw(15) << notice.getNoticeTypeString()
+             << setw(15) << (notice.getAuthorName().length() > 13 ?
+                            notice.getAuthorName().substr(0, 10) + "..." : notice.getAuthorName())
+             << setw(12) << notice.getCreatedDate().toString() << endl;
+    }
+}
+
 void StudentInterface::handleLogout() {
+    displayHeader("LOGOUT");
     if (confirmAction("Are you sure you want to logout?")) {
-        displayInfo("Logged out successfully! ");
+        displaySuccess("Logged out successfully!");
         isRunning = false;
     }
 }

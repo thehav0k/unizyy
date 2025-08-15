@@ -13,17 +13,18 @@
 #include "../../Core/Models/Course.h"
 #include "../../Core/Models/Designation.h"
 #include "../../Core/Models/department.h"
+#include "../../Core/Models/Notice.h"
 #include "../../Core/Database/DatabaseManager.h"
 
 class Teacher: public User {
 private:
     char name[100];        // Changed to char array
     department dept;       // Fixed: use dept consistently
-    AcademicPosition AP;
+    designation AP;
 
 public:
     // Constructors
-    Teacher(const string &email, const string &password, const string &name, const string &department, AcademicPosition rank);
+    Teacher(const string &email, const string &password, const string &name, const string &department, designation rank);
     Teacher();
 
     // Getters and setters
@@ -32,9 +33,9 @@ public:
     void setDepartment(department dept);
     department getDepartment() const;
     string getDepartmentName() const;  // New method for interface compatibility
-    void setRank(AcademicPosition AP);
-    AcademicPosition getRank() const;
-    AcademicPosition getDesignation() const;  // Alias for getRank() for interface compatibility
+    void setRank(designation AP);
+    designation getRank() const;
+    designation getDesignation() const;  // Alias for getRank() for interface compatibility
 
     // Virtual methods
     void display() const override;
@@ -42,6 +43,15 @@ public:
     // Additional methods
     // Grading student
     void gradeStudent(Student&, Course&);
+
+    // Notice management methods
+    Notice createNotice(const string& title, const string& description, NoticeType type) const;
+    Notice createDetailedNotice(const string& title, const string& description, NoticeType type,
+                               const string& targetAudience = "All") const;
+    bool publishNotice(const Notice& notice) const;
+    vector<Notice> getMyPublishedNotices() const;
+    bool updateNotice(size_t noticeID, const Notice& updatedNotice) const;
+    bool withdrawNotice(size_t noticeID) const;
 
     // Static database operations
     static vector<Teacher> loadAllTeachers();
