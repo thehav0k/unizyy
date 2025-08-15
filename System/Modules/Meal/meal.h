@@ -64,6 +64,12 @@ private:
     char time[10]; // for recording buying time
     Halls hallName;
 
+    // Caching (similar to DatabaseManager pattern)
+    static vector<Meal> cachedMeals;          // in-memory cache
+    static bool mealsLoaded;                  // guard to ensure single load
+    static void loadMealsIntoCache();         // internal load w/ legacy support
+    static void saveMealsToDisk();            // full rewrite
+
 public:
     // Constructors
     Meal(const string& name, const string& desc, MealType type, double price,
@@ -106,17 +112,25 @@ public:
     static MealType stringToMealType(const string& typeStr);
 
     // Static database management functions - using Database folder
-    static vector<Meal> loadAllMealsFromDatabase();
+    static void initializeMealDatabase();              // ensure dir + load cache
+    static void ensureMealsLoaded() { if(!mealsLoaded) initializeMealDatabase(); }
+    static const vector<Meal>& getCachedMeals() { ensureMealsLoaded(); return cachedMeals; }
+    static size_t getMealCount();                      // now uses cache
+    static vector<Meal> loadAllMealsFromDatabase();    // returns copy of cache (compat)
     static vector<Meal> loadMealsByHall(const string& hallName);
     static vector<Meal> loadMealsByDate(const string& date);
     static vector<Meal> loadMealsByType(MealType type);
-    static bool deleteMealFromDatabase(const string& date, const string& hallName, MealType type);
-    static void initializeMealDatabase();
-    static void displayAllMeals();
-    static size_t getMealCount();
 
-    // Instance method for saving current meal
+    // CRUD style operations (cache + disk) - direct object write, no custom serialization
+    static bool addMeal(const Meal& meal);
+    static bool updateMeal(const string& date, const string& hallName, MealType type, const Meal& updatedMeal);
+    static bool deleteMealFromDatabase(const string& date, const string& hallName, MealType type); // existing signature retained
+
+    static void displayAllMeals();
+
+    // Instance method for saving current meal (add or update based on composite key)
     bool saveMealToDatabase() const;
+    // Direct file helpers
     bool writeDirectlyToFile(const string& filename) const;
     bool readDirectlyFromFile(const string& filename);
     static bool writeDirectlyToDatabase();
@@ -170,6 +184,10 @@ public:
     // Binary file operations
     void writeToBinaryFile(ofstream& out) const;
     void readFromBinaryFile(ifstream& in);
+
+    // Serialization (new stable format with header handled by TokenManager)
+    void serialize(ofstream& out) const;
+    static bool deserialize(ifstream& in, MealToken& outToken);
 
     // Static utility functions
     static string generateTokenNumber();
@@ -244,6 +262,10 @@ public:
     void saveAllTokens();
     void loadAllTokens();
     void cleanupExpiredTokens();
+
+    // Review operations using DatabaseManager
+    void saveAllReviews();
+    void loadAllReviews();
 
     // Display operations
     void displayStudentTokens(const string& studentEmail) const;

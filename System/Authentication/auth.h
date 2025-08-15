@@ -49,6 +49,12 @@ public:
     static void displayAllUsers();
     void logout();
 
+    // New instant validation helper functions for better UX
+    static string getValidatedEmail();
+    static string getValidatedPassword();
+    static string getValidatedStudentID();
+    static string getValidatedName();
+
 private:
     // Helper methods for user authentication
     Student* authenticateStudent(const string& email, const string& password);

@@ -11,6 +11,7 @@
 #include <sstream>
 #include "../../../Core/Utils/StringHelper.h"
 #include "../../../Core/Database/DatabaseManager.h"
+#include <cstring>
 
 using namespace std;
 
@@ -22,6 +23,110 @@ const string USED_TOKENS_DB = "Database/used_tokens.dat";
 
 // TokenManager static member
 const string TokenManager::TOKEN_FOLDER = "Meal Tokens/";
+
+// =============================================================================
+// MEAL CLASS CACHING STATIC MEMBERS
+// =============================================================================
+vector<Meal> Meal::cachedMeals; // static cache
+bool Meal::mealsLoaded = false; // guard flag
+
+// Internal load helper using DatabaseManager
+void Meal::loadMealsIntoCache() {
+    if (mealsLoaded) return;
+    cachedMeals.clear();
+
+    // Use DatabaseManager instead of direct binary reading
+    DatabaseManager::loadObjects(cachedMeals, "meals");
+    mealsLoaded = true;
+}
+
+// Write cache to disk using DatabaseManager
+void Meal::saveMealsToDisk() {
+    DatabaseManager::saveObjects(cachedMeals, "meals");
+}
+
+void Meal::initializeMealDatabase() {
+    if (!mealsLoaded) {
+        loadMealsIntoCache();
+    }
+}
+
+size_t Meal::getMealCount() { ensureMealsLoaded(); return cachedMeals.size(); }
+
+vector<Meal> Meal::loadAllMealsFromDatabase() { ensureMealsLoaded(); return cachedMeals; }
+
+vector<Meal> Meal::loadMealsByHall(const string& hall) {
+    ensureMealsLoaded();
+    vector<Meal> out;
+    for (const auto &m : cachedMeals) if (m.getHallName() == hall) out.push_back(m);
+    return out;
+}
+
+vector<Meal> Meal::loadMealsByDate(const string& dateStr) {
+    ensureMealsLoaded();
+    vector<Meal> out;
+    for (const auto &m : cachedMeals) if (m.getDate() == dateStr) out.push_back(m);
+    return out;
+}
+
+vector<Meal> Meal::loadMealsByType(MealType type) {
+    ensureMealsLoaded();
+    vector<Meal> out;
+    for (const auto &m : cachedMeals) if (m.getMealType() == type) out.push_back(m);
+    return out;
+}
+
+bool Meal::addMeal(const Meal &meal) {
+    ensureMealsLoaded();
+    // Check for existing meal with same key
+    for (auto &m : cachedMeals) {
+        if (m.getDate() == meal.getDate() && m.getHallName() == meal.getHallName() && m.getMealType() == meal.getMealType()) {
+            m = meal;
+            saveMealsToDisk();
+            return true;
+        }
+    }
+    cachedMeals.push_back(meal);
+    saveMealsToDisk();
+    return true;
+}
+
+bool Meal::updateMeal(const string &dateStr, const string &hallName, MealType type, const Meal &updatedMeal) {
+    ensureMealsLoaded();
+    for (auto &m : cachedMeals) {
+        if (m.getDate() == dateStr && m.getHallName() == hallName && m.getMealType() == type) {
+            m = updatedMeal;
+            saveMealsToDisk();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Meal::deleteMealFromDatabase(const string& dateStr, const string& hallStr, MealType type) {
+    ensureMealsLoaded();
+    size_t before = cachedMeals.size();
+    cachedMeals.erase(remove_if(cachedMeals.begin(), cachedMeals.end(), [&](const Meal &m){
+        return m.getDate() == dateStr && m.getHallName() == hallStr && m.getMealType() == type;
+    }), cachedMeals.end());
+    if (cachedMeals.size() == before) return false;
+    saveMealsToDisk();
+    return true;
+}
+
+void Meal::displayAllMeals() {
+    ensureMealsLoaded();
+    if (cachedMeals.empty()) {
+        cout << "No meals in database." << endl;
+        return;
+    }
+    for (const auto &m : cachedMeals) {
+        m.displayMeal();
+        cout << "---" << endl;
+    }
+}
+
+bool Meal::saveMealToDatabase() const { return addMeal(*this); }
 
 // =============================================================================
 // MEAL CLASS IMPLEMENTATION
@@ -119,7 +224,7 @@ void Meal::displayMeal() const {
     cout << "Meal: " << getMealName() << endl;
     cout << "Description: " << getDescription() << endl;
     cout << "Type: " << mealTypeToString(mealType) << endl;
-    cout << "Price: $" << fixed << setprecision(2) << price << endl;
+    cout << "Price: BDT. " << fixed << setprecision(2) << price << endl;
     cout << "Available Quantity: " << availableQuantity << endl;
     cout << "Date: " << date << endl;
     cout << "Time: " << time << endl;
@@ -259,6 +364,16 @@ string MealReview::ratingToString(MealRating rating) {
     }
 }
 
+void MealReview::displayReview() const {
+    cout << "Student: " << getStudentEmail() << endl;
+    cout << "Token: " << getTokenNumber() << endl;
+    cout << "Meal: " << getMealName() << endl;
+    cout << "Rating: " << ratingToString(rating) << endl;
+    cout << "Comment: " << getComment() << endl;
+    cout << "Date: " << getReviewDate() << endl;
+    cout << "Hall: " << getHallName() << endl;
+}
+
 // =============================================================================
 // TOKEN MANAGER CLASS IMPLEMENTATION
 // =============================================================================
@@ -266,6 +381,7 @@ string MealReview::ratingToString(MealRating rating) {
 TokenManager::TokenManager() {
     createTokenFolder();
     loadAllTokens();
+    loadAllReviews();
 }
 
 string TokenManager::buyToken(const string& studentEmail, const string& hallName,
@@ -322,9 +438,13 @@ bool TokenManager::addReview(const string& studentEmail, const string& tokenNumb
             // Use token meal name if available (stored in token.getMealName())
             MealReview review(studentEmail, tokenNumber, token.getMealName().empty()?"Meal":token.getMealName(), rating, comment,
                               today.toString(), token.getHallName());
+
             reviews.push_back(review);
             token.markAsReviewed();
-            saveAllTokens(); // persist reviewed status
+
+            // Save using DatabaseManager
+            saveAllTokens();
+            saveAllReviews();
             return true;
         }
     }
@@ -376,35 +496,26 @@ void TokenManager::createTokenFolder() {
     filesystem::create_directories(TOKEN_FOLDER);
 }
 
+// Replace custom serialization with DatabaseManager calls
 void TokenManager::saveAllTokens() {
-    filesystem::create_directories("Database");
-    ofstream outActive(ACTIVE_TOKENS_DB, ios::binary | ios::trunc);
-    for (const auto& t : activeTokens) outActive.write(reinterpret_cast<const char*>(&t), sizeof(MealToken));
-    ofstream outUsed(USED_TOKENS_DB, ios::binary | ios::trunc);
-    for (const auto& t : usedTokens) outUsed.write(reinterpret_cast<const char*>(&t), sizeof(MealToken));
+    DatabaseManager::saveObjects(activeTokens, "active_tokens");
+    DatabaseManager::saveObjects(usedTokens, "used_tokens");
 }
 
 void TokenManager::loadAllTokens() {
     activeTokens.clear();
     usedTokens.clear();
-    auto loadFile = [&](const string& path, vector<MealToken>& target){
-        ifstream in(path, ios::binary);
-        if (!in.is_open()) return;
-        in.seekg(0, ios::end);
-        streampos size = in.tellg();
-        if (size < 0) return; // unexpected
-        if (size % static_cast<streampos>(sizeof(MealToken)) != 0) {
-            in.close();
-            // Incompatible old format -> truncate file
-            ofstream trunc(path, ios::trunc);
-            return;
-        }
-        in.seekg(0, ios::beg);
-        MealToken temp;
-        while (in.read(reinterpret_cast<char*>(&temp), sizeof(MealToken))) target.push_back(temp);
-    };
-    loadFile(ACTIVE_TOKENS_DB, activeTokens);
-    loadFile(USED_TOKENS_DB, usedTokens);
+    DatabaseManager::loadObjects(activeTokens, "active_tokens");
+    DatabaseManager::loadObjects(usedTokens, "used_tokens");
+}
+
+void TokenManager::saveAllReviews() {
+    DatabaseManager::saveObjects(reviews, "meal_reviews");
+}
+
+void TokenManager::loadAllReviews() {
+    reviews.clear();
+    DatabaseManager::loadObjects(reviews, "meal_reviews");
 }
 
 // =============================================================================
@@ -524,113 +635,9 @@ void MealToken::saveToFile(const string& folderPath) const {
     }
 }
 
-void MealReview::displayReview() const {
-    cout << "Student: " << getStudentEmail() << endl;
-    cout << "Token: " << getTokenNumber() << endl;
-    cout << "Meal: " << getMealName() << endl;
-    cout << "Rating: " << ratingToString(rating) << " (" << static_cast<int>(rating) << "/5)" << endl;
-    cout << "Comment: " << getComment() << endl;
-    cout << "Review Date: " << getReviewDate() << endl;
-    cout << "Hall: " << getHallName() << endl;
-}
-
 // =============================================================================
-// PERSISTENCE IMPLEMENTATION FOR MEAL
+// PERSISTENCE IMPLEMENTATION FOR MEAL (Binary helpers only; cache handles load/save)
 // =============================================================================
-
-// Helper: load all meals from binary file
-vector<Meal> Meal::loadAllMealsFromDatabase() {
-    vector<Meal> meals;
-    ifstream in(MEALS_DB, ios::binary);
-    if (!in.is_open()) return meals; // no file yet
-    Meal temp;
-    while (in.read(reinterpret_cast<char*>(&temp), sizeof(Meal))) {
-        meals.push_back(temp);
-    }
-    return meals;
-}
-
-size_t Meal::getMealCount() { return loadAllMealsFromDatabase().size(); }
-
-void Meal::displayAllMeals() {
-    auto meals = loadAllMealsFromDatabase();
-    if (meals.empty()) {
-        cout << "No meals in database." << endl;
-        return;
-    }
-    for (const auto& m : meals) {
-        m.displayMeal();
-        cout << "---" << endl;
-    }
-}
-
-void Meal::initializeMealDatabase() {
-    // Ensure directory exists
-    filesystem::create_directories("Database");
-    // Create file if not present
-    if (!filesystem::exists(MEALS_DB)) {
-        ofstream out(MEALS_DB, ios::binary); // empty file
-    }
-}
-
-// Filter helpers
-vector<Meal> Meal::loadMealsByHall(const string& hall) {
-    vector<Meal> out;
-    for (const auto& m : loadAllMealsFromDatabase()) {
-        if (m.getHallName() == hall) out.push_back(m);
-    }
-    return out;
-}
-
-vector<Meal> Meal::loadMealsByDate(const string& dateStr) {
-    vector<Meal> out;
-    for (const auto& m : loadAllMealsFromDatabase()) {
-        if (m.getDate() == dateStr) out.push_back(m);
-    }
-    return out;
-}
-
-vector<Meal> Meal::loadMealsByType(MealType type) {
-    vector<Meal> out;
-    for (const auto& m : loadAllMealsFromDatabase()) {
-        if (m.getMealType() == type) out.push_back(m);
-    }
-    return out;
-}
-
-bool Meal::deleteMealFromDatabase(const string& dateStr, const string& hallStr, MealType type) {
-    auto meals = loadAllMealsFromDatabase();
-    size_t before = meals.size();
-    meals.erase(remove_if(meals.begin(), meals.end(), [&](const Meal& m){
-        return m.getDate() == dateStr && m.getHallName() == hallStr && m.getMealType() == type;
-    }), meals.end());
-    if (meals.size() == before) return false; // nothing removed
-    ofstream out(MEALS_DB, ios::binary | ios::trunc);
-    for (const auto& m : meals) {
-        out.write(reinterpret_cast<const char*>(&m), sizeof(Meal));
-    }
-    return true;
-}
-
-bool Meal::saveMealToDatabase() const {
-    auto meals = loadAllMealsFromDatabase();
-    bool updated = false;
-    string thisName = getMealName();
-    for (auto& m : meals) {
-        if (m.getMealName() == thisName && m.getDate() == getDate() && m.getHallName() == getHallName() && m.getMealType() == getMealType()) {
-            m = *this;
-            updated = true;
-            break;
-        }
-    }
-    if (!updated) meals.push_back(*this);
-    ofstream out(MEALS_DB, ios::binary | ios::trunc);
-    if (!out.is_open()) return false;
-    for (const auto& m : meals) {
-        out.write(reinterpret_cast<const char*>(&m), sizeof(Meal));
-    }
-    return true;
-}
 
 // Binary helpers (object-level)
 void Meal::writeToBinaryFile(ofstream& out) const { out.write(reinterpret_cast<const char*>(this), sizeof(Meal)); }
@@ -649,14 +656,108 @@ bool Meal::readDirectlyFromFile(const string& filename) {
     return static_cast<bool>(in.read(reinterpret_cast<char*>(this), sizeof(Meal)));
 }
 
-bool Meal::writeDirectlyToDatabase() { return false; }
-vector<Meal> Meal::loadDirectlyFromDatabase() { return loadAllMealsFromDatabase(); }
+bool Meal::writeDirectlyToDatabase() { saveMealsToDisk(); return true; }
+vector<Meal> Meal::loadDirectlyFromDatabase() { ensureMealsLoaded(); return cachedMeals; }
 
 // Expiration check (assumes date string is DD-MM-YYYY)
 bool Meal::isExpired() const {
     Date mealDate(getDate());
     Date today = Date::getCurrentDate();
     return mealDate < today;
+}
+
+// =============================================================================
+// MealReview Additional Binary Helpers (not heavily used yet)
+// =============================================================================
+void MealReview::writeToBinaryFile(ofstream& out) const { out.write(reinterpret_cast<const char*>(this), sizeof(MealReview)); }
+void MealReview::readFromBinaryFile(ifstream& in) { in.read(reinterpret_cast<char*>(this), sizeof(MealReview)); }
+
+// =============================================================================
+// MealToken Binary File Operations - FIXED TO USE PRIMITIVE TYPES
+// =============================================================================
+void MealToken::writeToBinaryFile(ofstream& out) const {
+    // Write char arrays directly (already primitive)
+    out.write(tokenNumber, sizeof(tokenNumber));
+    out.write(studentEmail, sizeof(studentEmail));
+    out.write(mealName, sizeof(mealName));
+
+    // Write enums as integers (primitive)
+    int mealTypeInt = static_cast<int>(mealType);
+    int hallNameInt = static_cast<int>(hallName);
+    int statusInt = static_cast<int>(status);
+    out.write(reinterpret_cast<const char*>(&mealTypeInt), sizeof(mealTypeInt));
+    out.write(reinterpret_cast<const char*>(&hallNameInt), sizeof(hallNameInt));
+    out.write(reinterpret_cast<const char*>(&statusInt), sizeof(statusInt));
+
+    // Write double as primitive
+    out.write(reinterpret_cast<const char*>(&paidAmount), sizeof(paidAmount));
+
+    // Convert Date objects to strings and write as char arrays
+    char purchaseDateStr[12];
+    char validDateStr[12];
+    StringHelper::stringToCharArray(purchaseDate.toString(), purchaseDateStr, sizeof(purchaseDateStr));
+    StringHelper::stringToCharArray(validDate.toString(), validDateStr, sizeof(validDateStr));
+    out.write(purchaseDateStr, sizeof(purchaseDateStr));
+    out.write(validDateStr, sizeof(validDateStr));
+
+    // Write char array directly
+    out.write(purchaseTime, sizeof(purchaseTime));
+}
+
+void MealToken::readFromBinaryFile(ifstream& in) {
+    // Read char arrays directly
+    in.read(tokenNumber, sizeof(tokenNumber));
+    in.read(studentEmail, sizeof(studentEmail));
+    in.read(mealName, sizeof(mealName));
+
+    // Read enums as integers and convert back
+    int mealTypeInt, hallNameInt, statusInt;
+    in.read(reinterpret_cast<char*>(&mealTypeInt), sizeof(mealTypeInt));
+    in.read(reinterpret_cast<char*>(&hallNameInt), sizeof(hallNameInt));
+    in.read(reinterpret_cast<char*>(&statusInt), sizeof(statusInt));
+    mealType = static_cast<MealType>(mealTypeInt);
+    hallName = static_cast<Halls>(hallNameInt);
+    status = static_cast<TokenStatus>(statusInt);
+
+    // Read double as primitive
+    in.read(reinterpret_cast<char*>(&paidAmount), sizeof(paidAmount));
+
+    // Read date strings and convert back to Date objects
+    char purchaseDateStr[12];
+    char validDateStr[12];
+    in.read(purchaseDateStr, sizeof(purchaseDateStr));
+    in.read(validDateStr, sizeof(validDateStr));
+    purchaseDate = Date(StringHelper::charArrayToString(purchaseDateStr));
+    validDate = Date(StringHelper::charArrayToString(validDateStr));
+
+    // Read char array directly
+    in.read(purchaseTime, sizeof(purchaseTime));
+}
+
+// =============================================================================
+// TokenManager review retrieval/display helpers
+// =============================================================================
+vector<MealReview> TokenManager::getMealReviews(const string& mealName) const {
+    vector<MealReview> result;
+    for (const auto &r : reviews) if (r.getMealName() == mealName) result.push_back(r);
+    return result;
+}
+
+vector<MealReview> TokenManager::getHallReviews(const string& hallName) const {
+    vector<MealReview> result;
+    for (const auto &r : reviews) if (r.getHallName() == hallName) result.push_back(r);
+    return result;
+}
+
+void TokenManager::displayAllReviews() const {
+    if (reviews.empty()) { cout << "No reviews available." << endl; return; }
+    cout << "\n=== ALL MEAL REVIEWS ===" << endl;
+    for (const auto &r : reviews) { r.displayReview(); cout << "---" << endl; }
+}
+
+bool TokenManager::hasReviewedToken(const string& tokenNumber) const {
+    for (const auto &r : reviews) if (r.getTokenNumber() == tokenNumber) return true;
+    return false;
 }
 
 // =============================================================================

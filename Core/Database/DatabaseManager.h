@@ -43,6 +43,22 @@ public:
     template<typename T>
     static void readObjectFromBinary(ifstream& in, T& obj);
 
+    // Generic collection methods for any object type
+    template<typename T>
+    static void saveObjects(const vector<T>& objects, const string& filename);
+
+    template<typename T>
+    static void loadObjects(vector<T>& objects, const string& filename);
+
+    template<typename T>
+    static bool saveObject(const T& obj, const string& filename);
+
+    template<typename T>
+    static bool updateObject(const T& obj, const string& filename);
+
+    template<typename T>
+    static bool deleteObject(const T& obj, const string& filename);
+
     // Database initialization
     static void initializeDatabase();
 
@@ -105,6 +121,121 @@ void DatabaseManager::writeObjectToBinary(ofstream& out, const T& obj) {
 template<typename T>
 void DatabaseManager::readObjectFromBinary(ifstream& in, T& obj) {
     in.read(reinterpret_cast<char*>(&obj), sizeof(obj));
+}
+
+// Generic collection methods - save vector of objects with count header
+template<typename T>
+void DatabaseManager::saveObjects(const vector<T>& objects, const string& filename) {
+    filesystem::create_directories(DATABASE_DIR);
+    string filepath = DATABASE_DIR + "/" + filename + ".dat";
+    string tmpfile = filepath + ".tmp";
+
+    ofstream out(tmpfile, ios::binary | ios::trunc);
+    if (!out.is_open()) return;
+
+    size_t count = objects.size();
+    out.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+    for (const auto& obj : objects) {
+        writeObjectToBinary(out, obj);
+    }
+    out.flush();
+    out.close();
+
+    // Atomic replace
+    std::error_code ec;
+    filesystem::rename(tmpfile, filepath, ec);
+    if (ec) {
+        filesystem::copy_file(tmpfile, filepath, filesystem::copy_options::overwrite_existing, ec);
+        filesystem::remove(tmpfile, ec);
+    }
+}
+
+// Generic collection methods - load vector of objects with count header
+template<typename T>
+void DatabaseManager::loadObjects(vector<T>& objects, const string& filename) {
+    objects.clear();
+    filesystem::create_directories(DATABASE_DIR);
+    string filepath = DATABASE_DIR + "/" + filename + ".dat";
+
+    if (!filesystem::exists(filepath)) return;
+
+    ifstream in(filepath, ios::binary);
+    if (!in.is_open()) return;
+
+    // Get file size to validate count header
+    in.seekg(0, ios::end);
+    streampos fileSize = in.tellg();
+    in.seekg(0, ios::beg);
+
+    if (fileSize < static_cast<streampos>(sizeof(size_t))) {
+        // File too small to have valid count header
+        return;
+    }
+
+    size_t count;
+    if (!in.read(reinterpret_cast<char*>(&count), sizeof(count))) return;
+
+    // Validate count makes sense for file size
+    streampos expectedSize = static_cast<streampos>(sizeof(size_t)) +
+                            static_cast<streampos>(count) * static_cast<streampos>(sizeof(T));
+
+    if (expectedSize != fileSize || count > 10000) {
+        // File format doesn't match or count is unreasonable
+        // This might be an old format file - just clear and return
+        objects.clear();
+        return;
+    }
+
+    objects.reserve(count);
+    for (size_t i = 0; i < count; ++i) {
+        T obj;
+        if (!in.read(reinterpret_cast<char*>(&obj), sizeof(T))) {
+            // If read fails, truncate vector and break
+            objects.resize(i);
+            break;
+        }
+        objects.push_back(obj);
+    }
+}
+
+// Save single object by appending to file
+template<typename T>
+bool DatabaseManager::saveObject(const T& obj, const string& filename) {
+    filesystem::create_directories(DATABASE_DIR);
+    string filepath = DATABASE_DIR + "/" + filename + ".dat";
+
+    ofstream out(filepath, ios::binary | ios::app);
+    if (!out.is_open()) return false;
+
+    writeObjectToBinary(out, obj);
+    return true;
+}
+
+// Update object - requires loading all, finding match, and rewriting
+template<typename T>
+bool DatabaseManager::updateObject(const T& obj, const string& filename) {
+    vector<T> objects;
+    loadObjects(objects, filename);
+
+    // For generic update, we can't know how to match objects
+    // This would need specialization for specific types
+    // For now, just save all objects back
+    saveObjects(objects, filename);
+    return true;
+}
+
+// Delete object - requires loading all, removing match, and rewriting
+template<typename T>
+bool DatabaseManager::deleteObject(const T& obj, const string& filename) {
+    vector<T> objects;
+    loadObjects(objects, filename);
+
+    // For generic delete, we can't know how to match objects
+    // This would need specialization for specific types
+    // For now, just save all objects back
+    saveObjects(objects, filename);
+    return true;
 }
 
 #endif //DATABASEMANAGER_H

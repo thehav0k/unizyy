@@ -24,14 +24,14 @@ void MainMenu::displayWelcomeBanner() {
     cout << "🎓 Comprehensive University Management Solution" << endl;
     cout << "👥 Student | 👨‍🏫 Teacher | 🔧 Admin | 🍽️  Dining Management" << endl;
     cout << "📅 Current Date: " << getCurrentTimeString() << endl;
-    cout << "═══════════════════════════════════════════════════════════" << endl;
+    cout << "════════════════════════════════════════════��══════════════" << endl;
 }
 
 void MainMenu::displayMenu() {
     displayWelcomeBanner();
 
     cout << "\n🚀 MAIN MENU OPTIONS:" << endl;
-    cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << endl;
+    cout << "━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << endl;
     cout << "⏰ 0. Simulate Date & Time" << endl;
     cout << "🔐 1. Login to System" << endl;
     cout << "📝 2. Register New Account" << endl;
@@ -182,23 +182,61 @@ void MainMenu::handleRegistration() {
     if (userType >= 1 && userType <= 4) {
         bool success = false;
         switch (userType) {
-            case 1: { // Student registration
-                string studentID, name, email, password;
-                int age, classRoll, batch, hallChoice, deptChoice;
-                cout << "Enter Student ID: "; getline(cin, studentID);
-                cout << "Enter Name: "; getline(cin, name);
-                cout << "Enter Email: "; getline(cin, email);
-                cout << "Enter Age: "; cin >> age;
-                cout << "Enter Class Roll: "; cin >> classRoll;
-                cout << "Select Department (1:CSE,2:Physics,3:Mathematics): "; cin >> deptChoice;
-                cout << "Enter Batch: "; cin >> batch;
-                cout << "Select Hall (1:Al Beruni,2:Meer Mosharraf,3:Shaheed Salam Barkat,4:AFM Kamaluddin,5:Moulana Bhasani,6:Bangabondhu Sheikh Majibur Rahman): "; cin >> hallChoice;
-                cin.ignore();
-                cout << "Enter Password: "; getline(cin, password);
+            case 1: { // Student registration with instant validation
+                cout << "\n=== STUDENT REGISTRATION ===" << endl;
+                cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
+
+                // Use instant validation functions
+                string studentID = Auth::getValidatedStudentID();
+                string name = Auth::getValidatedName();
+                string email = Auth::getValidatedEmail();
+                string password = Auth::getValidatedPassword();
+
+                // Get other required fields with basic validation
+                int age;
+                while (true) {
+                    cout << "Enter Age (16-35): ";
+                    cin >> age;
+                    if (age >= 16 && age <= 35) {
+                        cout << "✅ Age is valid!" << endl;
+                        break;
+                    }
+                    cout << "❌ Age must be between 16 and 35. Please try again." << endl;
+                }
+
+                int classRoll;
+                cout << "Enter Class Roll: ";
+                cin >> classRoll;
+
+                int deptChoice;
+                cout << "Select Department:" << endl;
+                cout << "1. Computer Science and Engineering" << endl;
+                cout << "2. Physics" << endl;
+                cout << "3. Mathematics" << endl;
+                cout << "Enter choice (1-3): ";
+                cin >> deptChoice;
+
+                int batch;
+                cout << "Enter Batch: ";
+                cin >> batch;
+
+                int hallChoice;
+                cout << "Select Hall:" << endl;
+                cout << "1. Al Beruni Hall" << endl;
+                cout << "2. Meer Mosharraf Hossain Hall" << endl;
+                cout << "3. Shaheed Salam Barkat Hall" << endl;
+                cout << "4. AFM Kamaluddin Hall" << endl;
+                cout << "5. Moulana Bhasani Hall" << endl;
+                cout << "6. Bangabondhu Sheikh Majibur Rahman Hall" << endl;
+                cout << "Enter choice (1-6): ";
+                cin >> hallChoice;
+                cin.ignore(); // Clear the newline
+
                 // Map dept and hall
                 department dept = department::Department_of_Computer_Science_and_Engineering;
                 if (deptChoice == 2) dept = department::Department_of_physics;
                 else if (deptChoice == 3) dept = department::Department_of_Mathematics;
+
                 Halls hall = Halls::Al_Beruni_Hall;
                 switch (hallChoice) {
                     case 2: hall = Halls::Meer_Mosharraf_Hossain_Hall; break;
@@ -207,49 +245,87 @@ void MainMenu::handleRegistration() {
                     case 5: hall = Halls::Moulana_Bhasani_Hall; break;
                     case 6: hall = Halls::Bangabondhu_Sheikh_Majibur_Rahman_Hall; break;
                 }
+
                 success = authSystem->registerStudent(studentID, name, email, age, classRoll, dept, batch, hall, password);
                 break;
             }
-            case 2: { // Teacher registration
-                string name, email, dept, password;
+            case 2: { // Teacher registration with instant validation
+                cout << "\n=== TEACHER REGISTRATION ===" << endl;
+                cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
+
+                // Use instant validation functions
+                string name = Auth::getValidatedName();
+                string email = Auth::getValidatedEmail();
+                string password = Auth::getValidatedPassword();
+
+                string dept;
+                cout << "Enter Department: ";
+                getline(cin, dept);
+
                 int rankChoice;
-                cout << "Enter Name: "; getline(cin, name);
-                cout << "Enter Email: "; getline(cin, email);
-                cout << "Enter Department: "; getline(cin, dept);
-                cout << "Select Rank (1:Professor,2:AssociateProfessor,3:AssistantProfessor,4:Lecturer): "; cin >> rankChoice;
+                cout << "Select Academic Rank:" << endl;
+                cout << "1. Professor" << endl;
+                cout << "2. Associate Professor" << endl;
+                cout << "3. Assistant Professor" << endl;
+                cout << "4. Lecturer" << endl;
+                cout << "Enter choice (1-4): ";
+                cin >> rankChoice;
                 cin.ignore();
-                cout << "Enter Password: "; getline(cin, password);
+
                 AcademicPosition rank = AcademicPosition::Professor;
                 if (rankChoice == 2) rank = AcademicPosition::AssociateProfessor;
                 else if (rankChoice == 3) rank = AcademicPosition::AssistantProfessor;
                 else if (rankChoice == 4) rank = AcademicPosition::Lecturer;
+
                 success = authSystem->registerTeacher(name, email, dept, rank, password);
                 break;
             }
-            case 3: { // Admin registration
-                string name, email, password;
+            case 3: { // Admin registration with instant validation
+                cout << "\n=== ADMIN REGISTRATION ===" << endl;
+                cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
+
+                // Use instant validation functions
+                string name = Auth::getValidatedName();
+                string email = Auth::getValidatedEmail();
+                string password = Auth::getValidatedPassword();
+
                 int typeChoice;
-                cout << "Enter Name: "; getline(cin, name);
-                cout << "Enter Email: "; getline(cin, email);
-                cout << "Select Admin Type (1:Transport,2:HallDining,3:PublicRelations,4:Department,5:SystemAdmin): "; cin >> typeChoice;
+                cout << "Select Admin Type:" << endl;
+                cout << "1. Transport" << endl;
+                cout << "2. Hall Dining" << endl;
+                cout << "3. Public Relations" << endl;
+                cout << "4. Department" << endl;
+                cout << "5. System Admin" << endl;
+                cout << "Enter choice (1-5): ";
+                cin >> typeChoice;
                 cin.ignore();
-                cout << "Enter Password: "; getline(cin, password);
+
                 AdminType adminType = AdminType::Transport;
                 if (typeChoice == 2) adminType = AdminType::HallDining;
                 else if (typeChoice == 3) adminType = AdminType::PublicRelations;
                 else if (typeChoice == 4) adminType = AdminType::Department;
                 else if (typeChoice == 5) adminType = AdminType::SystemAdmin;
+
                 success = authSystem->registerAdmin(name, email, adminType, password);
                 break;
             }
-            case 4: { // Dining Authority registration
-                string name, email, hallName, designation, phone, password;
-                cout << "Enter Name: "; getline(cin, name);
-                cout << "Enter Email: "; getline(cin, email);
-                cout << "Enter Assigned Hall Name: "; getline(cin, hallName);
-                cout << "Enter Designation: "; getline(cin, designation);
-                cout << "Enter Phone Number: "; getline(cin, phone);
-                cout << "Enter Password: "; getline(cin, password);
+            case 4: { // Dining Authority registration with instant validation
+                cout << "\n=== DINING AUTHORITY REGISTRATION ===" << endl;
+                cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
+
+                // Use instant validation functions
+                string name = Auth::getValidatedName();
+                string email = Auth::getValidatedEmail();
+                string password = Auth::getValidatedPassword();
+
+                string hallName, designation, phone;
+                cout << "Enter Assigned Hall Name: ";
+                getline(cin, hallName);
+                cout << "Enter Designation: ";
+                getline(cin, designation);
+                cout << "Enter Phone Number: ";
+                getline(cin, phone);
+
                 success = authSystem->registerDiningAuthority(name, email, hallName, designation, phone, password);
                 break;
             }
@@ -279,29 +355,21 @@ void MainMenu::handleAbout() {
     cout << "   • Buy tokens day before meals" << endl;
     cout << "   • Maximum 1 token per meal type per day" << endl;
     cout << "   • Time-based validation system" << endl;
-    cout << "   • Review system after meals" << endl;
-    cout << "   • Automatic token expiration" << endl;
 
-    cout << "\nSupported Halls:" << endl;
-    cout << "   • Al Beruni Hall" << endl;
-    cout << "   • Meer Mosharraf Hossain Hall" << endl;
-    cout << "   • Shaheed Salam Barkat Hall" << endl;
-    cout << "   • And many more..." << endl;
-
-    cout << "\nDeveloped by: Md. Asif Khan" << endl;
-    cout << "Version: 1.0.0 (August 2025)" << endl;
+    cout << "\nNew Registration Experience:" << endl;
+    cout << "   • ✅ Instant email validation feedback" << endl;
+    cout << "   • ✅ Real-time password requirement checking" << endl;
+    cout << "   • ✅ Immediate duplicate email/ID detection" << endl;
+    cout << "   • ✅ Clear error messages and requirements" << endl;
 
     pauseForInput();
 }
 
 void MainMenu::handleExit() {
-    displayHeader("EXIT CONFIRMATION");
-
-    if (confirmAction("Are you sure you want to exit?")) {
-        displayInfo("Thank you for using University Management System!");
-        cout << "Have a great day!" << endl;
-        isRunning = false;
-    }
+    displayHeader("EXIT SYSTEM");
+    cout << "Thank you for using the University Management System!" << endl;
+    cout << "Have a great day! 👋" << endl;
+    isRunning = false;
 }
 
 void MainMenu::run() {

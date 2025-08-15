@@ -36,6 +36,118 @@ bool isValidPassword(const string& password) {
     return StringHelper::validatePassword(password);
 }
 
+// New instant validation helper functions
+string getValidatedEmail() {
+    string email;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Email (@juniv.edu): ";
+        getline(cin, email);
+
+        if (email.empty()) {
+            cout << "❌ Email cannot be empty. Please try again." << endl;
+            continue;
+        }
+
+        if (!StringHelper::validateEmail(email)) {
+            cout << "❌ Invalid email format. Requirements:" << endl;
+            cout << "   • Must end with @juniv.edu" << endl;
+            cout << "   • Must have at least 4 characters before @" << endl;
+            cout << "   • Example: john1234@juniv.edu" << endl;
+            continue;
+        }
+
+        if (DatabaseManager::emailExists(email)) {
+            cout << "❌ This email is already registered. Please use a different email." << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Email is valid and available!" << endl;
+    }
+
+    return email;
+}
+
+string getValidatedPassword() {
+    string password;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Password: ";
+        getline(cin, password);
+
+        if (password.empty()) {
+            cout << "❌ Password cannot be empty. Please try again." << endl;
+            continue;
+        }
+
+        if (!StringHelper::validatePassword(password)) {
+            cout << "❌ Password does not meet requirements:" << endl;
+            cout << "   • At least 6 characters long" << endl;
+            cout << "   • Must contain at least one uppercase letter" << endl;
+            cout << "   • Must contain at least one lowercase letter" << endl;
+            cout << "   • Must contain at least one digit" << endl;
+            cout << "   • Example: MyPass123" << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Password meets all requirements!" << endl;
+    }
+
+    return password;
+}
+
+string getValidatedStudentID() {
+    string studentID;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Student ID: ";
+        getline(cin, studentID);
+
+        if (studentID.empty()) {
+            cout << "❌ Student ID cannot be empty. Please try again." << endl;
+            continue;
+        }
+
+        if (DatabaseManager::studentIDExists(studentID)) {
+            cout << "❌ This Student ID is already registered. Please use a different ID." << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Student ID is available!" << endl;
+    }
+
+    return studentID;
+}
+
+string getValidatedName() {
+    string name;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Name: ";
+        getline(cin, name);
+
+        if (!StringHelper::isValidString(name)) {
+            cout << "❌ Invalid name. Requirements:" << endl;
+            cout << "   • Cannot be empty" << endl;
+            cout << "   • Cannot start with a space" << endl;
+            cout << "   • Must contain at least one non-space character" << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Name is valid!" << endl;
+    }
+
+    return name;
+}
+
 // Student registration - simplified using DatabaseManager
 bool registerStudent(const string& studentID, const string& name, const string& email,
                     int age, int classRoll, department dept, int batch,
@@ -343,6 +455,118 @@ bool Auth::registerDiningAuthority(const string &name, const string &email, cons
 
 bool Auth::isEmailRegistered(const string &email) {
     return DatabaseManager::emailExists(email);
+}
+
+// Static helper functions for instant validation
+string Auth::getValidatedEmail() {
+    string email;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Email (@juniv.edu): ";
+        getline(cin, email);
+
+        if (email.empty()) {
+            cout << "❌ Email cannot be empty. Please try again." << endl;
+            continue;
+        }
+
+        if (!StringHelper::validateEmail(email)) {
+            cout << "❌ Invalid email format. Requirements:" << endl;
+            cout << "   • Must end with @juniv.edu" << endl;
+            cout << "   • Must have at least 4 characters before @" << endl;
+            cout << "   • Example: john1234@juniv.edu" << endl;
+            continue;
+        }
+
+        if (DatabaseManager::emailExists(email)) {
+            cout << "❌ This email is already registered. Please use a different email." << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Email is valid and available!" << endl;
+    }
+
+    return email;
+}
+
+string Auth::getValidatedPassword() {
+    string password;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Password: ";
+        getline(cin, password);
+
+        if (password.empty()) {
+            cout << "❌ Password cannot be empty. Please try again." << endl;
+            continue;
+        }
+
+        if (!StringHelper::validatePassword(password)) {
+            cout << "❌ Password does not meet requirements:" << endl;
+            cout << "   • At least 6 characters long" << endl;
+            cout << "   • Must contain at least one uppercase letter" << endl;
+            cout << "   • Must contain at least one lowercase letter" << endl;
+            cout << "   • Must contain at least one digit" << endl;
+            cout << "   • Example: MyPass123" << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Password meets all requirements!" << endl;
+    }
+
+    return password;
+}
+
+string Auth::getValidatedStudentID() {
+    string studentID;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Student ID: ";
+        getline(cin, studentID);
+
+        if (studentID.empty()) {
+            cout << "❌ Student ID cannot be empty. Please try again." << endl;
+            continue;
+        }
+
+        if (DatabaseManager::studentIDExists(studentID)) {
+            cout << "❌ This Student ID is already registered. Please use a different ID." << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Student ID is available!" << endl;
+    }
+
+    return studentID;
+}
+
+string Auth::getValidatedName() {
+    string name;
+    bool isValid = false;
+
+    while (!isValid) {
+        cout << "Enter Name: ";
+        getline(cin, name);
+
+        if (!StringHelper::isValidString(name)) {
+            cout << "❌ Invalid name. Requirements:" << endl;
+            cout << "   • Cannot be empty" << endl;
+            cout << "   • Cannot start with a space" << endl;
+            cout << "   • Must contain at least one non-space character" << endl;
+            continue;
+        }
+
+        isValid = true;
+        cout << "✅ Name is valid!" << endl;
+    }
+
+    return name;
 }
 
 // Additional helper methods
