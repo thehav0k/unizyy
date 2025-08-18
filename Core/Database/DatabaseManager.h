@@ -14,7 +14,6 @@
 using namespace std;
 
 // Include headers for all classes that need specific methods
-#include "../Models/Notice.h"
 #include "../../System/Modules/Meal/meal.h"
 
 // Forward declarations for classes that are only used
@@ -31,7 +30,6 @@ private:
     static const string ADMINS_DB;
     static const string DATABASE_DIR;
     static const string DINING_AUTH_DB;
-    static const string NOTICES_DB;
     static const string ACTIVE_TOKENS_DB;
     static const string USED_TOKENS_DB;
     static const string REVIEWS_DB;
@@ -43,7 +41,6 @@ private:
     static vector<Teacher> cachedTeachers;
     static vector<Admin> cachedAdmins;
     static vector<DiningAuthority> cachedDiningAuthorities;
-    static vector<Notice> cachedNotices;
     static vector<MealToken> cachedActiveTokens;
     static vector<MealToken> cachedUsedTokens;
     static vector<MealReview> cachedReviews;
@@ -125,15 +122,6 @@ public:
     static void clearAllData();
     static void backupData(const string& backupDir);
     static bool restoreData(const string& backupDir);
-
-    // Notice operations
-    static vector<Notice> loadNotices();
-    static void saveNotices(const vector<Notice>& notices);
-    static bool addNotice(const Notice& notice);
-    static bool updateNotice(const string& noticeID, const Notice& updatedNotice);
-    static bool deleteNotice(const string& noticeID);
-    static Notice* findNoticeByID(const string& noticeID);
-
 
     // Active Token operations
     static vector<MealToken> loadActiveTokens();

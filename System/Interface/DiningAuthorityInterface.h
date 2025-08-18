@@ -17,7 +17,7 @@ class DiningAuthorityInterface : public MenuInterface {
 private:
     DiningAuthority* currentAuthority;
     Auth* authSystem;
-    TokenManager* tokenManager;
+    TokenManager* tokenManager; // may be unused now
     bool isRunning;
 
 public:
@@ -34,10 +34,7 @@ private:
     void handleCreateMeal();
     void handleUpdateMeal();
     void handleViewMeals();
-    void handleTokenManagement();
-    void handleReviewManagement();
     void handleReports();
-    void handleNoticeManagement();
     void handleProfile();
     void handleLogout();
 };

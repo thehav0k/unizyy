@@ -13,8 +13,6 @@
 #include "../../Core/Models/Course.h"
 #include "../../Core/Models/Designation.h"
 #include "../../Core/Models/department.h"
-#include "../../Core/Models/Notice.h"
-#include "../../Core/Database/DatabaseManager.h"
 
 class Teacher: public User {
 private:
@@ -39,15 +37,6 @@ public:
     // Virtual methods
     void display() const override;
     void gradeStudent(Student&, Course&);
-
-    // Notice management methods
-    Notice createNotice(const string& title, const string& description, NoticeType type) const;
-    Notice createDetailedNotice(const string& title, const string& description, NoticeType type,
-                               const string& targetAudience = "All") const;
-    bool publishNotice(const Notice& notice) const;
-    vector<Notice> getMyPublishedNotices() const;
-    bool updateNotice(size_t noticeID, const Notice& updatedNotice) const;
-    bool withdrawNotice(size_t noticeID) const;
 
     // Static database operations
     static vector<Teacher> loadAllTeachers();

@@ -74,26 +74,17 @@ bool NoticeTypeHelper::isValidNoticeType(const string& typeStr) {
 // Constructors
 Notice::Notice() : noticeID(nextNoticeID++), createdDate(Date::getCurrentDate()),
                    noticeType(NoticeType::GENERAL),
-                   targetDepartment(department::Department_of_Computer_Science_and_Engineering),
-                   isActive(true) {
+                   targetDepartment(department::Department_of_Computer_Science_and_Engineering) {
     title[0] = '\0';
     description[0] = '\0';
-    authorName[0] = '\0';
-    authorEmail[0] = '\0';
-    targetAudience[0] = '\0';
 }
 
-Notice::Notice(const string& title, const string& description, NoticeType type,
-               const string& authorName, const string& authorEmail)
+Notice::Notice(const string& title, const string& description, NoticeType type)
     : noticeID(nextNoticeID++), createdDate(Date::getCurrentDate()),
       noticeType(type),
-      targetDepartment(department::Department_of_Computer_Science_and_Engineering),
-      isActive(true) {
+      targetDepartment(department::Department_of_Computer_Science_and_Engineering) {
     StringHelper::stringToCharArray(title, this->title);
     StringHelper::stringToCharArray(description, this->description);
-    StringHelper::stringToCharArray(authorName, this->authorName);
-    StringHelper::stringToCharArray(authorEmail, this->authorEmail);
-    StringHelper::stringToCharArray("All", this->targetAudience);
 }
 
 // Getters
@@ -101,13 +92,9 @@ size_t Notice::getNoticeID() const { return noticeID; }
 Date Notice::getCreatedDate() const { return createdDate; }
 string Notice::getTitle() const { return StringHelper::charArrayToString(title); }
 string Notice::getDescription() const { return StringHelper::charArrayToString(description); }
-string Notice::getAuthorName() const { return StringHelper::charArrayToString(authorName); }
-string Notice::getAuthorEmail() const { return StringHelper::charArrayToString(authorEmail); }
 NoticeType Notice::getNoticeType() const { return noticeType; }
 string Notice::getNoticeTypeString() const { return NoticeTypeHelper::toString(noticeType); }
 department Notice::getTargetDepartment() const { return targetDepartment; }
-string Notice::getTargetAudience() const { return StringHelper::charArrayToString(targetAudience); }
-bool Notice::getIsActive() const { return isActive; }
 
 // Setters
 void Notice::setTitle(const string& title) {
@@ -118,16 +105,12 @@ void Notice::setDescription(const string& description) {
     StringHelper::stringToCharArray(description, this->description);
 }
 
+void Notice::setNoticeType(NoticeType type) {
+    this->noticeType = type;
+}
+
 void Notice::setTargetDepartment(department dept) {
     this->targetDepartment = dept;
-}
-
-void Notice::setTargetAudience(const string& audience) {
-    StringHelper::stringToCharArray(audience, this->targetAudience);
-}
-
-void Notice::setActive(bool active) {
-    this->isActive = active;
 }
 
 // Display methods
@@ -135,19 +118,16 @@ void Notice::displayNotice() const {
     cout << "Notice ID: " << noticeID << endl;
     cout << "Title: " << getTitle() << endl;
     cout << "Type: " << getNoticeTypeString() << endl;
-    cout << "Author: " << getAuthorName() << endl;
 }
 
 void Notice::displayDetailedNotice() const {
     displayNotice();
     cout << "Description: " << getDescription() << endl;
     cout << "Created: " << createdDate.toString() << endl;
-    cout << "Target: " << getTargetAudience() << endl;
-    cout << "Status: " << (isActive ? "Active" : "Inactive") << endl;
 }
 
 string Notice::getFormattedNotice() const {
-    return getTitle() + " - " + getAuthorName();
+    return getTitle() + " - " + getNoticeTypeString();
 }
 
 // Static utility methods
@@ -159,16 +139,6 @@ vector<Notice> Notice::filterNoticesByType(const vector<Notice>& notices, Notice
         }
     }
     return filtered;
-}
-
-vector<Notice> Notice::getActiveNotices(const vector<Notice>& notices) {
-    vector<Notice> active;
-    for (const auto& notice : notices) {
-        if (notice.getIsActive()) {
-            active.push_back(notice);
-        }
-    }
-    return active;
 }
 
 void Notice::sortNoticesByDate(vector<Notice>& notices) {

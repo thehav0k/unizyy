@@ -43,65 +43,54 @@ public:
     static bool isValidNoticeType(const string& typeStr);
 };
 
-class Notice {
-private:
-    static size_t nextNoticeID;
+// class Notice {
+// private:
+//     static size_t nextNoticeID;
+// protected:
+//     size_t noticeID;
+//     Date createdDate;
+//     char title[150];
+//     char description[500];
+//     NoticeType noticeType;
+//     department targetDepartment;
 
-protected:
-    size_t noticeID;
-    Date createdDate;
-    char title[150];
-    char description[500];
-    char authorName[100];
-    char authorEmail[100];
-    NoticeType noticeType;
-    department targetDepartment;
-    bool isActive;
-    char targetAudience[100]; // "All", "Students", "Teachers", "Staff", etc.
+// public:
+//     // Constructors
+//     Notice();
+//     Notice(const string& title, const string& description, NoticeType type);
 
-public:
-    // Constructors
-    Notice();
-    Notice(const string& title, const string& description, NoticeType type,
-           const string& authorName, const string& authorEmail);
+//     // Getters
+//     size_t getNoticeID() const;
+//     Date getCreatedDate() const;
+//     string getTitle() const;
+//     string getDescription() const;
+//     NoticeType getNoticeType() const;
+//     string getNoticeTypeString() const;
+//     department getTargetDepartment() const;
 
-    // Getters
-    size_t getNoticeID() const;
-    Date getCreatedDate() const;
-    string getTitle() const;
-    string getDescription() const;
-    string getAuthorName() const;
-    string getAuthorEmail() const;
-    NoticeType getNoticeType() const;
-    string getNoticeTypeString() const;
-    department getTargetDepartment() const;
-    string getTargetAudience() const;
-    bool getIsActive() const;
+//     // Setters
+//     void setTitle(const string& title);
+//     void setDescription(const string& description);
+//     void setNoticeType(NoticeType type);
+//     void setTargetDepartment(department dept);
 
-    // Setters
-    void setTitle(const string& title);
-    void setDescription(const string& description);
-    void setTargetDepartment(department dept);
-    void setTargetAudience(const string& audience);
-    void setActive(bool active);
+//     // Display methods
+//     void displayNotice() const;
+//     void displayDetailedNotice() const;
+//     string getFormattedNotice() const;
 
-    // Display methods
-    void displayNotice() const;
-    void displayDetailedNotice() const;
-    string getFormattedNotice() const;
+//     // Static utility methods
+//     static vector<Notice> filterNoticesByType(const vector<Notice>& notices, NoticeType type);
+//     static void sortNoticesByDate(vector<Notice>& notices);
 
-    // Static utility methods
-    static vector<Notice> filterNoticesByType(const vector<Notice>& notices, NoticeType type);
-    static vector<Notice> getActiveNotices(const vector<Notice>& notices);
-    static void sortNoticesByDate(vector<Notice>& notices);
+//     // File operations (to be used with DatabaseManager)
+//     bool saveToFile(const string& filename) const;
+//     static vector<Notice> loadFromFile(const string& filename);
 
-    // File operations (to be used with DatabaseManager)
-    bool saveToFile(const string& filename) const;
-    static vector<Notice> loadFromFile(const string& filename);
-
-    // Comparison operators for sorting
-    bool operator<(const Notice& other) const;
-    bool operator>(const Notice& other) const;
-};
+//     // Comparison operators for sorting
+//     bool operator<(const Notice& other) const;
+//     bool operator>(const Notice& other) const;
+// };
 
 #endif //UNIZYY_NOTICE_H
+

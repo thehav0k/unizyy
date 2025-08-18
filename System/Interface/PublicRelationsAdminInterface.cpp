@@ -188,7 +188,6 @@ void PublicRelationsAdminInterface::createDetailedNotice() {
     }
 
     Notice notice = currentPRAdmin->createNotice(title, description, type);
-    notice.setTargetAudience(audience);
 
     if (currentPRAdmin->publishNotice(notice)) {
         displaySuccess("Detailed notice published successfully!");
@@ -294,7 +293,7 @@ void PublicRelationsAdminInterface::displayNoticesList(const vector<Notice>& not
                             notice.getTitle().substr(0, 25) + "..." : notice.getTitle())
              << setw(15) << notice.getNoticeTypeString()
              << setw(12) << notice.getCreatedDate().toString()
-             << setw(8) << (notice.getIsActive() ? "Active" : "Inactive") << endl;
+             << setw(8) << "Active" << endl; // Simplified since we removed isActive field
     }
 }
 

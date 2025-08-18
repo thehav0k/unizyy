@@ -8,7 +8,6 @@
 #include "../Users/Teacher.h"
 #include "../Users/Admin.h"
 #include "../Users/DiningAuthority.h"
-#include "../Models/Notice.h"
 #include "../Users/PublicRelationsAdmin.h"
 #include "../../System/Modules/Meal/meal.h"
 using namespace std;
@@ -18,7 +17,6 @@ const string DatabaseManager::STUDENTS_DB = "Database/students.dat";
 const string DatabaseManager::TEACHERS_DB = "Database/teachers.dat";
 const string DatabaseManager::ADMINS_DB = "Database/admins.dat";
 const string DatabaseManager::DINING_AUTH_DB = "Database/dining_authorities.dat";
-const string DatabaseManager::NOTICES_DB = "Database/notices.dat";
 const string DatabaseManager::ACTIVE_TOKENS_DB = "Database/active_tokens.dat";
 const string DatabaseManager::USED_TOKENS_DB = "Database/used_tokens.dat";
 const string DatabaseManager::REVIEWS_DB = "Database/meal_reviews.dat";
@@ -32,7 +30,6 @@ vector<Student> DatabaseManager::cachedStudents;
 vector<Teacher> DatabaseManager::cachedTeachers;
 vector<Admin> DatabaseManager::cachedAdmins;
 vector<DiningAuthority> DatabaseManager::cachedDiningAuthorities;
-vector<Notice> DatabaseManager::cachedNotices;
 vector<MealToken> DatabaseManager::cachedActiveTokens;
 vector<MealToken> DatabaseManager::cachedUsedTokens;
 vector<MealReview> DatabaseManager::cachedReviews;
@@ -62,10 +59,6 @@ void DatabaseManager::initializeDatabase() {
         ofstream file(DINING_AUTH_DB, ios::binary);
         file.close();
     }
-    if (!filesystem::exists(NOTICES_DB)) {
-        ofstream file(NOTICES_DB, ios::binary);
-        file.close();
-    }
     if (!filesystem::exists(ACTIVE_TOKENS_DB)) {
         ofstream file(ACTIVE_TOKENS_DB, ios::binary);
         file.close();
@@ -92,7 +85,6 @@ void DatabaseManager::initializeDatabase() {
         cachedTeachers = loadTeachers();
         cachedAdmins = loadAdmins();
         cachedDiningAuthorities = loadDiningAuthorities();
-        cachedNotices = loadNotices();
         cachedActiveTokens = loadActiveTokens();
         cachedUsedTokens = loadUsedTokens();
         cachedReviews = loadReviews();
@@ -207,38 +199,6 @@ bool DatabaseManager::updateDiningAuthority(const string& email, const DiningAut
 
 bool DatabaseManager::deleteDiningAuthority(const string& email) {
     return deleteObject<DiningAuthority, string>(cachedDiningAuthorities, email, DINING_AUTH_DB, &DiningAuthority::getEmail);
-}
-
-// Notice operations
-vector<Notice> DatabaseManager::loadNotices() {
-    return loadObjects<Notice>(NOTICES_DB);
-}
-
-void DatabaseManager::saveNotices(const vector<Notice>& notices) {
-    saveObjects(notices, NOTICES_DB);
-    cachedNotices = notices;
-}
-
-bool DatabaseManager::addNotice(const Notice& notice) {
-    return addObject(cachedNotices, notice, NOTICES_DB);
-}
-
-Notice* DatabaseManager::findNoticeByID(const string& noticeID) {
-    // Convert string ID to size_t for comparison
-    size_t id = stoull(noticeID);
-    return findObjectByKey<Notice, size_t>(cachedNotices, id, &Notice::getNoticeID);
-}
-
-bool DatabaseManager::updateNotice(const string& noticeID, const Notice& updatedNotice) {
-    // Convert string ID to size_t for comparison
-    size_t id = stoull(noticeID);
-    return updateObject<Notice, size_t>(cachedNotices, id, updatedNotice, NOTICES_DB, &Notice::getNoticeID);
-}
-
-bool DatabaseManager::deleteNotice(const string& noticeID) {
-    // Convert string ID to size_t for comparison
-    size_t id = stoull(noticeID);
-    return deleteObject<Notice, size_t>(cachedNotices, id, NOTICES_DB, &Notice::getNoticeID);
 }
 
 // Active Token operations
@@ -440,7 +400,6 @@ void DatabaseManager::clearAllData() {
     cachedTeachers.clear();
     cachedAdmins.clear();
     cachedDiningAuthorities.clear();
-    cachedNotices.clear();
     cachedActiveTokens.clear();
     cachedUsedTokens.clear();
     cachedReviews.clear();
@@ -451,7 +410,6 @@ void DatabaseManager::clearAllData() {
     saveTeachers(cachedTeachers);
     saveAdmins(cachedAdmins);
     saveDiningAuthorities(cachedDiningAuthorities);
-    saveNotices(cachedNotices);
     saveActiveTokens(cachedActiveTokens);
     saveUsedTokens(cachedUsedTokens);
     saveReviews(cachedReviews);
@@ -490,7 +448,6 @@ void DatabaseManager::displayDatabaseStats() {
     cout << "Teachers: " << getTeacherCount() << endl;
     cout << "Admins: " << getAdminCount() << endl;
     cout << "Dining Authorities: " << getDiningAuthorityCount() << endl;
-    cout << "Notices: " << cachedNotices.size() << endl;
     cout << "Active Tokens: " << cachedActiveTokens.size() << endl;
     cout << "Used Tokens: " << cachedUsedTokens.size() << endl;
     cout << "Reviews: " << cachedReviews.size() << endl;

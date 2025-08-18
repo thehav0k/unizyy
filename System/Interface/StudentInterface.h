@@ -9,7 +9,6 @@
 #include "MenuInterface.h"
 #include "../Users/student.h"
 #include "../Modules/Meal/meal.h"
-#include "../../Core/Models/Notice.h"
 
 // Forward declaration
 class Auth;
@@ -36,7 +35,6 @@ private:
     void handleReviewMeal();
     void handleViewProfile();
     void handleChangePassword();
-    void handleViewNotices();
     void handleLogout();
 
     // Meal token specific UI methods
@@ -44,13 +42,6 @@ private:
     void displayMealTypes();
     void displayMealDetailsForPurchase(const string& hallName, MealType mealType);
     Meal selectMealFromMenu(const vector<Meal>& meals);
-
-    // Notice viewing methods
-    void viewAllActiveNotices();
-    void searchNotices();
-    void filterNoticesByType();
-    void viewNoticeDetails();
-    void displayNoticesList(const std::vector<Notice>& notices);
 };
 
 #endif //STUDENT_INTERFACE_H

@@ -4,6 +4,7 @@
 
 #include "NoticeManager.h"
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ bool NoticeManager::updateNoticeById(size_t id, const Notice& updatedNotice, con
     bool found = false;
 
     for (auto& notice : allNotices) {
-        if (notice.getNoticeID() == id && notice.getAuthorEmail() == authorEmail) {
+        if (notice.getNoticeID() == id) {
             notice = updatedNotice;
             found = true;
             break;
@@ -40,12 +41,12 @@ bool NoticeManager::removeNoticeById(size_t id, const string& authorEmail) const
 
     auto it = allNotices.begin();
     while (it != allNotices.end()) {
-        if (it->getNoticeID() == id && it->getAuthorEmail() == authorEmail) {
+        if (it->getNoticeID() == id) {
             allNotices.erase(it);
             DatabaseManager::saveObjects(allNotices, noticeDbFile);
             return true;
         } else {
-            ++it;
+            it++;
         }
     }
     return false;
@@ -65,8 +66,9 @@ vector<Notice> NoticeManager::filterNotices(const function<bool(const Notice&)>&
 }
 
 vector<Notice> NoticeManager::getNoticesByAuthor(const string& authorEmail) const {
-    return filterNotices([&authorEmail](const Notice& notice) {
-        return notice.getAuthorEmail() == authorEmail;
+    // Since we removed author tracking, return notices by department instead
+    return filterNotices([](const Notice& notice) {
+        return true; // Return all notices since we can't filter by author anymore
     });
 }
 
@@ -77,9 +79,8 @@ vector<Notice> NoticeManager::getNoticesByType(NoticeType type) const {
 }
 
 vector<Notice> NoticeManager::getActiveNotices() const {
-    return filterNotices([](const Notice& notice) {
-        return notice.getIsActive();
-    });
+    // Since we removed isActive field, return all notices
+    return getAllNotices();
 }
 
 vector<Notice> NoticeManager::getNoticesByDateRange(const Date& startDate, const Date& endDate) const {
@@ -150,4 +151,56 @@ vector<pair<NoticeType, size_t>> NoticeManager::getNoticeStatsByType() const {
     }
 
     return stats;
+}
+
+// Additional methods for specific use cases
+vector<Notice> NoticeManager::getMyPublishedNotices() const {
+    // This should be overridden by derived classes with proper author identification
+    return getAllNotices();
+}
+
+// Enhanced methods for new Notice functionality
+vector<Notice> NoticeManager::getNoticesByDepartment(department dept) const {
+    return filterNotices([dept](const Notice& notice) {
+        return notice.getTargetDepartment() == dept;
+    });
+}
+
+void NoticeManager::displayNoticesByType(NoticeType type) const {
+    vector<Notice> notices = getNoticesByType(type);
+
+    cout << "\n=== " << NoticeTypeHelper::toString(type) << " Notices ===" << endl;
+    if (notices.empty()) {
+        cout << "No notices found for this type." << endl;
+        return;
+    }
+
+    for (const auto& notice : notices) {
+        notice.displayNotice();
+        cout << "------------------------" << endl;
+    }
+}
+
+void NoticeManager::displayAllNoticeTypes() const {
+    cout << "\nAvailable Notice Types:" << endl;
+    vector<string> types = NoticeTypeHelper::getAllNoticeTypes();
+
+    for (size_t i = 0; i < types.size(); ++i) {
+        cout << (i + 1) << ". " << types[i] << endl;
+    }
+}
+
+bool NoticeManager::createNoticeWithType(const string& title, const string& description,
+                                        const string& noticeTypeStr, department targetDept) {
+    if (!NoticeTypeHelper::isValidNoticeType(noticeTypeStr)) {
+        cout << "Error: Invalid notice type '" << noticeTypeStr << "'" << endl;
+        displayAllNoticeTypes();
+        return false;
+    }
+
+    NoticeType type = NoticeTypeHelper::fromString(noticeTypeStr);
+    Notice newNotice(title, description, type);
+    newNotice.setTargetDepartment(targetDept);
+
+    return saveNotice(newNotice);
 }

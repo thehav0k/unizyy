@@ -35,20 +35,19 @@ void StudentInterface::displayMenu() {
     cout << "1. Meal Token Operations" << endl;
     cout << "2. View Profile" << endl;
     cout << "3. Change Password" << endl;
-    cout << "4. View Notices" << endl;
-    cout << "5. Logout" << endl;
+    cout << "4. Logout" << endl;
     displaySeparator('-', 40);
 }
 
 int StudentInterface::getChoice() {
     int choice;
-    cout << "Please enter your choice (0-5): ";
+    cout << "Please enter your choice (0-4): ";
 
-    while (!(cin >> choice) || choice < 0 || choice > 5) {
-        displayError("Invalid input! Please enter a number between 0-5.");
+    while (!(cin >> choice) || choice < 0 || choice > 4) {
+        displayError("Invalid input! Please enter a number between 0-4.");
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Please enter your choice (0-5): ";
+        cout << "Please enter your choice (0-4): ";
     }
 
     cin.ignore();
@@ -88,9 +87,6 @@ void StudentInterface::processChoice(int choice) {
             handleChangePassword();
             break;
         case 4:
-            handleViewNotices();
-            break;
-        case 5:
             handleLogout();
             break;
         default:
@@ -417,219 +413,6 @@ void StudentInterface::handleChangePassword() {
     }
 
     pauseForInput();
-}
-
-void StudentInterface::handleViewNotices() {
-    clearScreen();
-    displayHeader("VIEW NOTICES");
-
-    cout << "1. View All Active Notices" << endl;
-    cout << "2. Search Notices" << endl;
-    cout << "3. Filter by Notice Type" << endl;
-    cout << "4. View Notice Details" << endl;
-    cout << "5. Back to Main Menu" << endl;
-
-    int choice;
-    cout << "Select option (1-5): ";
-    cin >> choice;
-    cin.ignore();
-
-    switch (choice) {
-        case 1:
-            viewAllActiveNotices();
-            break;
-        case 2:
-            searchNotices();
-            break;
-        case 3:
-            filterNoticesByType();
-            break;
-        case 4:
-            viewNoticeDetails();
-            break;
-        case 5:
-            return;
-        default:
-            displayError("Invalid choice!");
-            pauseForInput();
-    }
-}
-
-void StudentInterface::viewAllActiveNotices() {
-    clearScreen();
-    displayHeader("ALL ACTIVE NOTICES");
-
-    auto allNotices = Notice::loadFromFile("notices");
-    vector<Notice> activeNotices;
-
-    // Filter for active notices only
-    for (const auto& notice : allNotices) {
-        if (notice.getIsActive()) {
-            activeNotices.push_back(notice);
-        }
-    }
-
-    if (activeNotices.empty()) {
-        displayInfo("No active notices available.");
-        pauseForInput();
-        return;
-    }
-
-    cout << "Found " << activeNotices.size() << " active notice(s):" << endl;
-    displaySeparator('-', 50);
-    displayNoticesList(activeNotices);
-    pauseForInput();
-}
-
-void StudentInterface::searchNotices() {
-    clearScreen();
-    displayHeader("SEARCH NOTICES");
-
-    string keyword;
-    cout << "Enter search keyword: ";
-    getline(cin, keyword);
-
-    if (keyword.empty()) {
-        displayError("Search keyword cannot be empty!");
-        pauseForInput();
-        return;
-    }
-
-    auto allNotices = Notice::loadFromFile("notices");
-    vector<Notice> results;
-
-    for (const auto& notice : allNotices) {
-        if (notice.getIsActive() &&
-            (notice.getTitle().find(keyword) != string::npos ||
-             notice.getDescription().find(keyword) != string::npos)) {
-            results.push_back(notice);
-        }
-    }
-
-    if (results.empty()) {
-        displayInfo("No notices found matching '" + keyword + "'.");
-    } else {
-        cout << "Found " << results.size() << " notice(s) matching '" << keyword << "':" << endl;
-        displaySeparator('-', 50);
-        displayNoticesList(results);
-    }
-
-    pauseForInput();
-}
-
-void StudentInterface::filterNoticesByType() {
-    clearScreen();
-    displayHeader("FILTER BY NOTICE TYPE");
-
-    cout << "Select notice type:" << endl;
-    cout << "1. General" << endl;
-    cout << "2. Academic" << endl;
-    cout << "3. Event" << endl;
-    cout << "4. Emergency" << endl;
-    cout << "5. Exam" << endl;
-    cout << "6. Admission" << endl;
-
-    int choice;
-    cout << "Enter choice (1-6): ";
-    cin >> choice;
-    cin.ignore();
-
-    NoticeType selectedType;
-    switch (choice) {
-        case 1: selectedType = NoticeType::GENERAL; break;
-        case 2: selectedType = NoticeType::ACADEMIC; break;
-        case 3: selectedType = NoticeType::EVENT; break;
-        case 4: selectedType = NoticeType::EMERGENCY; break;
-        case 5: selectedType = NoticeType::EXAM; break;
-        case 6: selectedType = NoticeType::ADMISSION; break;
-        default:
-            displayError("Invalid choice!");
-            pauseForInput();
-            return;
-    }
-
-    auto allNotices = Notice::loadFromFile("notices");
-    vector<Notice> filteredNotices;
-
-    for (const auto& notice : allNotices) {
-        if (notice.getIsActive() && notice.getNoticeType() == selectedType) {
-            filteredNotices.push_back(notice);
-        }
-    }
-
-    clearScreen();
-    displayHeader("NOTICES: " + NoticeTypeHelper::toString(selectedType));
-
-    if (filteredNotices.empty()) {
-        displayInfo("No active notices found for this type.");
-    } else {
-        cout << "Found " << filteredNotices.size() << " notice(s) of type " << NoticeTypeHelper::toString(selectedType) << ":" << endl;
-        displaySeparator('-', 50);
-        displayNoticesList(filteredNotices);
-    }
-
-    pauseForInput();
-}
-
-void StudentInterface::viewNoticeDetails() {
-    clearScreen();
-    displayHeader("VIEW NOTICE DETAILS");
-
-    size_t noticeID;
-    cout << "Enter notice ID to view details: ";
-    cin >> noticeID;
-    cin.ignore();
-
-    auto allNotices = Notice::loadFromFile("notices");
-    Notice* selectedNotice = nullptr;
-
-    for (auto& notice : allNotices) {
-        if (notice.getNoticeID() == noticeID && notice.getIsActive()) {
-            selectedNotice = &notice;
-            break;
-        }
-    }
-
-    if (!selectedNotice) {
-        displayError("Notice not found or inactive.");
-        pauseForInput();
-        return;
-    }
-
-    clearScreen();
-    displayHeader("NOTICE DETAILS");
-
-    cout << "Notice ID: " << selectedNotice->getNoticeID() << endl;
-    cout << "Title: " << selectedNotice->getTitle() << endl;
-    cout << "Type: " << selectedNotice->getNoticeTypeString() << endl;
-    cout << "Author: " << selectedNotice->getAuthorName() << endl;
-    cout << "Created: " << selectedNotice->getCreatedDate().toString() << endl;
-    cout << "Target Audience: " << selectedNotice->getTargetAudience() << endl;
-    cout << "Status: " << (selectedNotice->getIsActive() ? "Active" : "Inactive") << endl;
-    displaySeparator('-', 50);
-    cout << "Description:" << endl;
-    cout << selectedNotice->getDescription() << endl;
-
-    pauseForInput();
-}
-
-void StudentInterface::displayNoticesList(const vector<Notice>& notices) {
-    cout << left << setw(5) << "ID"
-         << setw(30) << "Title"
-         << setw(15) << "Type"
-         << setw(15) << "Author"
-         << setw(12) << "Created" << endl;
-    displaySeparator('-', 77);
-
-    for (const auto& notice : notices) {
-        cout << left << setw(5) << notice.getNoticeID()
-             << setw(30) << (notice.getTitle().length() > 28 ?
-                            notice.getTitle().substr(0, 25) + "..." : notice.getTitle())
-             << setw(15) << notice.getNoticeTypeString()
-             << setw(15) << (notice.getAuthorName().length() > 13 ?
-                            notice.getAuthorName().substr(0, 10) + "..." : notice.getAuthorName())
-             << setw(12) << notice.getCreatedDate().toString() << endl;
-    }
 }
 
 void StudentInterface::handleLogout() {
