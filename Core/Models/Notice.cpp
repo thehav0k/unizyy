@@ -191,9 +191,7 @@ bool Notice::saveToFile(const string& filename) const {
 }
 
 vector<Notice> Notice::loadFromFile(const string& filename) {
-    vector<Notice> notices;
-    DatabaseManager::loadObjects(notices, filename);
-    return notices;
+    return DatabaseManager::loadObjects<Notice>(filename);
 }
 
 // Comparison operators for sorting

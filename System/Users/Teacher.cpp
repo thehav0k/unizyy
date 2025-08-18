@@ -10,13 +10,10 @@
 
 using namespace std;
 
-// Constructors
 Teacher::Teacher(const string &email, const string &password, const string &name,
-                 const string &department, designation rank)
-    : User(email, password), AP(rank) {
-    // Use StringHelper for conversion
+                 const string &department, designation desg)
+    : User(email, password), AP(desg) {
     StringHelper::stringToCharArray(name, this->name);
-    // Convert string department to enum using the centralized function
     this->dept = stringToDepartmentEnum(department);
 }
 
@@ -49,16 +46,11 @@ string Teacher::getDepartmentName() const {
 void Teacher::setRank(designation AP) {
     this->AP = AP;
 }
-
-designation Teacher::getRank() const {
+designation Teacher::getDesignation() const {
     return AP;
 }
 
-designation Teacher::getDesignation() const {
-    return getRank();  // Alias method for interface compatibility
-}
-
-// Virtual methods
+// Display All teachers
 void Teacher::display() const {
     cout << "Teacher Details:" << endl;
     cout << "Name: " << getName() << endl;
@@ -67,13 +59,10 @@ void Teacher::display() const {
     cout << "Rank: " << toString(AP) << endl;
 }
 
-// Additional methods
 void Teacher::gradeStudent(Student &student, Course &course) {
-    // Implementation for grading student
     cout << "Grading student: " << student.getName() << " for course " << course.getCourseName() << endl;
 }
 
-// Static database operations
 vector<Teacher> Teacher::loadAllTeachers() {
     return DatabaseManager::loadTeachers();
 }
@@ -95,6 +84,7 @@ Teacher* Teacher::findTeacherByEmail(const string& email) {
 }
 
 // Notice management methods
+// Notice class improve kora lagbe
 Notice Teacher::createNotice(const string& title, const string& description, NoticeType type) const {
     Notice notice(title, description, type, getName(), getEmail());
     notice.setTargetDepartment(dept);

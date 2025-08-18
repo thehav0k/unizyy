@@ -1,6 +1,5 @@
 //
 // Created by Md. Asif Khan on 11/8/25.
-// Meal Management System Implementation
 //
 
 #include "meal.h"
@@ -9,101 +8,134 @@
 #include <filesystem>
 #include <algorithm>
 #include <sstream>
+#include <random>
 #include "../../../Core/Utils/StringHelper.h"
 #include "../../../Core/Database/DatabaseManager.h"
-#include <cstring>
 
 using namespace std;
 
-// Database gular file directory location
-const string MEALS_DB = "Database/meals.dat";
-const string MEAL_REVIEWS_DB = "Database/meal_reviews.dat";
-const string ACTIVE_TOKENS_DB = "Database/active_tokens.dat";
-const string USED_TOKENS_DB = "Database/used_tokens.dat";
+// Constants - centralized for DRY
 const string TokenManager::TOKEN_FOLDER = "Meal Tokens/";
 
-vector<Meal> Meal::cachedMeals; // cache akare sob load
-bool Meal::mealsLoaded = false; // boolean flag rakhchi jate barbar load na kora lage
+// Static member definitions
+vector<Meal> Meal::cachedMeals;
+bool Meal::mealsLoaded = false;
 
-// read write sob hoice database manager class diye
-void Meal::loadMealsIntoCache() {
-    if (mealsLoaded) return;
-    cachedMeals.clear();
+// ========== HELPER FUNCTIONS (DRY) ==========
 
-    DatabaseManager::loadObjects(cachedMeals, "meals");
-    mealsLoaded = true;
-}
-// basically vector to file e convert hoilo
-void Meal::saveMealsToDisk() {
-    DatabaseManager::saveObjects(cachedMeals, "meals");
+// Helper function to generate meal composite key
+string generateMealKey(const string& dateStr, const string& hallName, MealType type) {
+    return dateStr + "_" + hallName + "_" + to_string(static_cast<int>(type));
 }
 
+// Helper function to parse package string
+pair<string, string> parsePackageString(const string& package) {
+    size_t pos = package.find(" - ");
+    if (pos != string::npos) {
+        return {package.substr(0, pos), package.substr(pos + 3)};
+    }
+    return {package, ""};
+}
+
+// Helper function to build package string
+string buildPackageString(const string& name, const string& description) {
+    return description.empty() ? name : name + " - " + description;
+}
+
+// Helper function to safely set char array using StringHelper
+template<size_t N>
+void setCharArrayField(char (&field)[N], const string& value, const string& fieldName) {
+    StringHelper::safeStringToCharArray(value, field, fieldName);
+}
+
+// Helper function for enum to string conversions (DRY for all enum conversions)
+template<typename EnumType>
+string enumToStringHelper(EnumType value, const vector<pair<EnumType, string>>& mapping, const string& defaultValue = "Unknown") {
+    for (const auto& pair : mapping) {
+        if (pair.first == value) return pair.second;
+    }
+    return defaultValue;
+}
+
+// ========== MEAL CLASS IMPLEMENTATION ==========
+// Do we really need?
+// Static methods using DatabaseManager
 void Meal::initializeMealDatabase() {
+    DatabaseManager::initializeDatabase();
+}
+
+void Meal::ensureMealsLoaded() {
     if (!mealsLoaded) {
-        loadMealsIntoCache();
+        cachedMeals = DatabaseManager::loadMeals();
+        mealsLoaded = true;
     }
 }
 
-size_t Meal::getMealCount() { ensureMealsLoaded(); return cachedMeals.size(); }
+const vector<Meal>& Meal::getCachedMeals() {
+    ensureMealsLoaded();
+    return cachedMeals;
+}
 
-vector<Meal> Meal::loadAllMealsFromDatabase() { ensureMealsLoaded(); return cachedMeals; }
+size_t Meal::getMealCount() {
+    ensureMealsLoaded();
+    return cachedMeals.size();
+}
+
+vector<Meal> Meal::loadAllMealsFromDatabase() {
+    ensureMealsLoaded();
+    return cachedMeals;
+}
 
 vector<Meal> Meal::loadMealsByHall(const string& hall) {
-    ensureMealsLoaded();
-    vector<Meal> out;
-    for (const auto &m : cachedMeals) if (m.getHallName() == hall) out.push_back(m);
-    return out;
+    return DatabaseManager::getMealsByHall(hall);
 }
 
 vector<Meal> Meal::loadMealsByDate(const string& dateStr) {
-    ensureMealsLoaded();
-    vector<Meal> out;
-    for (const auto &m : cachedMeals) if (m.getDate() == dateStr) out.push_back(m);
-    return out;
+    return DatabaseManager::getMealsByDate(dateStr);
 }
 
 vector<Meal> Meal::loadMealsByType(MealType type) {
-    ensureMealsLoaded();
-    vector<Meal> out;
-    for (const auto &m : cachedMeals) if (m.getMealType() == type) out.push_back(m);
-    return out;
+    return DatabaseManager::getMealsByType(type);
 }
 
 bool Meal::addMeal(const Meal &meal) {
-    ensureMealsLoaded();
-    for (auto &m : cachedMeals) {
-        if (m.getDate() == meal.getDate() && m.getHallName() == meal.getHallName() && m.getMealType() == meal.getMealType()) {
-            m = meal;
-            saveMealsToDisk();
-            return true;
-        }
+    if (DatabaseManager::addMeal(meal)) {
+        cachedMeals.push_back(meal);
+        return true;
     }
-    cachedMeals.push_back(meal);
-    saveMealsToDisk();
-    return true;
+    return false;
 }
 
 bool Meal::updateMeal(const string &dateStr, const string &hallName, MealType type, const Meal &updatedMeal) {
-    ensureMealsLoaded();
-    for (auto &m : cachedMeals) {
-        if (m.getDate() == dateStr && m.getHallName() == hallName && m.getMealType() == type) {
-            m = updatedMeal;
-            saveMealsToDisk();
-            return true;
+    string mealKey = generateMealKey(dateStr, hallName, type);
+    if (DatabaseManager::updateMeal(mealKey, updatedMeal)) {
+        // Update cache
+        for (auto& meal : cachedMeals) {
+            if (meal.getDate() == dateStr && meal.getHallName() == hallName && meal.getMealType() == type) {
+                meal = updatedMeal;
+                break;
+            }
         }
+        return true;
     }
     return false;
 }
 
 bool Meal::deleteMealFromDatabase(const string& dateStr, const string& hallStr, MealType type) {
-    ensureMealsLoaded();
-    size_t before = cachedMeals.size();
-    cachedMeals.erase(remove_if(cachedMeals.begin(), cachedMeals.end(), [&](const Meal &m){
-        return m.getDate() == dateStr && m.getHallName() == hallStr && m.getMealType() == type;
-    }), cachedMeals.end());
-    if (cachedMeals.size() == before) return false;
-    saveMealsToDisk();
-    return true;
+    string mealKey = generateMealKey(dateStr, hallStr, type);
+    if (DatabaseManager::deleteMeal(mealKey)) {
+        // Update cache
+        cachedMeals.erase(
+            remove_if(cachedMeals.begin(), cachedMeals.end(),
+                [&](const Meal& meal) {
+                    return meal.getDate() == dateStr &&
+                           meal.getHallName() == hallStr &&
+                           meal.getMealType() == type;
+                }),
+            cachedMeals.end());
+        return true;
+    }
+    return false;
 }
 
 void Meal::displayAllMeals() {
@@ -112,98 +144,108 @@ void Meal::displayAllMeals() {
         cout << "No meals in database." << endl;
         return;
     }
-    for (const auto &m : cachedMeals) {
-        m.displayMeal();
+    for (const auto &meal : cachedMeals) {
+        meal.displayMeal();
         cout << "---" << endl;
     }
 }
 
-bool Meal::saveMealToDatabase() const { return addMeal(*this); }
+bool Meal::saveMealToDatabase() const {
+    return DatabaseManager::addMeal(*this);
+}
 
+// Constructors
 Meal::Meal(const string& name, const string& desc, MealType type, double mealPrice,
            int quantity, const string& dateStr, const string& mealTime, const string& hall)
     : mealType(type), price(mealPrice), availableQuantity(quantity),
       isAvailable(quantity > 0), hallName(stringToHalls(hall)) {
 
-    string package = name + " - " + desc;
-    StringHelper::safeStringToCharArray(package, MealPackage, "MealPackage");
-    StringHelper::safeStringToCharArray(dateStr, this->date, "date");
-    StringHelper::safeStringToCharArray(mealTime, this->time, "time");
+    // Initialize char arrays with zeros first
+    memset(MealPackage, 0, sizeof(MealPackage));
+    memset(date, 0, sizeof(date));
+    memset(time, 0, sizeof(time));
+
+    string package = buildPackageString(name, desc);
+    setCharArrayField(MealPackage, package, "MealPackage");
+    setCharArrayField(this->date, dateStr, "date");
+    setCharArrayField(this->time, mealTime, "time");
 }
 
 Meal::Meal() : mealType(MealType::LUNCH), price(0.0), availableQuantity(0),
                isAvailable(false), hallName(Halls::Al_Beruni_Hall) {
-    StringHelper::stringToCharArray("Default Meal Package", MealPackage);
+    // Initialize char arrays with zeros first
+    memset(MealPackage, 0, sizeof(MealPackage));
+    memset(date, 0, sizeof(date));
+    memset(time, 0, sizeof(time));
+
+    setCharArrayField(MealPackage, "Default Meal Package", "MealPackage");
     Date today;
-    StringHelper::safeStringToCharArray(today.toString(), this->date, "date");
-    StringHelper::stringToCharArray("00:00", time);
+    setCharArrayField(this->date, today.toString(), "date");
+    setCharArrayField(this->time, "00:00", "time");
 }
 
-// Getters
+// Getters using helper function
 string Meal::getMealName() const {
-    string package(MealPackage);
-    size_t pos = package.find(" - ");
-    if (pos != string::npos) {
-        return package.substr(0, pos);
-    }
-    return package;
+    auto [name, description] = parsePackageString(string(MealPackage));
+    return name;
 }
 
 string Meal::getDescription() const {
-    string package(MealPackage);
-    size_t pos = package.find(" - ");
-    if (pos != string::npos) {
-        return package.substr(pos + 3);
-    }
-    return "";
+    auto [name, description] = parsePackageString(string(MealPackage));
+    return description;
 }
 
+// Simple getters
 MealType Meal::getMealType() const { return mealType; }
 double Meal::getPrice() const { return price; }
 int Meal::getAvailableQuantity() const { return availableQuantity; }
 bool Meal::getIsAvailable() const { return isAvailable; }
-string Meal::getDate() const { return string(date); }
-string Meal::getTime() const { return string(time); }string Meal::getHallName() const { return hallToString(hallName); }
+string Meal::getDate() const { return StringHelper::charArrayToString(date); }
+string Meal::getTime() const { return StringHelper::charArrayToString(time); }
+string Meal::getHallName() const { return hallToString(hallName); }
 
-// Setters
+// Setters using helper functions
 void Meal::setMealName(const string& name) {
     string desc = getDescription();
-    string package = name + (desc.empty() ? "" : " - " + desc);
-    StringHelper::safeStringToCharArray(package, MealPackage, "MealPackage");
+    string package = buildPackageString(name, desc);
+    setCharArrayField(MealPackage, package, "MealPackage");
 }
 
 void Meal::setDescription(const string& desc) {
     string name = getMealName();
-    string package = name + " - " + desc;
-    StringHelper::safeStringToCharArray(package, MealPackage, "MealPackage");
+    string package = buildPackageString(name, desc);
+    setCharArrayField(MealPackage, package, "MealPackage");
 }
 
 void Meal::setMealType(MealType type) { mealType = type; }
 void Meal::setPrice(double mealPrice) { price = mealPrice; }
+
 void Meal::setAvailableQuantity(int quantity) {
     availableQuantity = quantity;
     isAvailable = quantity > 0;
 }
+
 void Meal::setIsAvailable(bool available) { isAvailable = available; }
+
 void Meal::setDate(const string& dateStr) {
-    StringHelper::safeStringToCharArray(dateStr, date, "date");
+    setCharArrayField(date, dateStr, "date");
 }
+
 void Meal::setTime(const string& timeStr) {
-    StringHelper::safeStringToCharArray(timeStr, time, "time");
+    setCharArrayField(time, timeStr, "time");
 }
+
 void Meal::setHallName(const string& hall) {
     hallName = stringToHalls(hall);
 }
 
-// Meal er sob functions
+// Meal operations
 bool Meal::orderMeal(int quantity) {
     if (!isAvailable || availableQuantity < quantity) {
         return false;
     }
     availableQuantity -= quantity;
-    if (availableQuantity <= 0) {
-        isAvailable = false;
-    }
+    isAvailable = availableQuantity > 0;
     return true;
 }
 
@@ -213,36 +255,43 @@ void Meal::displayMeal() const {
     cout << "Type: " << mealTypeToString(mealType) << endl;
     cout << "Price: ৳" << fixed << setprecision(2) << price << " BDT" << endl;
     cout << "Available Quantity: " << availableQuantity << endl;
-    cout << "Date: " << date << endl;
-    cout << "Time: " << time << endl;
+    cout << "Date: " << getDate() << endl;
+    cout << "Time: " << getTime() << endl;
     cout << "Hall: " << getHallName() << endl;
     cout << "Status: " << (isAvailable ? "Available" : "Not Available") << endl;
 }
 
-// hlper enum to string
+// Enum conversion functions using DRY helper
 string Meal::mealTypeToString(MealType type) {
-    switch (type) {
-        case MealType::BREAKFAST: return "Breakfast";
-        case MealType::LUNCH: return "Lunch";
-        case MealType::DINNER: return "Dinner";
-        default: return "Unknown";
-    }
+    static const vector<pair<MealType, string>> mealTypeMap = {
+        {MealType::BREAKFAST, "Breakfast"},
+        {MealType::LUNCH, "Lunch"},
+        {MealType::DINNER, "Dinner"}
+    };
+    return enumToStringHelper(type, mealTypeMap);
 }
-// ulta
+
 MealType Meal::stringToMealType(const string& typeStr) {
     if (typeStr == "Breakfast") return MealType::BREAKFAST;
     if (typeStr == "Lunch") return MealType::LUNCH;
     if (typeStr == "Dinner") return MealType::DINNER;
     return MealType::LUNCH; // default
 }
-// token clss
-// Default hall dewa Al Baruni
+
+// ========== MEAL TOKEN CLASS IMPLEMENTATION ==========
+
 MealToken::MealToken() : mealType(MealType::LUNCH), hallName(Halls::Al_Beruni_Hall),
                          paidAmount(0.0), status(TokenStatus::ACTIVE) {
-    StringHelper::stringToCharArray("", tokenNumber);
-    StringHelper::stringToCharArray("", studentEmail);
-    StringHelper::stringToCharArray("", mealName);
-    StringHelper::stringToCharArray("00:00", purchaseTime);
+    // Initialize char arrays with zeros first
+    memset(tokenNumber, 0, sizeof(tokenNumber));
+    memset(studentEmail, 0, sizeof(studentEmail));
+    memset(mealName, 0, sizeof(mealName));
+    memset(purchaseTime, 0, sizeof(purchaseTime));
+
+    setCharArrayField(tokenNumber, "", "tokenNumber");
+    setCharArrayField(studentEmail, "", "studentEmail");
+    setCharArrayField(mealName, "", "mealName");
+    setCharArrayField(purchaseTime, "00:00", "purchaseTime");
 }
 
 MealToken::MealToken(const string& tokenNum, const string& studentEmailStr,
@@ -251,25 +300,31 @@ MealToken::MealToken(const string& tokenNum, const string& studentEmailStr,
     : mealType(type), hallName(stringToHalls(hall)), paidAmount(amount),
       purchaseDate(purchaseDate), validDate(validDate), status(TokenStatus::ACTIVE) {
 
-    StringHelper::safeStringToCharArray(tokenNum, tokenNumber, "tokenNumber");
-    StringHelper::safeStringToCharArray(studentEmailStr, studentEmail, "studentEmail");
-    StringHelper::safeStringToCharArray(mealNameStr, mealName, "mealName");
-    StringHelper::stringToCharArray(MealUtils::getCurrentTime(), purchaseTime);
+    // Initialize char arrays with zeros first
+    memset(tokenNumber, 0, sizeof(tokenNumber));
+    memset(studentEmail, 0, sizeof(studentEmail));
+    memset(mealName, 0, sizeof(mealName));
+    memset(purchaseTime, 0, sizeof(purchaseTime));
+
+    setCharArrayField(tokenNumber, tokenNum, "tokenNumber");
+    setCharArrayField(studentEmail, studentEmailStr, "studentEmail");
+    setCharArrayField(mealName, mealNameStr, "mealName");
+    setCharArrayField(purchaseTime, MealUtils::getCurrentTime(), "purchaseTime");
 }
 
-// Getters
-string MealToken::getTokenNumber() const { return string(tokenNumber); }
-string MealToken::getStudentEmail() const { return string(studentEmail); }
-string MealToken::getMealName() const { return string(mealName); }
+// Getters using StringHelper
+string MealToken::getTokenNumber() const { return StringHelper::charArrayToString(tokenNumber); }
+string MealToken::getStudentEmail() const { return StringHelper::charArrayToString(studentEmail); }
+string MealToken::getMealName() const { return StringHelper::charArrayToString(mealName); }
 MealType MealToken::getMealType() const { return mealType; }
 string MealToken::getHallName() const { return hallToString(hallName); }
 double MealToken::getPaidAmount() const { return paidAmount; }
 Date MealToken::getPurchaseDate() const { return purchaseDate; }
 Date MealToken::getValidDate() const { return validDate; }
 TokenStatus MealToken::getStatus() const { return status; }
-string MealToken::getPurchaseTime() const { return string(purchaseTime); }
+string MealToken::getPurchaseTime() const { return StringHelper::charArrayToString(purchaseTime); }
 
-// Meal token er kaj gula
+// Token operations
 void MealToken::setStatus(TokenStatus newStatus) { status = newStatus; }
 
 bool MealToken::isValid() const {
@@ -291,61 +346,101 @@ bool MealToken::isExpired() const {
 void MealToken::markAsUsed() { status = TokenStatus::USED; }
 void MealToken::markAsReviewed() { status = TokenStatus::REVIEWED; }
 
-// token number generate
-// TKN er sathe timestamp jog
-// er sathe 3 digit er random number
 string MealToken::generateTokenNumber() {
-    return "TKN" + to_string(time(nullptr)) + to_string(rand() % 899 + 100);
+    static random_device rd;
+    static mt19937 gen(rd());
+    static uniform_int_distribution<> dis(100, 999);
+    return "TKN" + to_string(time(nullptr)) + to_string(dis(gen));
 }
 
 string MealToken::tokenStatusToString(TokenStatus st) {
-    switch (st) {
-        case TokenStatus::ACTIVE: return "Active";
-        case TokenStatus::USED: return "Used";
-        case TokenStatus::EXPIRED: return "Expired";
-        case TokenStatus::REVIEWED: return "Reviewed";
-        default: return "Unknown";
+    static const vector<pair<TokenStatus, string>> statusMap = {
+        {TokenStatus::ACTIVE, "Active"},
+        {TokenStatus::USED, "Used"},
+        {TokenStatus::EXPIRED, "Expired"},
+        {TokenStatus::REVIEWED, "Reviewed"}
+    };
+    return enumToStringHelper(st, statusMap);
+}
+
+void MealToken::displayToken() const {
+    cout << "Token: " << getTokenNumber() << endl;
+    cout << "Type: " << Meal::mealTypeToString(mealType) << endl;
+    cout << "Hall: " << getHallName() << endl;
+    cout << "Amount: $" << fixed << setprecision(2) << paidAmount << endl;
+    cout << "Valid Date: " << validDate.toString() << endl;
+    TokenStatus effective = status;
+    if (status == TokenStatus::ACTIVE && isExpired()) effective = TokenStatus::EXPIRED;
+    cout << "Status: " << tokenStatusToString(effective) << endl;
+}
+
+void MealToken::saveToFile(const string& folderPath) const {
+    string filename = folderPath + getTokenNumber() + ".txt";
+    ofstream file(filename);
+    if (file.is_open()) {
+        file << "Token Number: " << getTokenNumber() << endl;
+        file << "Meal Type: " << Meal::mealTypeToString(mealType) << endl;
+        file << "Hall: " << getHallName() << endl;
+        file << "Amount Paid: " << paidAmount << endl;
+        file << "Purchase Date: " << purchaseDate.toString() << endl;
+        file << "Valid Date: " << validDate.toString() << endl;
+        file << "Purchase Time: " << getPurchaseTime() << endl;
+        file.close();
     }
 }
 
-// Constructors
+// ========== MEAL REVIEW CLASS IMPLEMENTATION ==========
+
 MealReview::MealReview() : rating(MealRating::GOOD), hallName(Halls::Al_Beruni_Hall),
                            batch(0), department(department::Department_of_Computer_Science_and_Engineering) {
-    StringHelper::stringToCharArray("", Name);
-    StringHelper::stringToCharArray("", tokenNumber);
-    StringHelper::stringToCharArray("", mealName);
-    StringHelper::stringToCharArray("", comment);
+    // Initialize char arrays with zeros first
+    memset(Name, 0, sizeof(Name));
+    memset(tokenNumber, 0, sizeof(tokenNumber));
+    memset(mealName, 0, sizeof(mealName));
+    memset(comment, 0, sizeof(comment));
+
+    setCharArrayField(Name, "", "Name");
+    setCharArrayField(tokenNumber, "", "tokenNumber");
+    setCharArrayField(mealName, "", "mealName");
+    setCharArrayField(comment, "", "comment");
 }
 
 MealReview::MealReview(const string& email, const string& tokenNum, const string& meal,
                        MealRating mealRating, const string& commentStr, const string& date, const string& hall)
-    : rating(mealRating), hallName(stringToHalls(hall)), batch(0), department(department::Department_of_Computer_Science_and_Engineering) {
+    : rating(mealRating), hallName(stringToHalls(hall)), batch(0),
+      department(department::Department_of_Computer_Science_and_Engineering) {
 
-    StringHelper::safeStringToCharArray(email, Name, "Name");
-    StringHelper::safeStringToCharArray(tokenNum, tokenNumber, "tokenNumber");
-    StringHelper::safeStringToCharArray(meal, mealName, "mealName");
-    StringHelper::safeStringToCharArray(commentStr, comment, "comment");
+    // Initialize char arrays with zeros first
+    memset(Name, 0, sizeof(Name));
+    memset(tokenNumber, 0, sizeof(tokenNumber));
+    memset(mealName, 0, sizeof(mealName));
+    memset(comment, 0, sizeof(comment));
+
+    setCharArrayField(Name, email, "Name");
+    setCharArrayField(tokenNumber, tokenNum, "tokenNumber");
+    setCharArrayField(mealName, meal, "mealName");
+    setCharArrayField(comment, commentStr, "comment");
     reviewDate = Date(date);
 }
 
-// Getters
-string MealReview::getStudentEmail() const { return string(Name); }
-string MealReview::getTokenNumber() const { return string(tokenNumber); }
-string MealReview::getMealName() const { return string(mealName); }
+// Getters using StringHelper
+string MealReview::getStudentEmail() const { return StringHelper::charArrayToString(Name); }
+string MealReview::getTokenNumber() const { return StringHelper::charArrayToString(tokenNumber); }
+string MealReview::getMealName() const { return StringHelper::charArrayToString(mealName); }
 MealRating MealReview::getRating() const { return rating; }
-string MealReview::getComment() const { return string(comment); }
+string MealReview::getComment() const { return StringHelper::charArrayToString(comment); }
 string MealReview::getReviewDate() const { return reviewDate.toString(); }
 string MealReview::getHallName() const { return hallToString(hallName); }
 
 string MealReview::ratingToString(MealRating rating) {
-    switch (rating) {
-        case MealRating::POOR: return "Poor";
-        case MealRating::FAIR: return "Fair";
-        case MealRating::GOOD: return "Good";
-        case MealRating::VERY_GOOD: return "Very Good";
-        case MealRating::EXCELLENT: return "Excellent";
-        default: return "Unknown";
-    }
+    static const vector<pair<MealRating, string>> ratingMap = {
+        {MealRating::POOR, "Poor"},
+        {MealRating::FAIR, "Fair"},
+        {MealRating::GOOD, "Good"},
+        {MealRating::VERY_GOOD, "Very Good"},
+        {MealRating::EXCELLENT, "Excellent"}
+    };
+    return enumToStringHelper(rating, ratingMap);
 }
 
 void MealReview::displayReview() const {
@@ -358,7 +453,8 @@ void MealReview::displayReview() const {
     cout << "Hall: " << getHallName() << endl;
 }
 
-// Token manager class
+// ========== TOKEN MANAGER CLASS IMPLEMENTATION ==========
+
 TokenManager::TokenManager() {
     createTokenFolder();
     loadAllTokens();
@@ -369,7 +465,6 @@ string TokenManager::buyToken(const string& studentEmail, const string& hallName
                              MealType mealType, const Meal& meal) {
     string tokenNumber = MealToken::generateTokenNumber();
     Date today;
-    // Date thik ache nki check
     Date parsedDate(meal.getDate());
     Date validDate = parsedDate.isValid() ? parsedDate : today;
 
@@ -397,14 +492,12 @@ bool TokenManager::useToken(const string& tokenNumber, const string& studentEmai
 }
 
 bool TokenManager::canBuyToken(const string& studentEmail, MealType mealType, const Date& forDate) const {
-    // Token thakle r kinte dewa jbena
-    for (const auto& token : activeTokens) {
-        if (token.getMealType() == mealType &&
-            token.getValidDate().toString() == forDate.toString()) {
-            return false;
-        }
-    }
-    return true;
+    return all_of(activeTokens.begin(), activeTokens.end(),
+        [&](const MealToken& token) {
+            return !(token.getStudentEmail() == studentEmail &&
+                    token.getMealType() == mealType &&
+                    token.getValidDate().toString() == forDate.toString());
+        });
 }
 
 bool TokenManager::addReview(const string& studentEmail, const string& tokenNumber,
@@ -412,11 +505,11 @@ bool TokenManager::addReview(const string& studentEmail, const string& tokenNumb
     for (auto& token : usedTokens) {
         if (token.getTokenNumber() == tokenNumber && token.getStudentEmail() == studentEmail) {
             Date today;
-            MealReview review(studentEmail, tokenNumber, token.getMealName().empty()?"Meal":token.getMealName(), rating, comment,
+            string mealName = token.getMealName().empty() ? "Meal" : token.getMealName();
+            MealReview review(studentEmail, tokenNumber, mealName, rating, comment,
                               today.toString(), token.getHallName());
             reviews.push_back(review);
             token.markAsReviewed();
-// datagula save
             saveAllTokens();
             saveAllReviews();
             return true;
@@ -427,9 +520,9 @@ bool TokenManager::addReview(const string& studentEmail, const string& tokenNumb
 
 void TokenManager::cleanupExpiredTokens() {
     bool changed = false;
-    for (auto &t : activeTokens) {
-        if (t.getStatus() == TokenStatus::ACTIVE && t.isExpired()) {
-            t.setStatus(TokenStatus::EXPIRED);
+    for (auto& token : activeTokens) {
+        if (token.getStatus() == TokenStatus::ACTIVE && token.isExpired()) {
+            token.setStatus(TokenStatus::EXPIRED);
             changed = true;
         }
     }
@@ -438,8 +531,12 @@ void TokenManager::cleanupExpiredTokens() {
 
 vector<MealToken> TokenManager::getStudentTokens(const string& studentEmail) const {
     vector<MealToken> result;
-    for (const auto& t : activeTokens) if (t.getStudentEmail() == studentEmail) result.push_back(t);
-    for (const auto& t : usedTokens) if (t.getStudentEmail() == studentEmail) result.push_back(t);
+    for (const auto& token : activeTokens) {
+        if (token.getStudentEmail() == studentEmail) result.push_back(token);
+    }
+    for (const auto& token : usedTokens) {
+        if (token.getStudentEmail() == studentEmail) result.push_back(token);
+    }
     return result;
 }
 
@@ -447,19 +544,22 @@ void TokenManager::displayStudentTokens(const string& studentEmail) const {
     cout << "\n=== Active Tokens ===" << endl;
     bool hasActive = false;
     for (const auto& token : activeTokens) {
-        if (token.getStudentEmail() != studentEmail) continue;
-        token.displayToken();
-        hasActive = true;
-        cout << "---" << endl;
+        if (token.getStudentEmail() == studentEmail) {
+            token.displayToken();
+            hasActive = true;
+            cout << "---" << endl;
+        }
     }
     if (!hasActive) cout << "No active tokens found." << endl;
+
     cout << "\n=== Used Tokens ===" << endl;
     bool hasUsed = false;
     for (const auto& token : usedTokens) {
-        if (token.getStudentEmail() != studentEmail) continue;
-        token.displayToken();
-        hasUsed = true;
-        cout << "---" << endl;
+        if (token.getStudentEmail() == studentEmail) {
+            token.displayToken();
+            hasUsed = true;
+            cout << "---" << endl;
+        }
     }
     if (!hasUsed) cout << "No used tokens found." << endl;
 }
@@ -468,46 +568,70 @@ void TokenManager::createTokenFolder() {
     filesystem::create_directories(TOKEN_FOLDER);
 }
 
-// Database Manager class diya vector
+// Database operations using DatabaseManager
 void TokenManager::saveAllTokens() {
-    DatabaseManager::saveObjects(activeTokens, "active_tokens");
-    DatabaseManager::saveObjects(usedTokens, "used_tokens");
+    DatabaseManager::saveActiveTokens(activeTokens);
+    DatabaseManager::saveUsedTokens(usedTokens);
 }
 
 void TokenManager::loadAllTokens() {
-    activeTokens.clear();
-    usedTokens.clear();
-    DatabaseManager::loadObjects(activeTokens, "active_tokens");
-    DatabaseManager::loadObjects(usedTokens, "used_tokens");
+    activeTokens = DatabaseManager::loadActiveTokens();
+    usedTokens = DatabaseManager::loadUsedTokens();
 }
 
 void TokenManager::saveAllReviews() {
-    DatabaseManager::saveObjects(reviews, "meal_reviews");
+    DatabaseManager::saveReviews(reviews);
 }
 
 void TokenManager::loadAllReviews() {
-    reviews.clear();
-    DatabaseManager::loadObjects(reviews, "meal_reviews");
+    reviews = DatabaseManager::loadReviews();
 }
-// helper method gula
+
+vector<MealReview> TokenManager::getMealReviews(const string& mealName) const {
+    vector<MealReview> result;
+    for (const auto& review : reviews) {
+        if (review.getMealName() == mealName) result.push_back(review);
+    }
+    return result;
+}
+
+vector<MealReview> TokenManager::getHallReviews(const string& hallName) const {
+    vector<MealReview> result;
+    for (const auto& review : reviews) {
+        if (review.getHallName() == hallName) result.push_back(review);
+    }
+    return result;
+}
+
+void TokenManager::displayAllReviews() const {
+    if (reviews.empty()) {
+        cout << "No reviews available." << endl;
+        return;
+    }
+    cout << "\n=== ALL MEAL REVIEWS ===" << endl;
+    for (const auto& review : reviews) {
+        review.displayReview();
+        cout << "---" << endl;
+    }
+}
+
+// ========== MEAL UTILS CLASS IMPLEMENTATION ==========
+
 bool MealUtils::isWithinMealTime(MealType type) {
     int hour;
     if (Date::isSimulationActive() && Date::getSimulatedHour() >= 0) {
         hour = Date::getSimulatedHour();
     } else {
-        time_t now = time(0);
+        time_t now = time(nullptr);
         tm* ltm = localtime(&now);
         hour = ltm->tm_hour;
     }
+
     switch (type) {
-        case MealType::BREAKFAST:
-            return hour >= 7 && hour <= 10;
-        case MealType::LUNCH:
-            return hour >= 12 && hour <= 14;
-        case MealType::DINNER:
-            return hour >= 19 && hour <= 22;
-        default:
-            return false;
+        case MealType::BREAKFAST: return hour >= 7 && hour <= 10;
+        case MealType::LUNCH: return hour >= 12 && hour <= 14;
+        case MealType::DINNER: return hour >= 19 && hour <= 22;
+        default: return false;
     }
 }
 
@@ -517,7 +641,7 @@ string MealUtils::getCurrentTime() {
         hour = Date::getSimulatedHour();
         minute = 0;
     } else {
-        time_t now = time(0);
+        time_t now = time(nullptr);
         tm* ltm = localtime(&now);
         hour = ltm->tm_hour;
         minute = ltm->tm_min;
@@ -533,27 +657,15 @@ bool MealUtils::isMealTimeExpired(MealType type, const Date& mealDate) {
     if (mealDate > today) return false;
     return !isWithinMealTime(type);
 }
-// Halls enums lagate hbe
+
 vector<string> MealUtils::getAvailableHalls() {
     return {
-        "Al Beruni Hall",
-        "Meer Mosharraf Hossain Hall",
-        "Shaheed Salam Barkat Hall",
-        "AFM Kamaluddin Hall",
-        "Moulana Bhasani Hall",
-        "Bangabondhu Sheikh Majibur Rahman Hall",
-        "Jatiya Kabi Kazi Nazrul Islam Hall",
-        "Rabindra Nath Tagore Hall",
-        "Shahid Tajuddin Ahmed Hall",
-        "Shahid Sheikh Russel Hall",
-        "Shaheed Rafiq Jabbar Hall",
-        "Nawab Faizunnesa Hall",
-        "Fazilatunnesa Hall",
-        "Jahanara Imam Hall",
-        "Preetilata Hall",
-        "Begum Khaleda Zia Hall",
-        "Sheikh Hasina Hall",
-        "Bir Pratik Taramon Bibi Hall"
+        "Al Beruni Hall", "Meer Mosharraf Hossain Hall", "Shaheed Salam Barkat Hall",
+        "AFM Kamaluddin Hall", "Moulana Bhasani Hall", "Bangabondhu Sheikh Majibur Rahman Hall",
+        "Jatiya Kabi Kazi Nazrul Islam Hall", "Rabindra Nath Tagore Hall", "Shahid Tajuddin Ahmed Hall",
+        "Shahid Sheikh Russel Hall", "Shaheed Rafiq Jabbar Hall", "Nawab Faizunnesa Hall",
+        "Fazilatunnesa Hall", "Jahanara Imam Hall", "Preetilata Hall", "Begum Khaleda Zia Hall",
+        "Sheikh Hasina Hall", "Bir Pratik Taramon Bibi Hall"
     };
 }
 
@@ -584,53 +696,4 @@ void MealUtils::displayTokenReceipt(const MealToken& token) {
     if (effective == TokenStatus::ACTIVE && token.isExpired()) effective = TokenStatus::EXPIRED;
     cout << "Status: " << MealToken::tokenStatusToString(effective) << endl;
     cout << "=========================" << endl;
-}
-
-void MealToken::displayToken() const {
-    cout << "Token: " << getTokenNumber() << endl;
-    cout << "Type: " << Meal::mealTypeToString(mealType) << endl;
-    cout << "Hall: " << getHallName() << endl;
-    cout << "Amount: $" << fixed << setprecision(2) << paidAmount << endl;
-    cout << "Valid Date: " << validDate.toString() << endl;
-    TokenStatus effective = status;
-    if (status == TokenStatus::ACTIVE && isExpired()) effective = TokenStatus::EXPIRED; // safety
-    cout << "Status: " << MealToken::tokenStatusToString(effective) << endl;
-}
-
-void MealToken::saveToFile(const string& folderPath) const {
-    string filename = folderPath + getTokenNumber() + ".txt";
-    ofstream file(filename);
-    if (file.is_open()) {
-        file << "Token Number: " << getTokenNumber() << endl;
-        file << "Meal Type: " << Meal::mealTypeToString(mealType) << endl;
-        file << "Hall: " << getHallName() << endl;
-        file << "Amount Paid: " << paidAmount << endl;
-        file << "Purchase Date: " << purchaseDate.toString() << endl;
-        file << "Valid Date: " << validDate.toString() << endl;
-        file << "Purchase Time: " << purchaseTime << endl;
-        file.close();
-    }
-}
-
-vector<MealReview> TokenManager::getMealReviews(const string& mealName) const {
-    vector<MealReview> result;
-    for (const auto &r : reviews) if (r.getMealName() == mealName) result.push_back(r);
-    return result;
-}
-
-vector<MealReview> TokenManager::getHallReviews(const string& hallName) const {
-    vector<MealReview> result;
-    for (const auto &r : reviews) if (r.getHallName() == hallName) result.push_back(r);
-    return result;
-}
-
-void TokenManager::displayAllReviews() const {
-    if (reviews.empty()) { cout << "No reviews available." << endl; return; }
-    cout << "\n=== ALL MEAL REVIEWS ===" << endl;
-    for (const auto &r : reviews) { r.displayReview(); cout << "---" << endl; }
-}
-
-bool TokenManager::hasReviewedToken(const string& tokenNumber) const {
-    for (const auto &r : reviews) if (r.getTokenNumber() == tokenNumber) return true;
-    return false;
 }

@@ -20,10 +20,8 @@ private:
     Auth* authSystem;
     TokenManager* tokenManager;
     bool isRunning;
-
 public:
     StudentInterface(Student* student, Auth* auth);
-
     void displayMenu() override;
     int getChoice() override;
     void processChoice(int choice) override;

@@ -1,6 +1,5 @@
 //
 // Created by Md. Asif Khan on 11/8/25.
-// Main Menu Implementation
 //
 
 #include "MainMenu.h"
@@ -21,14 +20,13 @@ void MainMenu::displayWelcomeBanner() {
     clearScreen();
     cout << "\nUNIZY : JAHANGIRNAGAR UNIVERSITY MANAGEMENT SYSTEM" << endl;
     cout << "==========================================================" << endl;
-    cout << "Current Date: " << getCurrentTimeString() << endl;
+    cout<< Date::getCurrentDateTimeString() << endl;
     cout << "==========================================================" << endl;
 }
 
 void MainMenu::displayMenu() {
     displayWelcomeBanner();
-
-    cout << "\nMAIN MENU OPTIONS:" << endl;
+    cout << "\nMAIN MENU:" << endl;
     cout << "----------------------------------------------------------" << endl;
     cout << "0. Simulate Date & Time" << endl;
     cout << "1. Login to System" << endl;
@@ -43,24 +41,23 @@ int MainMenu::getChoice() {
     string input;
 
     while (true) {
-        cout << "Please enter your choice (0-4): ";
+        cout << "Enter your choice (0-4): ";
         getline(cin, input);
 
         if (input.empty()) {
-            displayError("Please enter a number between 0-4.");
+            displayError("Enter a number between 0-4.");
             continue;
         }
 
-        // Try to convert to integer
         try {
             choice = stoi(input);
             if (choice >= 0 && choice <= 4) {
                 return choice;
             } else {
-                displayError("Invalid input! Please enter a number between 0-4.");
+                displayError("Invalid input! Enter a number between 0-4.");
             }
         } catch (const exception&) {
-            displayError("Invalid input! Please enter a number between 0-4.");
+            displayError("Invalid input! Enter a number between 0-4.");
         }
     }
 }
@@ -129,13 +126,10 @@ void MainMenu::handleLogin() {
     cout << "Enter password: ";
     getline(cin, password);
 
-    displayInfo("Authenticating user...");
-
     User* user = authSystem->login(email, password);
     if (user) {
         displaySuccess("Login successful!");
 
-        // Determine user type and launch appropriate interface
         if (auto* student = dynamic_cast<Student*>(user)) {
             StudentInterface studentUI(student, authSystem);
             studentUI.run();
@@ -153,7 +147,7 @@ void MainMenu::handleLogin() {
             diningUI.run();
         }
     } else {
-        displayError("Invalid credentials! Please try again.");
+        displayError("Invalid credentials! Try again.");
         pauseForInput();
     }
 }
@@ -178,11 +172,9 @@ void MainMenu::handleRegistration() {
     if (userType >= 1 && userType <= 4) {
         bool success = false;
         switch (userType) {
-            case 1: { // Student registration with instant validation
+            case 1: {
                 cout << "\n=== STUDENT REGISTRATION ===" << endl;
-                cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
-
-                // Use instant validation functions
+                cout << "Provide the following information.\n" << endl;
                 string studentID = Auth::getValidatedStudentID();
                 string name = Auth::getValidatedName();
                 string email = Auth::getValidatedEmail();
@@ -190,13 +182,12 @@ void MainMenu::handleRegistration() {
 
                 int age;
                 while (true) {
-                    cout << "Enter Age (16-35): ";
+                    cout << "Enter Age (18-30): ";
                     cin >> age;
-                    if (age >= 16 && age <= 35) {
-                        cout << "[OK] Age is valid!" << endl;
+                    if (age >= 18 && age <= 30) {
                         break;
                     }
-                    cout << "[ERROR] Age must be between 16 and 35. Please try again." << endl;
+                    cout << "Age must be between 18 and 30. Please try again." << endl;
                 }
 
                 int classRoll;
@@ -212,7 +203,7 @@ void MainMenu::handleRegistration() {
                 cin >> deptChoice;
 
                 int batch;
-                cout << "Enter Batch: ";
+                cout << "Enter Batch(45-54): ";
                 cin >> batch;
 
                 int hallChoice;
@@ -239,7 +230,6 @@ void MainMenu::handleRegistration() {
                 cin >> hallChoice;
                 cin.ignore();
 
-                // Map dept and hall
                 department dept = department::Department_of_Computer_Science_and_Engineering;
                 if (deptChoice == 2) dept = department::Department_of_physics;
                 else if (deptChoice == 3) dept = department::Department_of_Mathematics;
@@ -270,11 +260,10 @@ void MainMenu::handleRegistration() {
                 success = authSystem->registerStudent(studentID, name, email, age, classRoll, dept, batch, hall, password);
                 break;
             }
-            case 2: { // Teacher registration with instant validation
+            case 2: {
                 cout << "\n=== TEACHER REGISTRATION ===" << endl;
-                cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
-
-                // Use instant validation functions
+                cout << "Please provide the following information.\n" << endl;
+                
                 string name = Auth::getValidatedName();
                 string email = Auth::getValidatedEmail();
                 string password = Auth::getValidatedPassword();
@@ -283,29 +272,28 @@ void MainMenu::handleRegistration() {
                 cout << "Enter Department: ";
                 getline(cin, dept);
 
-                int rankChoice;
-                cout << "Select Academic Rank:" << endl;
+                int desg;
+                cout << "Select Designation:" << endl;
                 cout << "1. Professor" << endl;
                 cout << "2. Associate Professor" << endl;
                 cout << "3. Assistant Professor" << endl;
                 cout << "4. Lecturer" << endl;
                 cout << "Enter choice (1-4): ";
-                cin >> rankChoice;
+                cin >> desg;
                 cin.ignore();
 
-                designation rank = designation::Professor;
-                if (rankChoice == 2) rank = designation::AssociateProfessor;
-                else if (rankChoice == 3) rank = designation::AssistantProfessor;
-                else if (rankChoice == 4) rank = designation::Lecturer;
+                designation des = designation::Professor;
+                if (desg == 2) des = designation::AssociateProfessor;
+                else if (desg == 3) des = designation::AssistantProfessor;
+                else if (desg == 4) des = designation::Lecturer;
 
-                success = authSystem->registerTeacher(name, email, dept, rank, password);
+                success = authSystem->registerTeacher(name, email, dept, des, password);
                 break;
             }
-            case 3: { // Admin registration with instant validation
+            case 3: {
                 cout << "\n=== ADMIN REGISTRATION ===" << endl;
-                cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
+                cout << "Provide the following information.\n" << endl;
 
-                // Use instant validation functions
                 string name = Auth::getValidatedName();
                 string email = Auth::getValidatedEmail();
                 string password = Auth::getValidatedPassword();
@@ -330,11 +318,10 @@ void MainMenu::handleRegistration() {
                 success = authSystem->registerAdmin(name, email, adminType, password);
                 break;
             }
-            case 4: { // Dining Authority registration with instant validation
+            case 4: {
                 cout << "\n=== DINING AUTHORITY REGISTRATION ===" << endl;
                 cout << "Please provide the following information. You'll get instant feedback for each field.\n" << endl;
 
-                // Use instant validation functions
                 string name = Auth::getValidatedName();
                 string email = Auth::getValidatedEmail();
                 string password = Auth::getValidatedPassword();
@@ -388,8 +375,7 @@ void MainMenu::handleAbout() {
 
 void MainMenu::handleExit() {
     displayHeader("EXIT SYSTEM");
-    cout << "Thank you for using the University Management System!" << endl;
-    cout << "Have a great day!" << endl;
+    cout << "Thank you for using Unizy. " << "Have a great day!" << endl;
     isRunning = false;
 }
 

@@ -30,30 +30,26 @@ void MenuInterface::clearScreen() {
 }
 
 void MenuInterface::pauseForInput() {
-    cout << "\nPress Enter to continue...";
+    cout << "\nPress Enter to proceed";
     cin.get();
 }
 
 bool MenuInterface::confirmAction(const string& message) {
     char choice;
-    cout << "[WARNING]  " << message << " (y/n): ";
+    cout<< message << " (y/n): ";
     cin >> choice;
     cin.ignore();
     return (choice == 'y' || choice == 'Y');
 }
 
 void MenuInterface::displayError(const string& message) {
-    cout << "\nERROR: " << message << endl;
+    cout<<"Error! "<< message << endl;
 }
 
 void MenuInterface::displaySuccess(const string& message) {
-    cout << "\nSUCCESS: " << message << endl;
+    cout<<"Success! "<< message << endl;
 }
 
 void MenuInterface::displayInfo(const string& message) {
-    cout << "\nINFO: " << message << endl;
-}
-
-string MenuInterface::getCurrentTimeString() const {
-    return Date::getCurrentTimeString();
+    cout<<"Info: "<< message << endl;
 }

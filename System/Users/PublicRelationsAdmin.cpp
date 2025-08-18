@@ -111,9 +111,7 @@ void PublicRelationsAdmin::displayNoticeStatistics() const {
 
 // Static database operations
 vector<PublicRelationsAdmin> PublicRelationsAdmin::loadAllPRAdmins() {
-    vector<PublicRelationsAdmin> admins;
-    DatabaseManager::loadObjects(admins, "pr_admins");
-    return admins;
+    return DatabaseManager::loadObjects<PublicRelationsAdmin>("pr_admins");
 }
 
 bool PublicRelationsAdmin::addPRAdminToDB(const PublicRelationsAdmin& admin) {

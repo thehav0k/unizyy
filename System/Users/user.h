@@ -9,6 +9,10 @@
 #include "../../Core/Utils/StringHelper.h"
 using namespace std;
 
+// string ekta class howa te binary file sorasori right kora jayna
+// but string class er STL gula abr dorkar
+// so pura project e string use korbo runtime e
+// but file save korar somoy char array te convert kore nibo
 class User {
 protected:
     char email[100];     // char array karon string diye object write kora jayna
@@ -19,12 +23,11 @@ public:
         StringHelper::stringToCharArray(email, this->email);
         StringHelper::stringToCharArray(password, this->password);
     }
-// Default constructor
     User() {
         email[0] = '\0';
         password[0] = '\0';
     }
-
+// getters and setters
     string getEmail() const {
         return StringHelper::charArrayToString(email);
     }
@@ -40,20 +43,17 @@ public:
     void setPassword(const string &password) {
         StringHelper::stringToCharArray(password, this->password);
     }
-
-    // Password change functionality
     bool changePassword(const string& currentPassword, const string& newPassword) {
         if (getPassword() != currentPassword) {
-            return false; // Current password doesn't match
+            return false;
         }
         setPassword(newPassword);
         return true;
     }
 
-    // Virtual destructor for polymorphic classes
     virtual ~User() = default;
 
-    // Pure virtual method for polymorphism
+    // Pure virtual method for abstract class
     virtual void display() const = 0;
 };
 

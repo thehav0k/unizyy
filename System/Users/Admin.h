@@ -11,9 +11,9 @@
 #include "../../Core/Database/DatabaseManager.h"
 
 
-class Admin final: public User {
+class Admin: public User {
 private:
-    char name[100];     // Changed to char array
+    char name[100];
     AdminType adminType;
 
 public:
@@ -52,7 +52,7 @@ public:
         cout << "Admin Type: " << static_cast<int>(adminType) << endl;
     }
 
-    // Static database operations
+    // Database er sob kaj Database Manager korbe
     static vector<Admin> loadAllAdmins();
     static bool addAdminToDB(const Admin& admin);
     static bool updateAdminInDB(const string& email, const Admin& updatedAdmin);

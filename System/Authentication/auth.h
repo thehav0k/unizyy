@@ -18,25 +18,24 @@
 
 using namespace std;
 
-// Auth class for handling authentication operations
 class Auth {
 private:
-    DatabaseManager dbManager;
-
+    DatabaseManager dbManager; // karon authentication basically login+reg and duitai basically database operation
 public:
     Auth();
-
+    // login er jnno database(basically cached vector) theke searching kora lagbe
     static User* login(const string& email, const string& password);
-
+    // cache vector e new object push_back kora lagbe (student teacher admin sob same)
     static bool registerStudent(const string &studentID, const string &name, const string &email,
                         int age, int classRoll, department dept, int batch,
                         Halls hall, const string &password);
     static bool registerTeacher(const string &name, const string &email, const string &department,
-                        designation rank, const string &password);
+                        designation desg, const string &password);
     static bool registerAdmin(const string &name, const string &email, AdminType adminType, const string &password);
     static bool registerDiningAuthority(const string &name, const string &email, const string &hallName,
                                 const string &designation, const string &phoneNumber, const string &password);
-
+   // search by using vector.find()
+    // thakle reg korte dewa jabena
     static bool isEmailRegistered(const string& email);
     static DiningAuthority* getDiningAuthorityByEmail(const string& email);
     static void displayAllUsers();
@@ -48,10 +47,10 @@ public:
     static string getValidatedName();
 };
 
-// Specialized admin registration function
+// only system admin onno admin der registration korte parbe
 bool registerAdminByAdmin(const string &currentAdminEmail, const string &name, const string &email, AdminType adminType, const string &password);
 
-// Utility functions
+//Helper functions
 void initializeDatabase();
 void loadDataFromFiles();
 void saveDataToFiles();

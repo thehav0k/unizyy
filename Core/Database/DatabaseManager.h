@@ -12,52 +12,76 @@
 #include <iostream>
 #include <filesystem>
 using namespace std;
-// agei declare jate use kora jay
-// pore define kora jabe nij nij file e
+
+// Include headers for all classes that need specific methods
+#include "../Models/Notice.h"
+#include "../../System/Modules/Meal/meal.h"
+
+// Forward declarations for classes that are only used
 class Student;
 class Teacher;
 class Admin;
 class DiningAuthority;
+class PublicRelationsAdmin;
 
 class DatabaseManager {
 private:
-    // Database file paths
     static const string STUDENTS_DB;
     static const string TEACHERS_DB;
     static const string ADMINS_DB;
     static const string DATABASE_DIR;
-    // DiningAuthority database file path
     static const string DINING_AUTH_DB;
+    static const string NOTICES_DB;
+    static const string ACTIVE_TOKENS_DB;
+    static const string USED_TOKENS_DB;
+    static const string REVIEWS_DB;
+    static const string PR_ADMINS_DB;
+    static const string MEALS_DB;
 
-    // Static cache for loaded data
+    // file er sob data vector gulay joma hbe program shurur por
     static vector<Student> cachedStudents;
     static vector<Teacher> cachedTeachers;
     static vector<Admin> cachedAdmins;
     static vector<DiningAuthority> cachedDiningAuthorities;
+    static vector<Notice> cachedNotices;
+    static vector<MealToken> cachedActiveTokens;
+    static vector<MealToken> cachedUsedTokens;
+    static vector<MealReview> cachedReviews;
+    static vector<PublicRelationsAdmin> cachedPRAdmins;
+    static vector<Meal> cachedMeals;
 
 public:
-    // Generic template methods for direct object writing - NOW PUBLIC
+    // direct object writing & reading er jnno template method
+    // jate jekono object same method diye read write kora jay
     template<typename T>
     static void writeObjectToBinary(ofstream& out, const T& obj);
-
     template<typename T>
     static void readObjectFromBinary(ifstream& in, T& obj);
 
-    // Generic collection methods for any object type
+    // Generic template methods for common database operations
     template<typename T>
-    static void saveObjects(const vector<T>& objects, const string& filename);
+    static vector<T> loadObjects(const string& filePath);
 
     template<typename T>
-    static void loadObjects(vector<T>& objects, const string& filename);
+    static void saveObjects(const vector<T>& objects, const string& filePath);
+
+    template<typename T, typename KeyType>
+    static T* findObjectByKey(vector<T>& container,
+                             const KeyType& key,
+                             KeyType (T::*getter)() const);
 
     template<typename T>
-    static bool saveObject(const T& obj, const string& filename);
+    static bool addObject(vector<T>& cache, const T& object, const string& filePath);
 
-    template<typename T>
-    static bool updateObject(const T& obj, const string& filename);
+    template<typename T, typename KeyType>
+    static bool updateObject(vector<T>& cache, const KeyType& key,
+                            const T& updatedObject, const string& filePath,
+                            KeyType (T::*getter)() const);
 
-    template<typename T>
-    static bool deleteObject(const T& obj, const string& filename);
+    template<typename T, typename KeyType>
+    static bool deleteObject(vector<T>& cache, const KeyType& key,
+                            const string& filePath,
+                            KeyType (T::*getter)() const);
 
     // Database initialization
     static void initializeDatabase();
@@ -102,6 +126,57 @@ public:
     static void backupData(const string& backupDir);
     static bool restoreData(const string& backupDir);
 
+    // Notice operations
+    static vector<Notice> loadNotices();
+    static void saveNotices(const vector<Notice>& notices);
+    static bool addNotice(const Notice& notice);
+    static bool updateNotice(const string& noticeID, const Notice& updatedNotice);
+    static bool deleteNotice(const string& noticeID);
+    static Notice* findNoticeByID(const string& noticeID);
+
+
+    // Active Token operations
+    static vector<MealToken> loadActiveTokens();
+    static void saveActiveTokens(const vector<MealToken>& tokens);
+    static bool addActiveToken(const MealToken& token);
+    static bool updateActiveToken(const string& tokenID, const MealToken& updatedToken);
+    static bool deleteActiveToken(const string& tokenID);
+    static MealToken* findActiveTokenByID(const string& tokenID);
+
+    // Used Token operations
+    static vector<MealToken> loadUsedTokens();
+    static void saveUsedTokens(const vector<MealToken>& tokens);
+    static bool addUsedToken(const MealToken& token);
+    static bool updateUsedToken(const string& tokenID, const MealToken& updatedToken);
+    static bool deleteUsedToken(const string& tokenID);
+    static MealToken* findUsedTokenByID(const string& tokenID);
+
+    // Review operations
+    static vector<MealReview> loadReviews();
+    static void saveReviews(const vector<MealReview>& reviews);
+    static bool addReview(const MealReview& review);
+    static bool updateReview(const string& reviewID, const MealReview& updatedReview);
+    static bool deleteReview(const string& reviewID);
+    static MealReview* findReviewByID(const string& reviewID);
+
+    // PR Admin operations
+    static vector<PublicRelationsAdmin> loadPRAdmins();
+    static void savePRAdmins(const vector<PublicRelationsAdmin>& admins);
+    static bool addPRAdmin(const PublicRelationsAdmin& admin);
+    static bool updatePRAdmin(const string& email, const PublicRelationsAdmin& updatedAdmin);
+    static bool deletePRAdmin(const string& email);
+    static PublicRelationsAdmin* findPRAdminByEmail(const string& email);
+
+    // Meal operations
+    static vector<Meal> loadMeals();
+    static void saveMeals(const vector<Meal>& meals);
+    static bool addMeal(const Meal& meal);
+    static bool updateMeal(const string& mealKey, const Meal& updatedMeal);
+    static bool deleteMeal(const string& mealKey);
+    static vector<Meal> getMealsByHall(const string& hall);
+    static vector<Meal> getMealsByDate(const string& date);
+    static vector<Meal> getMealsByType(MealType type);
+
     // Database statistics
     static size_t getStudentCount();
     static size_t getTeacherCount();
@@ -124,119 +199,107 @@ void DatabaseManager::readObjectFromBinary(ifstream& in, T& obj) {
     in.read(reinterpret_cast<char*>(&obj), sizeof(obj));
 }
 
-// Generic collection methods - save vector of objects with count header
+// General template for loading objects
 template<typename T>
-void DatabaseManager::saveObjects(const vector<T>& objects, const string& filename) {
-    filesystem::create_directories(DATABASE_DIR);
-    string filepath = DATABASE_DIR + "/" + filename + ".dat";
-    string tmpfile = filepath + ".tmp";
+vector<T> DatabaseManager::loadObjects(const string& filePath) {
+    vector<T> objects;
+    ifstream in(filePath, ios::binary);
 
-    ofstream out(tmpfile, ios::binary | ios::trunc);
-    if (!out.is_open()) return;
-
-    size_t count = objects.size();
-    out.write(reinterpret_cast<const char*>(&count), sizeof(count));
-
-    for (const auto& obj : objects) {
-        writeObjectToBinary(out, obj);
-    }
-    out.flush();
-    out.close();
-
-    // Atomic replace
-    std::error_code ec;
-    filesystem::rename(tmpfile, filepath, ec);
-    if (ec) {
-        filesystem::copy_file(tmpfile, filepath, filesystem::copy_options::overwrite_existing, ec);
-        filesystem::remove(tmpfile, ec);
-    }
-}
-
-// Generic collection methods - load vector of objects with count header
-template<typename T>
-void DatabaseManager::loadObjects(vector<T>& objects, const string& filename) {
-    objects.clear();
-    filesystem::create_directories(DATABASE_DIR);
-    string filepath = DATABASE_DIR + "/" + filename + ".dat";
-
-    if (!filesystem::exists(filepath)) return;
-
-    ifstream in(filepath, ios::binary);
-    if (!in.is_open()) return;
-
-    // Get file size to validate count header
-    in.seekg(0, ios::end);
-    streampos fileSize = in.tellg();
-    in.seekg(0, ios::beg);
-
-    if (fileSize < static_cast<streampos>(sizeof(size_t))) {
-        // File too small to have valid count header
-        return;
-    }
-
-    size_t count;
-    if (!in.read(reinterpret_cast<char*>(&count), sizeof(count))) return;
-
-    // Validate count makes sense for file size
-    streampos expectedSize = static_cast<streampos>(sizeof(size_t)) +
-                            static_cast<streampos>(count) * static_cast<streampos>(sizeof(T));
-
-    if (expectedSize != fileSize || count > 10000) {
-        // File format doesn't match or count is unreasonable
-        // This might be an old format file - just clear and return
-        objects.clear();
-        return;
-    }
-
-    objects.reserve(count);
-    for (size_t i = 0; i < count; ++i) {
-        T obj;
-        if (!in.read(reinterpret_cast<char*>(&obj), sizeof(T))) {
-            // If read fails, truncate vector and break
-            objects.resize(i);
-            break;
+    if (in.is_open()) {
+        size_t count;
+        if (in.read(reinterpret_cast<char*>(&count), sizeof(count))) {
+            objects.reserve(count);
+            for (size_t i = 0; i < count; i++) {
+                T object;
+                readObjectFromBinary(in, object);
+                objects.push_back(object);
+            }
         }
-        objects.push_back(obj);
+        in.close();
+    }
+    return objects;
+}
+
+// General template for saving objects
+template<typename T>
+void DatabaseManager::saveObjects(const vector<T>& objects, const string& filePath) {
+    ofstream out(filePath, ios::binary);
+    if (out.is_open()) {
+        size_t count = objects.size();
+        out.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+        for (const auto& object : objects) {
+            writeObjectToBinary(out, object);
+        }
+        out.close();
     }
 }
 
-// Save single object by appending to file
-template<typename T>
-bool DatabaseManager::saveObject(const T& obj, const string& filename) {
-    filesystem::create_directories(DATABASE_DIR);
-    string filepath = DATABASE_DIR + "/" + filename + ".dat";
-
-    ofstream out(filepath, ios::binary | ios::app);
-    if (!out.is_open()) return false;
-
-    writeObjectToBinary(out, obj);
-    return true;
+// Generic finder template using member function pointer
+template<typename T, typename KeyType>
+T* DatabaseManager::findObjectByKey(vector<T>& container,
+                                   const KeyType& key,
+                                   KeyType (T::*getter)() const) {
+    for (auto& object : container) {
+        if ((object.*getter)() == key) {
+            return &object;
+        }
+    }
+    return nullptr;
 }
 
-// Update object - requires loading all, finding match, and rewriting
+// Generic add object template
 template<typename T>
-bool DatabaseManager::updateObject(const T& obj, const string& filename) {
-    vector<T> objects;
-    loadObjects(objects, filename);
-
-    // For generic update, we can't know how to match objects
-    // This would need specialization for specific types
-    // For now, just save all objects back
-    saveObjects(objects, filename);
-    return true;
+bool DatabaseManager::addObject(vector<T>& cache, const T& object, const string& filePath) {
+    try {
+        cache.push_back(object);
+        saveObjects(cache, filePath);
+        return true;
+    } catch (const exception&) {
+        // If saving fails, remove the object from cache and return false
+        if (!cache.empty()) {
+            cache.pop_back();
+        }
+        return false;
+    }
 }
 
-// Delete object - requires loading all, removing match, and rewriting
-template<typename T>
-bool DatabaseManager::deleteObject(const T& obj, const string& filename) {
-    vector<T> objects;
-    loadObjects(objects, filename);
+// Generic update object template
+template<typename T, typename KeyType>
+bool DatabaseManager::updateObject(vector<T>& cache, const KeyType& key,
+                                  const T& updatedObject, const string& filePath,
+                                  KeyType (T::*getter)() const) {
+    try {
+        for (size_t i = 0; i < cache.size(); i++) {
+            if ((cache[i].*getter)() == key) {
+                cache[i] = updatedObject;
+                saveObjects(cache, filePath);
+                return true;
+            }
+        }
+        return false; // Object not found
+    } catch (const exception&) {
+        return false;
+    }
+}
 
-    // For generic delete, we can't know how to match objects
-    // This would need specialization for specific types
-    // For now, just save all objects back
-    saveObjects(objects, filename);
-    return true;
+// Generic delete object template
+template<typename T, typename KeyType>
+bool DatabaseManager::deleteObject(vector<T>& cache, const KeyType& key,
+                                  const string& filePath,
+                                  KeyType (T::*getter)() const) {
+    try {
+        for (auto it = cache.begin(); it != cache.end(); it++) {
+            if (((*it).*getter)() == key) {
+                cache.erase(it);
+                saveObjects(cache, filePath);
+                return true;
+            }
+        }
+        return false; // Object not found
+    } catch (const exception&) {
+        return false;
+    }
 }
 
 #endif //DATABASEMANAGER_H

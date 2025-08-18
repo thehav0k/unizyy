@@ -106,24 +106,23 @@ public:
     static string mealTypeToString(MealType type);
     static MealType stringToMealType(const string& typeStr);
 
-    // Static database management functions - using Database folder
-    static void initializeMealDatabase();              // ensure dir + load cache
-    static void ensureMealsLoaded() { if(!mealsLoaded) initializeMealDatabase(); }
-    static const vector<Meal>& getCachedMeals() { ensureMealsLoaded(); return cachedMeals; }
-    static size_t getMealCount();                      // now uses cache
-    static vector<Meal> loadAllMealsFromDatabase();    // returns copy of cache (compat)
+    // Static database management functions
+    static void initializeMealDatabase();
+    static void ensureMealsLoaded();
+    static const vector<Meal>& getCachedMeals();
+    static size_t getMealCount();
+    static vector<Meal> loadAllMealsFromDatabase();
     static vector<Meal> loadMealsByHall(const string& hallName);
     static vector<Meal> loadMealsByDate(const string& date);
     static vector<Meal> loadMealsByType(MealType type);
 
-    // CRUD style operations (cache + disk) - direct object write, no custom serialization
+    // CRUD operations
     static bool addMeal(const Meal& meal);
     static bool updateMeal(const string& date, const string& hallName, MealType type, const Meal& updatedMeal);
-    static bool deleteMealFromDatabase(const string& date, const string& hallName, MealType type); // existing signature retained
-
+    static bool deleteMealFromDatabase(const string& date, const string& hallName, MealType type);
     static void displayAllMeals();
 
-    // Instance method for saving current meal (add or update based on composite key)
+    // Instance method for saving current meal
     bool saveMealToDatabase() const;
 };
 

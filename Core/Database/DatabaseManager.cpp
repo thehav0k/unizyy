@@ -8,6 +8,9 @@
 #include "../Users/Teacher.h"
 #include "../Users/Admin.h"
 #include "../Users/DiningAuthority.h"
+#include "../Models/Notice.h"
+#include "../Users/PublicRelationsAdmin.h"
+#include "../../System/Modules/Meal/meal.h"
 using namespace std;
 
 // dat file gular location
@@ -15,6 +18,12 @@ const string DatabaseManager::STUDENTS_DB = "Database/students.dat";
 const string DatabaseManager::TEACHERS_DB = "Database/teachers.dat";
 const string DatabaseManager::ADMINS_DB = "Database/admins.dat";
 const string DatabaseManager::DINING_AUTH_DB = "Database/dining_authorities.dat";
+const string DatabaseManager::NOTICES_DB = "Database/notices.dat";
+const string DatabaseManager::ACTIVE_TOKENS_DB = "Database/active_tokens.dat";
+const string DatabaseManager::USED_TOKENS_DB = "Database/used_tokens.dat";
+const string DatabaseManager::REVIEWS_DB = "Database/meal_reviews.dat";
+const string DatabaseManager::PR_ADMINS_DB = "Database/pr_admins.dat";
+const string DatabaseManager::MEALS_DB = "Database/meals.dat";
 const string DatabaseManager::DATABASE_DIR = "Database";
 
 // login korar shathe auto data gula file theke load hoye jabe
@@ -23,6 +32,12 @@ vector<Student> DatabaseManager::cachedStudents;
 vector<Teacher> DatabaseManager::cachedTeachers;
 vector<Admin> DatabaseManager::cachedAdmins;
 vector<DiningAuthority> DatabaseManager::cachedDiningAuthorities;
+vector<Notice> DatabaseManager::cachedNotices;
+vector<MealToken> DatabaseManager::cachedActiveTokens;
+vector<MealToken> DatabaseManager::cachedUsedTokens;
+vector<MealReview> DatabaseManager::cachedReviews;
+vector<PublicRelationsAdmin> DatabaseManager::cachedPRAdmins;
+vector<Meal> DatabaseManager::cachedMeals;
 
 // File-scope dataLoaded flag
 static bool dataLoaded = false;
@@ -47,307 +62,364 @@ void DatabaseManager::initializeDatabase() {
         ofstream file(DINING_AUTH_DB, ios::binary);
         file.close();
     }
+    if (!filesystem::exists(NOTICES_DB)) {
+        ofstream file(NOTICES_DB, ios::binary);
+        file.close();
+    }
+    if (!filesystem::exists(ACTIVE_TOKENS_DB)) {
+        ofstream file(ACTIVE_TOKENS_DB, ios::binary);
+        file.close();
+    }
+    if (!filesystem::exists(USED_TOKENS_DB)) {
+        ofstream file(USED_TOKENS_DB, ios::binary);
+        file.close();
+    }
+    if (!filesystem::exists(REVIEWS_DB)) {
+        ofstream file(REVIEWS_DB, ios::binary);
+        file.close();
+    }
+    if (!filesystem::exists(PR_ADMINS_DB)) {
+        ofstream file(PR_ADMINS_DB, ios::binary);
+        file.close();
+    }
+    if (!filesystem::exists(MEALS_DB)) {
+        ofstream file(MEALS_DB, ios::binary);
+        file.close();
+    }
 
-    // Load data into cache
     if (!dataLoaded) {
         cachedStudents = loadStudents();
         cachedTeachers = loadTeachers();
         cachedAdmins = loadAdmins();
         cachedDiningAuthorities = loadDiningAuthorities();
+        cachedNotices = loadNotices();
+        cachedActiveTokens = loadActiveTokens();
+        cachedUsedTokens = loadUsedTokens();
+        cachedReviews = loadReviews();
+        cachedPRAdmins = loadPRAdmins();
+        cachedMeals = loadMeals();
         dataLoaded = true;
     }
 }
 
-// Student operations
 vector<Student> DatabaseManager::loadStudents() {
-    vector<Student> students;
-    ifstream in(STUDENTS_DB, ios::binary);
-
-    if (in.is_open()) {
-        size_t count;
-        if (in.read(reinterpret_cast<char*>(&count), sizeof(count))) {
-            students.reserve(count);
-            for (size_t i = 0; i < count; i++) {
-                Student student;
-                readObjectFromBinary(in, student);
-                students.push_back(student);
-            }
-        }
-        in.close();
-    }
-    return students;
+    return loadObjects<Student>(STUDENTS_DB);
 }
 
 void DatabaseManager::saveStudents(const vector<Student>& students) {
-    ofstream out(STUDENTS_DB, ios::binary);
-    if (out.is_open()) {
-        size_t count = students.size();
-        out.write(reinterpret_cast<const char*>(&count), sizeof(count));
-
-        for (const auto& student : students) {
-            writeObjectToBinary(out, student);
-        }
-        out.close();
-    }
-    cachedStudents = students; // Update cache
+    saveObjects(students, STUDENTS_DB);
+    cachedStudents = students;
 }
 
 bool DatabaseManager::addStudent(const Student& student) {
-    cachedStudents.push_back(student);
-    saveStudents(cachedStudents);
-    return true;
+    return addObject(cachedStudents, student, STUDENTS_DB);
 }
 
 Student* DatabaseManager::findStudentByEmail(const string& email) {
-    for (auto& student : cachedStudents) {
-        if (student.getEmail() == email) {
-            return &student;
-        }
-    }
-    return nullptr;
+    return findObjectByKey<Student, string>(cachedStudents, email, &Student::getEmail);
 }
 
 Student* DatabaseManager::findStudentByID(const string& studentID) {
-    for (auto& student : cachedStudents) {
-        if (student.getStudentID() == studentID) {
-            return &student;
-        }
-    }
-    return nullptr;
+    return findObjectByKey<Student, string>(cachedStudents, studentID, &Student::getStudentID);
 }
 
 bool DatabaseManager::updateStudent(const string& studentID, const Student& updatedStudent) {
-    for (size_t i = 0; i < cachedStudents.size(); i++) {
-        if (cachedStudents[i].getStudentID() == studentID) {
-            cachedStudents[i] = updatedStudent;
-            saveStudents(cachedStudents);
-            return true;
-        }
-    }
-    return false;
+    return updateObject<Student, string>(cachedStudents, studentID, updatedStudent, STUDENTS_DB, &Student::getStudentID);
 }
 
-// ekhane iterators use kora hoyeche
 bool DatabaseManager::deleteStudent(const string& studentID) {
-    for (auto it = cachedStudents.begin(); it != cachedStudents.end(); it++) {
-        if (it->getStudentID() == studentID) {
-            cachedStudents.erase(it);
-            saveStudents(cachedStudents);
-            return true;
-        }
-    }
-    return false;
+    return deleteObject<Student, string>(cachedStudents, studentID, STUDENTS_DB, &Student::getStudentID);
 }
 
 // Teacher operations
 vector<Teacher> DatabaseManager::loadTeachers() {
-    vector<Teacher> teachers;
-    ifstream in(TEACHERS_DB, ios::binary);
-
-    if (in.is_open()) {
-        size_t count;
-        if (in.read(reinterpret_cast<char*>(&count), sizeof(count))) {
-            teachers.reserve(count);
-            for (size_t i = 0; i < count; ++i) {
-                Teacher teacher;
-                readObjectFromBinary(in, teacher);
-                teachers.push_back(teacher);
-            }
-        }
-        in.close();
-    }
-    return teachers;
+    return loadObjects<Teacher>(TEACHERS_DB);
 }
 
 void DatabaseManager::saveTeachers(const vector<Teacher>& teachers) {
-    ofstream out(TEACHERS_DB, ios::binary);
-    if (out.is_open()) {
-        size_t count = teachers.size();
-        out.write(reinterpret_cast<const char*>(&count), sizeof(count));
-
-        for (const auto& teacher : teachers) {
-            writeObjectToBinary(out, teacher);
-        }
-        out.close();
-    }
-    cachedTeachers = teachers; // Update cache
+    saveObjects(teachers, TEACHERS_DB);
+    cachedTeachers = teachers;
 }
 
 bool DatabaseManager::addTeacher(const Teacher& teacher) {
-    cachedTeachers.push_back(teacher);
-    saveTeachers(cachedTeachers);
-    return true;
+    return addObject(cachedTeachers, teacher, TEACHERS_DB);
 }
 
 Teacher* DatabaseManager::findTeacherByEmail(const string& email) {
-    for (auto& teacher : cachedTeachers) {
-        if (teacher.getEmail() == email) {
-            return &teacher;
-        }
-    }
-    return nullptr;
+    return findObjectByKey<Teacher, string>(cachedTeachers, email, &Teacher::getEmail);
 }
 
 bool DatabaseManager::updateTeacher(const string& email, const Teacher& updatedTeacher) {
-    for (size_t i = 0; i < cachedTeachers.size(); ++i) {
-        if (cachedTeachers[i].getEmail() == email) {
-            cachedTeachers[i] = updatedTeacher;
-            saveTeachers(cachedTeachers);
-            return true;
-        }
-    }
-    return false;
+    return updateObject<Teacher, string>(cachedTeachers, email, updatedTeacher, TEACHERS_DB, &Teacher::getEmail);
 }
 
 bool DatabaseManager::deleteTeacher(const string& email) {
-    for (auto it = cachedTeachers.begin(); it != cachedTeachers.end(); ++it) {
-        if (it->getEmail() == email) {
-            cachedTeachers.erase(it);
-            saveTeachers(cachedTeachers);
-            return true;
-        }
-    }
-    return false;
+    return deleteObject<Teacher, string>(cachedTeachers, email, TEACHERS_DB, &Teacher::getEmail);
 }
 
 // Admin operations
 vector<Admin> DatabaseManager::loadAdmins() {
-    vector<Admin> admins;
-    ifstream in(ADMINS_DB, ios::binary);
-
-    if (in.is_open()) {
-        size_t count;
-        if (in.read(reinterpret_cast<char*>(&count), sizeof(count))) {
-            admins.reserve(count);
-            for (size_t i = 0; i < count; ++i) {
-                Admin admin;
-                readObjectFromBinary(in, admin);
-                admins.push_back(admin);
-            }
-        }
-        in.close();
-    }
-    return admins;
+    return loadObjects<Admin>(ADMINS_DB);
 }
 
 void DatabaseManager::saveAdmins(const vector<Admin>& admins) {
-    ofstream out(ADMINS_DB, ios::binary);
-    if (out.is_open()) {
-        size_t count = admins.size();
-        out.write(reinterpret_cast<const char*>(&count), sizeof(count));
-
-        for (const auto& admin : admins) {
-            writeObjectToBinary(out, admin);
-        }
-        out.close();
-    }
-    cachedAdmins = admins; // Update cache
+    saveObjects(admins, ADMINS_DB);
+    cachedAdmins = admins;
 }
 
 bool DatabaseManager::addAdmin(const Admin& admin) {
-    cachedAdmins.push_back(admin);
-    saveAdmins(cachedAdmins);
-    return true;
+    return addObject(cachedAdmins, admin, ADMINS_DB);
 }
 
 Admin* DatabaseManager::findAdminByEmail(const string& email) {
-    for (auto& admin : cachedAdmins) {
-        if (admin.getEmail() == email) {
-            return &admin;
-        }
-    }
-    return nullptr;
+    return findObjectByKey<Admin, string>(cachedAdmins, email, &Admin::getEmail);
 }
 
 bool DatabaseManager::updateAdmin(const string& email, const Admin& updatedAdmin) {
-    for (size_t i = 0; i < cachedAdmins.size(); i++) {
-        if (cachedAdmins[i].getEmail() == email) {
-            cachedAdmins[i] = updatedAdmin;
-            saveAdmins(cachedAdmins);
-            return true;
-        }
-    }
-    return false;
+    return updateObject<Admin, string>(cachedAdmins, email, updatedAdmin, ADMINS_DB, &Admin::getEmail);
 }
 
 bool DatabaseManager::deleteAdmin(const string& email) {
-    for (auto it = cachedAdmins.begin(); it != cachedAdmins.end(); ++it) {
-        if (it->getEmail() == email) {
-            cachedAdmins.erase(it);
-            saveAdmins(cachedAdmins);
-            return true;
-        }
-    }
-    return false;
+    return deleteObject<Admin, string>(cachedAdmins, email, ADMINS_DB, &Admin::getEmail);
 }
 
 // DiningAuthority operations
 vector<DiningAuthority> DatabaseManager::loadDiningAuthorities() {
-    vector<DiningAuthority> authorities;
-    ifstream in(DINING_AUTH_DB, ios::binary);
-    if (in.is_open()) {
-        size_t count;
-        if (in.read(reinterpret_cast<char*>(&count), sizeof(count))) {
-            authorities.reserve(count);
-            for (size_t i = 0; i < count; i++) {
-                DiningAuthority auth;
-                readObjectFromBinary(in, auth);
-                authorities.push_back(auth);
-            }
-        }
-        in.close();
-    }
-    return authorities;
+    return loadObjects<DiningAuthority>(DINING_AUTH_DB);
 }
 
 void DatabaseManager::saveDiningAuthorities(const vector<DiningAuthority>& authorities) {
-    ofstream out(DINING_AUTH_DB, ios::binary);
-    if (out.is_open()) {
-        size_t count = authorities.size();
-        out.write(reinterpret_cast<const char*>(&count), sizeof(count));
-        for (const auto& auth : authorities) {
-            writeObjectToBinary(out, auth);
-        }
-        out.close();
-    }
+    saveObjects(authorities, DINING_AUTH_DB);
     cachedDiningAuthorities = authorities;
 }
 
 bool DatabaseManager::addDiningAuthority(const DiningAuthority& authority) {
-    cachedDiningAuthorities.push_back(authority);
-    saveDiningAuthorities(cachedDiningAuthorities);
-    return true;
+    return addObject(cachedDiningAuthorities, authority, DINING_AUTH_DB);
 }
 
 DiningAuthority* DatabaseManager::findDiningAuthorityByEmail(const string& email) {
-    for (auto& auth : cachedDiningAuthorities) {
-        if (auth.getEmail() == email) {
-            return &auth;
-        }
-    }
-    return nullptr;
+    return findObjectByKey<DiningAuthority, string>(cachedDiningAuthorities, email, &DiningAuthority::getEmail);
 }
 
 bool DatabaseManager::updateDiningAuthority(const string& email, const DiningAuthority& updatedAuthority) {
-    for (size_t i = 0; i < cachedDiningAuthorities.size(); ++i) {
-        if (cachedDiningAuthorities[i].getEmail() == email) {
-            cachedDiningAuthorities[i] = updatedAuthority;
-            saveDiningAuthorities(cachedDiningAuthorities);
+    return updateObject<DiningAuthority, string>(cachedDiningAuthorities, email, updatedAuthority, DINING_AUTH_DB, &DiningAuthority::getEmail);
+}
+
+bool DatabaseManager::deleteDiningAuthority(const string& email) {
+    return deleteObject<DiningAuthority, string>(cachedDiningAuthorities, email, DINING_AUTH_DB, &DiningAuthority::getEmail);
+}
+
+// Notice operations
+vector<Notice> DatabaseManager::loadNotices() {
+    return loadObjects<Notice>(NOTICES_DB);
+}
+
+void DatabaseManager::saveNotices(const vector<Notice>& notices) {
+    saveObjects(notices, NOTICES_DB);
+    cachedNotices = notices;
+}
+
+bool DatabaseManager::addNotice(const Notice& notice) {
+    return addObject(cachedNotices, notice, NOTICES_DB);
+}
+
+Notice* DatabaseManager::findNoticeByID(const string& noticeID) {
+    // Convert string ID to size_t for comparison
+    size_t id = stoull(noticeID);
+    return findObjectByKey<Notice, size_t>(cachedNotices, id, &Notice::getNoticeID);
+}
+
+bool DatabaseManager::updateNotice(const string& noticeID, const Notice& updatedNotice) {
+    // Convert string ID to size_t for comparison
+    size_t id = stoull(noticeID);
+    return updateObject<Notice, size_t>(cachedNotices, id, updatedNotice, NOTICES_DB, &Notice::getNoticeID);
+}
+
+bool DatabaseManager::deleteNotice(const string& noticeID) {
+    // Convert string ID to size_t for comparison
+    size_t id = stoull(noticeID);
+    return deleteObject<Notice, size_t>(cachedNotices, id, NOTICES_DB, &Notice::getNoticeID);
+}
+
+// Active Token operations
+vector<MealToken> DatabaseManager::loadActiveTokens() {
+    return loadObjects<MealToken>(ACTIVE_TOKENS_DB);
+}
+
+void DatabaseManager::saveActiveTokens(const vector<MealToken>& tokens) {
+    saveObjects(tokens, ACTIVE_TOKENS_DB);
+    cachedActiveTokens = tokens;
+}
+
+bool DatabaseManager::addActiveToken(const MealToken& token) {
+    return addObject(cachedActiveTokens, token, ACTIVE_TOKENS_DB);
+}
+
+MealToken* DatabaseManager::findActiveTokenByID(const string& tokenID) {
+    return findObjectByKey(cachedActiveTokens, tokenID, &MealToken::getTokenNumber);
+}
+
+bool DatabaseManager::updateActiveToken(const string& tokenID, const MealToken& updatedToken) {
+    return updateObject(cachedActiveTokens, tokenID, updatedToken, ACTIVE_TOKENS_DB, &MealToken::getTokenNumber);
+}
+
+bool DatabaseManager::deleteActiveToken(const string& tokenID) {
+    return deleteObject(cachedActiveTokens, tokenID, ACTIVE_TOKENS_DB, &MealToken::getTokenNumber);
+}
+
+// Used Token operations
+vector<MealToken> DatabaseManager::loadUsedTokens() {
+    return loadObjects<MealToken>(USED_TOKENS_DB);
+}
+
+void DatabaseManager::saveUsedTokens(const vector<MealToken>& tokens) {
+    saveObjects(tokens, USED_TOKENS_DB);
+    cachedUsedTokens = tokens;
+}
+
+bool DatabaseManager::addUsedToken(const MealToken& token) {
+    return addObject(cachedUsedTokens, token, USED_TOKENS_DB);
+}
+
+MealToken* DatabaseManager::findUsedTokenByID(const string& tokenID) {
+    return findObjectByKey(cachedUsedTokens, tokenID, &MealToken::getTokenNumber);
+}
+
+bool DatabaseManager::updateUsedToken(const string& tokenID, const MealToken& updatedToken) {
+    return updateObject(cachedUsedTokens, tokenID, updatedToken, USED_TOKENS_DB, &MealToken::getTokenNumber);
+}
+
+bool DatabaseManager::deleteUsedToken(const string& tokenID) {
+    return deleteObject(cachedUsedTokens, tokenID, USED_TOKENS_DB, &MealToken::getTokenNumber);
+}
+
+// Review operations
+vector<MealReview> DatabaseManager::loadReviews() {
+    return loadObjects<MealReview>(REVIEWS_DB);
+}
+
+void DatabaseManager::saveReviews(const vector<MealReview>& reviews) {
+    saveObjects(reviews, REVIEWS_DB);
+    cachedReviews = reviews;
+}
+
+bool DatabaseManager::addReview(const MealReview& review) {
+    return addObject(cachedReviews, review, REVIEWS_DB);
+}
+
+MealReview* DatabaseManager::findReviewByID(const string& reviewID) {
+    // MealReview uses tokenNumber as identifier, not reviewID
+    return findObjectByKey<MealReview, string>(cachedReviews, reviewID, &MealReview::getTokenNumber);
+}
+
+bool DatabaseManager::updateReview(const string& reviewID, const MealReview& updatedReview) {
+    // MealReview uses tokenNumber as identifier, not reviewID
+    return updateObject<MealReview, string>(cachedReviews, reviewID, updatedReview, REVIEWS_DB, &MealReview::getTokenNumber);
+}
+
+bool DatabaseManager::deleteReview(const string& reviewID) {
+    // MealReview uses tokenNumber as identifier, not reviewID
+    return deleteObject<MealReview, string>(cachedReviews, reviewID, REVIEWS_DB, &MealReview::getTokenNumber);
+}
+
+// PR Admin operations
+vector<PublicRelationsAdmin> DatabaseManager::loadPRAdmins() {
+    return loadObjects<PublicRelationsAdmin>(PR_ADMINS_DB);
+}
+
+void DatabaseManager::savePRAdmins(const vector<PublicRelationsAdmin>& admins) {
+    saveObjects(admins, PR_ADMINS_DB);
+    cachedPRAdmins = admins;
+}
+
+bool DatabaseManager::addPRAdmin(const PublicRelationsAdmin& admin) {
+    return addObject(cachedPRAdmins, admin, PR_ADMINS_DB);
+}
+
+PublicRelationsAdmin* DatabaseManager::findPRAdminByEmail(const string& email) {
+    return findObjectByKey<PublicRelationsAdmin, string>(cachedPRAdmins, email, &PublicRelationsAdmin::getEmail);
+}
+
+bool DatabaseManager::updatePRAdmin(const string& email, const PublicRelationsAdmin& updatedAdmin) {
+    return updateObject<PublicRelationsAdmin, string>(cachedPRAdmins, email, updatedAdmin, PR_ADMINS_DB, &PublicRelationsAdmin::getEmail);
+}
+
+bool DatabaseManager::deletePRAdmin(const string& email) {
+    return deleteObject<PublicRelationsAdmin, string>(cachedPRAdmins, email, PR_ADMINS_DB, &PublicRelationsAdmin::getEmail);
+}
+
+// Meal operations
+vector<Meal> DatabaseManager::loadMeals() {
+    return loadObjects<Meal>(MEALS_DB);
+}
+
+void DatabaseManager::saveMeals(const vector<Meal>& meals) {
+    saveObjects(meals, MEALS_DB);
+    cachedMeals = meals;
+}
+
+bool DatabaseManager::addMeal(const Meal& meal) {
+    return addObject(cachedMeals, meal, MEALS_DB);
+}
+
+bool DatabaseManager::updateMeal(const string& mealKey, const Meal& updatedMeal) {
+    // Use a composite key: date_hall_mealType for unique identification
+    for (size_t i = 0; i < cachedMeals.size(); i++) {
+        string existingKey = cachedMeals[i].getDate() + "_" +
+                           cachedMeals[i].getHallName() + "_" +
+                           to_string(static_cast<int>(cachedMeals[i].getMealType()));
+        if (existingKey == mealKey) {
+            cachedMeals[i] = updatedMeal;
+            saveObjects(cachedMeals, MEALS_DB);
             return true;
         }
     }
     return false;
 }
 
-bool DatabaseManager::deleteDiningAuthority(const string& email) {
-    for (auto it = cachedDiningAuthorities.begin(); it != cachedDiningAuthorities.end(); ++it) {
-        if (it->getEmail() == email) {
-            cachedDiningAuthorities.erase(it);
-            saveDiningAuthorities(cachedDiningAuthorities);
+bool DatabaseManager::deleteMeal(const string& mealKey) {
+    // Use a composite key: date_hall_mealType for unique identification
+    for (auto it = cachedMeals.begin(); it != cachedMeals.end(); it++) {
+        string existingKey = it->getDate() + "_" +
+                           it->getHallName() + "_" +
+                           to_string(static_cast<int>(it->getMealType()));
+        if (existingKey == mealKey) {
+            cachedMeals.erase(it);
+            saveObjects(cachedMeals, MEALS_DB);
             return true;
         }
     }
     return false;
+}
+
+vector<Meal> DatabaseManager::getMealsByHall(const string& hall) {
+    vector<Meal> result;
+    for (const auto& meal : cachedMeals) {
+        if (meal.getHallName() == hall) {
+            result.push_back(meal);
+        }
+    }
+    return result;
+}
+
+vector<Meal> DatabaseManager::getMealsByDate(const string& date) {
+    vector<Meal> result;
+    for (const auto& meal : cachedMeals) {
+        if (meal.getDate() == date) {
+            result.push_back(meal);
+        }
+    }
+    return result;
+}
+
+vector<Meal> DatabaseManager::getMealsByType(MealType type) {
+    vector<Meal> result;
+    for (const auto& meal : cachedMeals) {
+        if (meal.getMealType() == type) {
+            result.push_back(meal);
+        }
+    }
+    return result;
 }
 
 // Utility operations
@@ -355,7 +427,8 @@ bool DatabaseManager::emailExists(const string& email) {
     return findStudentByEmail(email) != nullptr ||
            findTeacherByEmail(email) != nullptr ||
            findAdminByEmail(email) != nullptr ||
-           findDiningAuthorityByEmail(email) != nullptr;
+           findDiningAuthorityByEmail(email) != nullptr ||
+           findPRAdminByEmail(email) != nullptr;
 }
 
 bool DatabaseManager::studentIDExists(const string& studentID) {
@@ -367,11 +440,22 @@ void DatabaseManager::clearAllData() {
     cachedTeachers.clear();
     cachedAdmins.clear();
     cachedDiningAuthorities.clear();
+    cachedNotices.clear();
+    cachedActiveTokens.clear();
+    cachedUsedTokens.clear();
+    cachedReviews.clear();
+    cachedPRAdmins.clear();
+    cachedMeals.clear();
 
     saveStudents(cachedStudents);
     saveTeachers(cachedTeachers);
     saveAdmins(cachedAdmins);
     saveDiningAuthorities(cachedDiningAuthorities);
+    saveNotices(cachedNotices);
+    saveActiveTokens(cachedActiveTokens);
+    saveUsedTokens(cachedUsedTokens);
+    saveReviews(cachedReviews);
+    savePRAdmins(cachedPRAdmins);
 }
 
 size_t DatabaseManager::getStudentCount() {
@@ -406,5 +490,10 @@ void DatabaseManager::displayDatabaseStats() {
     cout << "Teachers: " << getTeacherCount() << endl;
     cout << "Admins: " << getAdminCount() << endl;
     cout << "Dining Authorities: " << getDiningAuthorityCount() << endl;
-    cout << "Total Users: " << (getStudentCount() + getTeacherCount() + getAdminCount() + getDiningAuthorityCount()) << endl;
+    cout << "Notices: " << cachedNotices.size() << endl;
+    cout << "Active Tokens: " << cachedActiveTokens.size() << endl;
+    cout << "Used Tokens: " << cachedUsedTokens.size() << endl;
+    cout << "Reviews: " << cachedReviews.size() << endl;
+    cout << "PR Admins: " << cachedPRAdmins.size() << endl;
+    cout << "Total Users: " << (getStudentCount() + getTeacherCount() + getAdminCount() + getDiningAuthorityCount() + cachedPRAdmins.size()) << endl;
 }

@@ -12,7 +12,7 @@
 #include <iostream>
 
 using namespace std;
-
+// ei issue resolve kora lagbe
 void initializeDatabase() {
     DatabaseManager::initializeDatabase();
 }

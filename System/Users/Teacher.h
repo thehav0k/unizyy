@@ -18,8 +18,8 @@
 
 class Teacher: public User {
 private:
-    char name[100];        // Changed to char array
-    department dept;       // Fixed: use dept consistently
+    char name[100];
+    department dept;
     designation AP;
 
 public:
@@ -32,16 +32,12 @@ public:
     string getName() const;
     void setDepartment(department dept);
     department getDepartment() const;
-    string getDepartmentName() const;  // New method for interface compatibility
+    string getDepartmentName() const;
     void setRank(designation AP);
-    designation getRank() const;
-    designation getDesignation() const;  // Alias for getRank() for interface compatibility
+    designation getDesignation() const;
 
     // Virtual methods
     void display() const override;
-
-    // Additional methods
-    // Grading student
     void gradeStudent(Student&, Course&);
 
     // Notice management methods

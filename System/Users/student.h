@@ -26,7 +26,6 @@ private:
     Halls hall;
     int Gender; // 1 for male // Zero for female // Only two gender
     double balance; // balace in bdt // initially 0.0
-    // balace will be set to 6000 at the start of every month
 
 public:
     Student(const string &email, const string &password, const string &name, int age, const string &studentID,
@@ -40,9 +39,9 @@ public:
         StringHelper::stringToCharArray(name, this->name);
         StringHelper::stringToCharArray(studentID, this->studentID);
 
-        // Set gender based on hall assignment
+        // hall onujayi gender auto
         this->Gender = getHallGender(hall);
-        this->balance = 0.0; // Initialize balance
+        this->balance = 6000.0;
     }
 
     // Default constructor
@@ -52,7 +51,7 @@ public:
         studentID[0] = '\0';
     }
 
-    // Getters return strings (using StringHelper)
+    // Getters && setters
     string getName() const {
         return StringHelper::charArrayToString(name);
     }
@@ -132,14 +131,11 @@ public:
     }
 
     // sob function er prototype
+    // sob info dsiplay
     void display() const;
-
     void ChangePassword(const string &newPassword);
-
     void BuyMealToken();
-
     void TakeMeal();
-
     void ReviewMeal();
 
 
@@ -151,7 +147,8 @@ public:
 
     void ViewTransportSchedule();
 
-    // Static database operations
+    // database er kaj sob DatabaseManager class korbe
+    // ekhane just function call
     static vector<Student> loadAllStudents();
     static bool addStudentToDB(const Student& student);
     static bool updateStudentInDB(const string& studentID, const Student& updatedStudent);
