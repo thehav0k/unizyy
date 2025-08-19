@@ -17,11 +17,14 @@ include_directories(System/Interface)
 set(SOURCES
     main.cpp
     Core/Models/date.cpp
+    Core/Models/Notice.cpp
     Core/Database/DatabaseManager.cpp
     System/Users/student.cpp
     System/Users/Admin.cpp
     System/Users/Teacher.cpp
     System/Users/DiningAuthority.cpp
+    System/Users/NoticeManager.cpp
+    System/Users/PublicRelationsAdmin.cpp
     System/Authentication/auth.cpp
     System/Modules/Meal/meal.cpp
     System/Interface/MenuInterface.cpp
@@ -30,6 +33,7 @@ set(SOURCES
     System/Interface/AdminInterface.cpp
     System/Interface/TeacherInterface.cpp
     System/Interface/DiningAuthorityInterface.cpp
+    System/Interface/PublicRelationsAdminInterface.cpp
 )
 
 add_executable(unizyy ${SOURCES})
@@ -57,22 +61,7 @@ set_target_properties(unizyy PROPERTIES
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/Database)
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Meal Tokens")
 
-add_executable(test_token_review_persistence
-    Core/Models/date.cpp
-    System/Modules/Meal/meal.cpp
-    Core/Database/DatabaseManager.cpp
-    System/Users/student.cpp
-    System/Users/Admin.cpp
-    System/Users/Teacher.cpp
-    System/Users/DiningAuthority.cpp
-    System/Authentication/auth.cpp
-    System/Interface/MenuInterface.cpp
-    System/Interface/MainMenu.cpp
-    System/Interface/StudentInterface.cpp
-    System/Interface/AdminInterface.cpp
-    System/Interface/TeacherInterface.cpp
-    System/Interface/DiningAuthorityInterface.cpp
-)
+add_executable(test_token_review_persistence Core/Models/date.cpp System/Modules/Meal/meal.cpp Core/Database/DatabaseManager.cpp System/Users/student.cpp System/Users/Admin.cpp System/Users/Teacher.cpp System/Users/DiningAuthority.cpp System/Authentication/auth.cpp System/Interface/MenuInterface.cpp System/Interface/MainMenu.cpp System/Interface/StudentInterface.cpp System/Interface/AdminInterface.cpp System/Interface/TeacherInterface.cpp System/Interface/DiningAuthorityInterface.cpp)
 
 # Link filesystem library for macOS/Linux
 if(APPLE OR UNIX)

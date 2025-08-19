@@ -90,40 +90,40 @@ void AdminInterface::processChoice(int choice) {
 void AdminInterface::handleUserManagement() {
     displayHeader("USER MANAGEMENT");
     displayInfo("User management features will be implemented here:");
-    cout << "• Add new users (Students, Teachers, Dining Authorities)" << endl;
-    cout << "• View user details and statistics" << endl;
-    cout << "• Modify user permissions" << endl;
-    cout << "• Deactivate/Activate user accounts" << endl;
+    cout << "-> Add new users (Students, Teachers, Dining Authorities)" << endl;
+    cout << "-> View user details and statistics" << endl;
+    cout << "-> Modify user permissions" << endl;
+    cout << "-> Deactivate/Activate user accounts" << endl;
     pauseForInput();
 }
 
 void AdminInterface::handleSystemSettings() {
     displayHeader("SYSTEM SETTINGS");
     displayInfo("System settings features:");
-    cout << "• Configure meal time windows" << endl;
-    cout << "• Set system-wide policies" << endl;
-    cout << "• Manage hall configurations" << endl;
-    cout << "• Update system parameters" << endl;
+    cout << "-> Configure meal time windows" << endl;
+    cout << "-> Set system-wide policies" << endl;
+    cout << "-> Manage hall configurations" << endl;
+    cout << "-> Update system parameters" << endl;
     pauseForInput();
 }
 
 void AdminInterface::handleReports() {
     displayHeader("SYSTEM REPORTS");
     displayInfo("Comprehensive system reporting:");
-    cout << "• User activity reports" << endl;
-    cout << "• Meal token usage statistics" << endl;
-    cout << "• Revenue analytics across all halls" << endl;
-    cout << "• System performance metrics" << endl;
+    cout << "-> User activity reports" << endl;
+    cout << "-> Meal token usage statistics" << endl;
+    cout << "-> Revenue analytics across all halls" << endl;
+    cout << "-> System performance metrics" << endl;
     pauseForInput();
 }
 
 void AdminInterface::handleDatabaseManagement() {
     displayHeader("DATABASE MANAGEMENT");
     displayInfo("Database management tools:");
-    cout << "• Backup and restore operations" << endl;
-    cout << "• Data cleanup and maintenance" << endl;
-    cout << "• System integrity checks" << endl;
-    cout << "• Performance optimization" << endl;
+    cout << "-> Backup and restore operations" << endl;
+    cout << "-> Data cleanup and maintenance" << endl;
+    cout << "-> System integrity checks" << endl;
+    cout << "-> Performance optimization" << endl;
     pauseForInput();
 }
 

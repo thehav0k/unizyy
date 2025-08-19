@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Admin Interface for system administration
-//
-
 #ifndef ADMIN_INTERFACE_H
 #define ADMIN_INTERFACE_H
 

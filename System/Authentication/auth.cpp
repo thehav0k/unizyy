@@ -333,9 +333,9 @@ string Auth::getValidatedEmail() {
 
         if (!StringHelper::validateEmail(email)) {
             cout << "Invalid email format. Requirements:" << endl;
-            cout << "   • Must end with @juniv.edu" << endl;
-            cout << "   • Must have at least 4 characters before @" << endl;
-            cout << "   • Example: john1234@juniv.edu" << endl;
+            cout << "-> Must end with @juniv.edu" << endl;
+            cout << "-> Must have at least 4 characters before @" << endl;
+            cout << "-> Example: john1234@juniv.edu" << endl;
             continue;
         }
 
@@ -365,11 +365,11 @@ string Auth::getValidatedPassword() {
 
         if (!StringHelper::validatePassword(password)) {
             cout << "Password does not meet requirements:" << endl;
-            cout << "   • At least 6 characters long" << endl;
-            cout << "   • Must contain at least one uppercase letter" << endl;
-            cout << "   • Must contain at least one lowercase letter" << endl;
-            cout << "   • Must contain at least one digit" << endl;
-            cout << "   • Example: MyPass123" << endl;
+            cout << "-> At least 6 characters long" << endl;
+            cout << "-> Must contain at least one uppercase letter" << endl;
+            cout << "-> Must contain at least one lowercase letter" << endl;
+            cout << "-> Must contain at least one digit" << endl;
+            cout << "-> Example: MyPass123" << endl;
             continue;
         }
 
@@ -394,8 +394,8 @@ string Auth::getValidatedStudentID() {
 
         if (!StringHelper::isValidstudentID(studentID)) {
             cout << "Invalid Student ID format. Requirements:" << endl;
-            cout << "   • Must be exactly 11 digits" << endl;
-            cout << "   • Example: 12345678901" << endl;
+            cout << "-> Must be exactly 11 digits" << endl;
+            cout << "-> Example: 12345678901" << endl;
             continue;
         }
 
@@ -420,9 +420,9 @@ string Auth::getValidatedName() {
 
         if (!StringHelper::isValidString(name)) {
             cout << "Invalid name. Requirements:" << endl;
-            cout << "   • Cannot be empty" << endl;
-            cout << "   • Cannot start with a space" << endl;
-            cout << "   • Must contain at least one non-space character" << endl;
+            cout << "-> Cannot be empty" << endl;
+            cout << "-> Cannot start with a space" << endl;
+            cout << "-> Must contain at least one non-space character" << endl;
             continue;
         }
 
