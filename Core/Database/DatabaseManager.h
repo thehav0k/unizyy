@@ -19,7 +19,6 @@ class Student;
 class Teacher;
 class Admin;
 class DiningAuthority;
-
 class DatabaseManager {
 private:
     static const string STUDENTS_DB;

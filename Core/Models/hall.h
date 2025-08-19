@@ -106,35 +106,3 @@ inline int getHallGender(Halls hall) {
             return 1; // Default to male
     }
 }
-
-class Hall {
-private:
-    char hallName[100];
-    char location[200];
-    int capacity;
-    bool isActive;
-
-public:
-    // Constructors
-    Hall();
-    Hall(const string& name, const string& location, int capacity);
-
-    // Getters
-    string getHallName() const;
-    string getLocation() const;
-    int getCapacity() const;
-    bool getIsActive() const;
-
-    // Setters
-    void setHallName(const string& name);
-    void setLocation(const string& location);
-    void setCapacity(int capacity);
-    void setIsActive(bool active);
-
-    // Display
-    void displayHall() const;
-
-    // Binary file operations
-    void writeToBinaryFile(ofstream& out) const;
-    void readFromBinaryFile(ifstream& in);
-};
