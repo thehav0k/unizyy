@@ -1,6 +1,5 @@
 //
 // Created by Md. Asif Khan on 11/8/25.
-// Centralized Database Manager for all file operations
 //
 
 #ifndef DATABASEMANAGER_H
@@ -11,17 +10,15 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "../../System/Modules/Meal/meal.h"
 using namespace std;
 
-// Include headers for all classes that need specific methods
-#include "../../System/Modules/Meal/meal.h"
 
-// Forward declarations for classes that are only used
+// forward declare jate ei class e use kora jay
 class Student;
 class Teacher;
 class Admin;
 class DiningAuthority;
-class PublicRelationsAdmin;
 
 class DatabaseManager {
 private:
@@ -33,7 +30,6 @@ private:
     static const string ACTIVE_TOKENS_DB;
     static const string USED_TOKENS_DB;
     static const string REVIEWS_DB;
-    static const string PR_ADMINS_DB;
     static const string MEALS_DB;
 
     // file er sob data vector gulay joma hbe program shurur por
@@ -44,7 +40,6 @@ private:
     static vector<MealToken> cachedActiveTokens;
     static vector<MealToken> cachedUsedTokens;
     static vector<MealReview> cachedReviews;
-    static vector<PublicRelationsAdmin> cachedPRAdmins;
     static vector<Meal> cachedMeals;
 
 public:
@@ -146,14 +141,6 @@ public:
     static bool updateReview(const string& reviewID, const MealReview& updatedReview);
     static bool deleteReview(const string& reviewID);
     static MealReview* findReviewByID(const string& reviewID);
-
-    // PR Admin operations
-    static vector<PublicRelationsAdmin> loadPRAdmins();
-    static void savePRAdmins(const vector<PublicRelationsAdmin>& admins);
-    static bool addPRAdmin(const PublicRelationsAdmin& admin);
-    static bool updatePRAdmin(const string& email, const PublicRelationsAdmin& updatedAdmin);
-    static bool deletePRAdmin(const string& email);
-    static PublicRelationsAdmin* findPRAdminByEmail(const string& email);
 
     // Meal operations
     static vector<Meal> loadMeals();

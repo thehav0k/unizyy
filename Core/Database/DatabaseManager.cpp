@@ -8,7 +8,6 @@
 #include "../Users/Teacher.h"
 #include "../Users/Admin.h"
 #include "../Users/DiningAuthority.h"
-#include "../Users/PublicRelationsAdmin.h"
 #include "../../System/Modules/Meal/meal.h"
 using namespace std;
 
@@ -20,7 +19,6 @@ const string DatabaseManager::DINING_AUTH_DB = "Database/dining_authorities.dat"
 const string DatabaseManager::ACTIVE_TOKENS_DB = "Database/active_tokens.dat";
 const string DatabaseManager::USED_TOKENS_DB = "Database/used_tokens.dat";
 const string DatabaseManager::REVIEWS_DB = "Database/meal_reviews.dat";
-const string DatabaseManager::PR_ADMINS_DB = "Database/pr_admins.dat";
 const string DatabaseManager::MEALS_DB = "Database/meals.dat";
 const string DatabaseManager::DATABASE_DIR = "Database";
 
@@ -33,7 +31,6 @@ vector<DiningAuthority> DatabaseManager::cachedDiningAuthorities;
 vector<MealToken> DatabaseManager::cachedActiveTokens;
 vector<MealToken> DatabaseManager::cachedUsedTokens;
 vector<MealReview> DatabaseManager::cachedReviews;
-vector<PublicRelationsAdmin> DatabaseManager::cachedPRAdmins;
 vector<Meal> DatabaseManager::cachedMeals;
 
 // File-scope dataLoaded flag
@@ -71,10 +68,6 @@ void DatabaseManager::initializeDatabase() {
         ofstream file(REVIEWS_DB, ios::binary);
         file.close();
     }
-    if (!filesystem::exists(PR_ADMINS_DB)) {
-        ofstream file(PR_ADMINS_DB, ios::binary);
-        file.close();
-    }
     if (!filesystem::exists(MEALS_DB)) {
         ofstream file(MEALS_DB, ios::binary);
         file.close();
@@ -88,7 +81,6 @@ void DatabaseManager::initializeDatabase() {
         cachedActiveTokens = loadActiveTokens();
         cachedUsedTokens = loadUsedTokens();
         cachedReviews = loadReviews();
-        cachedPRAdmins = loadPRAdmins();
         cachedMeals = loadMeals();
         dataLoaded = true;
     }
@@ -282,32 +274,6 @@ bool DatabaseManager::deleteReview(const string& reviewID) {
     return deleteObject<MealReview, string>(cachedReviews, reviewID, REVIEWS_DB, &MealReview::getTokenNumber);
 }
 
-// PR Admin operations
-vector<PublicRelationsAdmin> DatabaseManager::loadPRAdmins() {
-    return loadObjects<PublicRelationsAdmin>(PR_ADMINS_DB);
-}
-
-void DatabaseManager::savePRAdmins(const vector<PublicRelationsAdmin>& admins) {
-    saveObjects(admins, PR_ADMINS_DB);
-    cachedPRAdmins = admins;
-}
-
-bool DatabaseManager::addPRAdmin(const PublicRelationsAdmin& admin) {
-    return addObject(cachedPRAdmins, admin, PR_ADMINS_DB);
-}
-
-PublicRelationsAdmin* DatabaseManager::findPRAdminByEmail(const string& email) {
-    return findObjectByKey<PublicRelationsAdmin, string>(cachedPRAdmins, email, &PublicRelationsAdmin::getEmail);
-}
-
-bool DatabaseManager::updatePRAdmin(const string& email, const PublicRelationsAdmin& updatedAdmin) {
-    return updateObject<PublicRelationsAdmin, string>(cachedPRAdmins, email, updatedAdmin, PR_ADMINS_DB, &PublicRelationsAdmin::getEmail);
-}
-
-bool DatabaseManager::deletePRAdmin(const string& email) {
-    return deleteObject<PublicRelationsAdmin, string>(cachedPRAdmins, email, PR_ADMINS_DB, &PublicRelationsAdmin::getEmail);
-}
-
 // Meal operations
 vector<Meal> DatabaseManager::loadMeals() {
     return loadObjects<Meal>(MEALS_DB);
@@ -387,8 +353,7 @@ bool DatabaseManager::emailExists(const string& email) {
     return findStudentByEmail(email) != nullptr ||
            findTeacherByEmail(email) != nullptr ||
            findAdminByEmail(email) != nullptr ||
-           findDiningAuthorityByEmail(email) != nullptr ||
-           findPRAdminByEmail(email) != nullptr;
+           findDiningAuthorityByEmail(email) != nullptr;
 }
 
 bool DatabaseManager::studentIDExists(const string& studentID) {
@@ -403,7 +368,6 @@ void DatabaseManager::clearAllData() {
     cachedActiveTokens.clear();
     cachedUsedTokens.clear();
     cachedReviews.clear();
-    cachedPRAdmins.clear();
     cachedMeals.clear();
 
     saveStudents(cachedStudents);
@@ -413,7 +377,6 @@ void DatabaseManager::clearAllData() {
     saveActiveTokens(cachedActiveTokens);
     saveUsedTokens(cachedUsedTokens);
     saveReviews(cachedReviews);
-    savePRAdmins(cachedPRAdmins);
 }
 
 size_t DatabaseManager::getStudentCount() {
@@ -451,6 +414,5 @@ void DatabaseManager::displayDatabaseStats() {
     cout << "Active Tokens: " << cachedActiveTokens.size() << endl;
     cout << "Used Tokens: " << cachedUsedTokens.size() << endl;
     cout << "Reviews: " << cachedReviews.size() << endl;
-    cout << "PR Admins: " << cachedPRAdmins.size() << endl;
-    cout << "Total Users: " << (getStudentCount() + getTeacherCount() + getAdminCount() + getDiningAuthorityCount() + cachedPRAdmins.size()) << endl;
+    cout << "Total Users: " << (getStudentCount() + getTeacherCount() + getAdminCount() + getDiningAuthorityCount()) << endl;
 }
