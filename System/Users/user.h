@@ -9,7 +9,7 @@
 #include "../../Core/Utils/StringHelper.h"
 using namespace std;
 
-// string ekta class howa te binary file shorashori right kora jayna
+// string ekta class howa te binary file sorasori right kora jayna
 // but string class er STL gula abr dorkar
 // so pura project e string use korbo runtime e
 // but file save korar somoy char array te convert kore nibo
