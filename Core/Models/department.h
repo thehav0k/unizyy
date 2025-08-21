@@ -7,6 +7,7 @@
 
 #include <string>
 #include <iostream>
+using namespace std;
 
 enum class department {
     Department_of_Computer_Science_and_Engineering,
@@ -26,7 +27,7 @@ static inline const char* toString(department dept) {
     }
 }
 //eita nao lagte pare
-static inline department stringToDepartmentEnum(const std::string& deptStr) {
+static inline department stringToDepartmentEnum(const string& deptStr) {
     if (deptStr == "Computer Science and Engineering" ||
         deptStr == "CSE" ||
         deptStr == "Computer Science" ||

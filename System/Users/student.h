@@ -24,29 +24,27 @@ private:
     department dept;
     int batch;
     Halls hall;
-    int Gender; // 1 for male // Zero for female // Only two gender
-    double balance; // balace in bdt // initially 0.0
+    bool Gender; // female = false, male = true
+    double balance; // balance in bdt // initially 0.0
 
 public:
     Student(const string &email, const string &password, const string &name, int age, const string &studentID,
-            int classRoll, department dept, int batch, Halls hall)
+            int classRoll, department dept, int batch, Halls hall,bool gender)
         : User(email, password), age(age), classRoll(classRoll),
           dept(dept), batch(batch), hall(hall) {
 
         // store as char array
-        //use as string
+        // use as string
         // thats why conversion
         StringHelper::stringToCharArray(name, this->name);
         StringHelper::stringToCharArray(studentID, this->studentID);
-
-        // hall onujayi gender auto
-        this->Gender = getHallGender(hall);
+        this->Gender = gender;
         this->balance = 6000.0;
     }
 
     // Default constructor
     Student() : User(), age(0), classRoll(0), dept(department::Department_of_Computer_Science_and_Engineering),
-                batch(0), hall(Halls::Al_Beruni_Hall), Gender(1), balance(0.0) {
+                batch(0), hall(Halls::Al_Beruni_Hall), Gender(true), balance(0.0) {
         name[0] = '\0';
         studentID[0] = '\0';
     }
@@ -106,20 +104,18 @@ public:
 
     void setHall(Halls hall) {
         Student::hall = hall;
-        // Update gender when hall is changed
-        this->Gender = getHallGender(hall);
     }
 
-    int getGender() const {
+    bool getGender() const {
         return Gender;
     }
 
-    void setGender(int gender) {
+    void setGender(bool gender) {
         Student::Gender = gender;
     }
 
     string getGenderString() const {
-        return (Gender == 1) ? "Male" : "Female";
+        return Gender ? "Male" : "Female";
     }
 
     double getBalance() const {

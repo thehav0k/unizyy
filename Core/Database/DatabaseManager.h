@@ -2,8 +2,8 @@
 // Created by Md. Asif Khan on 11/8/25.
 //
 
-#ifndef DATABASEMANAGER_H
-#define DATABASEMANAGER_H
+#pragma once
+
 
 #include <string>
 #include <vector>
@@ -14,9 +14,10 @@
 using namespace std;
 
 
-// forward declare jate ei class e use kora jay
-class Student;
-class Teacher;
-class Admin;
-class DiningAuthority;
 class DatabaseManager {
+    // shudhu static functions
+    // kono object dorkar nai
+    // amader approach hbe file->vector->CRUD->Then vector->file
+    // vector basically cache hisebe kaj korbe // file to vector load
+    // kono update/delete hole instantly vector-> file save hbe
+};

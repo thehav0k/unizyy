@@ -19,7 +19,6 @@ public:
         : totalMarks(totalMarks) {
 
     }
-    // Default constructor
     Course() : totalMarks(0.0) {
         courseName[0] = '\0';
         courseCode[0] = '\0';
