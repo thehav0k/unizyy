@@ -135,8 +135,6 @@ void registerStudent() {
     getline(cin, studentId);
     cout << "Enter your course: ";
     getline(cin, course);
-
-    // Check if email already exists
     for (const auto& student : students) {
         if (student.getEmail() == email) {
             cout << "Email already exists! Registration failed." << endl;
