@@ -22,18 +22,7 @@ Date::Date() {
 Date::Date(int d, int m, int y) : day(d), month(m), year(y) {}
 
 Date::Date(const string& dateStr) {
-    // Parse DD-MM-YYYY format
-    stringstream ss(dateStr);
-    string token;
 
-    getline(ss, token, '-');
-    day = stoi(token);
-
-    getline(ss, token, '-');
-    month = stoi(token);
-
-    getline(ss, token);
-    year = stoi(token);
 }
 
 // Getters
@@ -86,50 +75,11 @@ bool Date::isYesterday() const {
 }
 
 Date Date::getNextDay() const {
-    Date nextDay = *this;
-    nextDay.day++;
-
-    int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    // Check for leap year
-    if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
-        daysInMonth[1] = 29;
-    }
-
-    if (nextDay.day > daysInMonth[month - 1]) {
-        nextDay.day = 1;
-        nextDay.month++;
-
-        if (nextDay.month > 12) {
-            nextDay.month = 1;
-            nextDay.year++;
-        }
-    }
 
     return nextDay;
 }
 
 Date Date::getPreviousDay() const {
-    Date prevDay = *this;
-    prevDay.day--;
-
-    if (prevDay.day < 1) {
-        prevDay.month--;
-
-        if (prevDay.month < 1) {
-            prevDay.month = 12;
-            prevDay.year--;
-        }
-
-        int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-        // Check for leap year
-        if (prevDay.month == 2 && ((prevDay.year % 4 == 0 && prevDay.year % 100 != 0) || (prevDay.year % 400 == 0))) {
-            daysInMonth[1] = 29;
-        }
-
-        prevDay.day = daysInMonth[prevDay.month - 1];
-    }
 
     return prevDay;
 }
@@ -187,101 +137,3 @@ Date Date::SimulateDate(size_t n) {
     return simulatedDate;
 }
 
-Date Date::SimulateMonths(size_t n) {
-    if (!isSimulating) {
-        simulatedDate = Date();
-        isSimulating = true;
-    }
-
-    simulatedDate.month += static_cast<int>(n);
-
-    while (simulatedDate.month > 12) {
-        simulatedDate.month -= 12;
-        simulatedDate.year++;
-    }
-
-    return simulatedDate;
-}
-
-void Date::SimulateHours(size_t n) {
-    if (simulatedHour == -1) {
-        time_t now = time(nullptr);
-        tm* ltm = localtime(&now);
-        simulatedHour = ltm->tm_hour;
-    }
-
-    simulatedHour += static_cast<int>(n);
-
-    while (simulatedHour >= 24) {
-        simulatedHour -= 24;
-        SimulateDate(1); // Advance to next day
-    }
-}
-
-void Date::setSimulatedDate(const Date& d) {
-    simulatedDate = d;
-    isSimulating = true;
-}
-
-void Date::setSimulatedDateTime(const Date& d, int hour) {
-    simulatedDate = d;
-    simulatedHour = hour;
-    isSimulating = true;
-}
-
-int Date::getSimulatedHour() {
-    if (simulatedHour != -1) {
-        return simulatedHour;
-    }
-
-    time_t now = time(nullptr);
-    tm* ltm = localtime(&now);
-    return ltm->tm_hour;
-}
-
-void Date::resetSimulation() {
-    isSimulating = false;
-    simulatedHour = -1;
-    // simulatedDate will be ignored when isSimulating is false
-}
-
-bool Date::isSimulationActive() {
-    return isSimulating;
-}
-
-// Time methods for MenuInterface
-string Date::getCurrentTimeString() {
-    Date currentDate = getCurrentDate();
-    int currentHour = getSimulatedHour();
-
-    time_t now = time(nullptr);
-    tm* ltm = localtime(&now);
-    int currentMinute = ltm->tm_min;
-
-    stringstream ss;
-    ss << currentDate.year << "-"
-       << setfill('0') << setw(2) << currentDate.month << "-"
-       << setfill('0') << setw(2) << currentDate.day << " "
-       << setfill('0') << setw(2) << currentHour << ":"
-       << setfill('0') << setw(2) << currentMinute;
-    return ss.str();
-}
-
-string Date::getCurrentDateTimeString() {
-    Date currentDate = getCurrentDate();
-    int currentHour = getSimulatedHour();
-
-    time_t now = time(nullptr);
-    tm* ltm = localtime(&now);
-    int currentMinute = ltm->tm_min;
-    int currentSecond = ltm->tm_sec;
-
-    stringstream ss;
-    ss << currentDate.year << "-"
-       << setfill('0') << setw(2) << currentDate.month << "-"
-       << setfill('0') << setw(2) << currentDate.day << " "
-       << setfill('0') << setw(2) << currentHour << ":"
-       << setfill('0') << setw(2) << currentMinute << ":"
-       << setfill('0') << setw(2) << currentSecond;
-    return ss.str();
-}
