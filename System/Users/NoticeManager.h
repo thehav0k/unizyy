@@ -1,3 +1,6 @@
 #pragma once
-// NoticeManager removed as per requirement.
+#include "Admin.h"
 
+class NoticeManager: public Admin {
+
+};

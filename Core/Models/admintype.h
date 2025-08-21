@@ -2,8 +2,7 @@
 // Created by Md. Asif Khan on 8/8/25.
 //
 
-#ifndef ADMINTYPE_H
-#define ADMINTYPE_H
+#pragma once
 
 enum class AdminType {
     Transport,
@@ -23,5 +22,3 @@ static inline const char* toString(AdminType type) {
         default: return "Unknown Type";
     }
 }
-
-#endif //ADMINTYPE_H

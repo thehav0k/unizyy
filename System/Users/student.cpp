@@ -20,23 +20,3 @@ void Student::display() const {
     cout << "Gender: " << getGenderString() << endl;
     cout << "Balance: ৳" << fixed << setprecision(2) << balance << " BDT" << endl;
 }
-
-// Static database operations
-vector<Student> Student::loadAllStudents() {
-    return DatabaseManager::loadStudents();
-}
-bool Student::addStudentToDB(const Student& student) {
-    return DatabaseManager::addStudent(student);
-}
-bool Student::updateStudentInDB(const string& studentID, const Student& updatedStudent) {
-    return DatabaseManager::updateStudent(studentID, updatedStudent);
-}
-bool Student::deleteStudentFromDB(const string& studentID) {
-    return DatabaseManager::deleteStudent(studentID);
-}
-Student* Student::findStudentByEmail(const string& email) {
-    return DatabaseManager::findStudentByEmail(email);
-}
-Student* Student::findStudentByID(const string& studentID) {
-    return DatabaseManager::findStudentByID(studentID);
-}

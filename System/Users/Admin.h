@@ -20,11 +20,8 @@ public:
     // constructors // setters // getters
     Admin(const string &email, const string &password, const string &name, AdminType adminType)
         : User(email, password), adminType(adminType) {
-        // Use StringHelper for conversion
         StringHelper::stringToCharArray(name, this->name);
     }
-
-    // Default constructor
     Admin() : User(), adminType(AdminType::SystemAdmin) {
         name[0] = '\0';
     }

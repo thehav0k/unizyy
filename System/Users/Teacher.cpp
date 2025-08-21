@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
-
 #include "Teacher.h"
 #include <iostream>
 #include "../../Core/Models/department.h"
@@ -12,7 +8,7 @@ using namespace std;
 
 Teacher::Teacher(const string &email, const string &password, const string &name,
                  const string &department, designation desg)
-    : User(email, password), AP(desg) {
+        : User(email, password), AP(desg) {
     StringHelper::stringToCharArray(name, this->name);
     this->dept = stringToDepartmentEnum(department);
 }
@@ -57,28 +53,4 @@ void Teacher::display() const {
     cout << "Email: " << getEmail() << endl;
     cout << "Department: " << toString(dept) << endl;
     cout << "Rank: " << toString(AP) << endl;
-}
-
-void Teacher::gradeStudent(Student &student, Course &course) {
-    cout << "Grading student: " << student.getName() << " for course " << course.getCourseName() << endl;
-}
-
-vector<Teacher> Teacher::loadAllTeachers() {
-    return DatabaseManager::loadTeachers();
-}
-
-bool Teacher::addTeacherToDB(const Teacher& teacher) {
-    return DatabaseManager::addTeacher(teacher);
-}
-
-bool Teacher::updateTeacherInDB(const string& email, const Teacher& updatedTeacher) {
-    return DatabaseManager::updateTeacher(email, updatedTeacher);
-}
-
-bool Teacher::deleteTeacherFromDB(const string& email) {
-    return DatabaseManager::deleteTeacher(email);
-}
-
-Teacher* Teacher::findTeacherByEmail(const string& email) {
-    return DatabaseManager::findTeacherByEmail(email);
 }
