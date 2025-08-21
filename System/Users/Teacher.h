@@ -18,11 +18,11 @@ class Teacher: public User {
 private:
     char name[100];
     department dept;
-    designation desg;
+    designation AP;
 
 public:
     // Constructors
-    Teacher(const string &email, const string &password, const string &name, const string &department, designation desg);
+    Teacher(const string &email, const string &password, const string &name, const string &department, designation rank);
     Teacher();
 
     // Getters and setters
@@ -31,7 +31,7 @@ public:
     void setDepartment(department dept);
     department getDepartment() const;
     string getDepartmentName() const;
-    void setRank(designation desg);
+    void setRank(designation AP);
     designation getDesignation() const;
 
     // Virtual methods
