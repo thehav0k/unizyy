@@ -114,7 +114,7 @@ public:
 
 class MealToken {
 private:
-    char tokenNumber[20];     // Unique token identifier
+    char tokenNumber[20];     //
     char studentEmail[120];
     char mealName[120];
     MealType mealType;
@@ -229,7 +229,7 @@ public:
     void loadAllTokens();
     void cleanupExpiredTokens();
 
-    // Review dis vallagena
+    // Review dibo vallagena
     void saveAllReviews();
     void loadAllReviews();
     void displayStudentTokens(const string& studentEmail) const;
