@@ -111,14 +111,29 @@ bool Date::operator>=(const Date& other) const {
     return (*this > other) || (*this == other);
 }
 
-
 // Static functions
 Date Date::getCurrentDate() {
-    return isSimulating ? simulatedDate : Date();
+    if (isSimulating) {
+        return simulatedDate;
+    }
+    return {};
 }
 
 Date Date::getTomorrowDate() {
     Date today = getCurrentDate();
     return today.getNextDay();
+}
+
+Date Date::SimulateDate(size_t n) {
+    if (!isSimulating) {
+        simulatedDate = Date();
+        isSimulating = true;
+    }
+
+    for (size_t i = 0; i < n; ++i) {
+        simulatedDate = simulatedDate.getNextDay();
+    }
+
+    return simulatedDate;
 }
 

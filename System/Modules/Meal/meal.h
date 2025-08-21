@@ -1,24 +1,34 @@
+//
+// Created by Md. Asif Khan on 11/8/25.
+// Meal Management System Header
+//
+
 #ifndef MEAL_H
 #define MEAL_H
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <ctime>
+#include <random>
 
-#include "date.h"
-#include "department.h"
-#include "hall.h"
+#include "../../../Core/Models/department.h"
+#include "../../../Core/Models/date.h"
+#include "../../../Core/Models/hall.h"
 
 // how things will work
 // Student can buy tokens only the before they can use
 // While logged in they can see Meal details and price of every type
 // they can choose to buy tokens for breakfast, lunch, dinner or anytype together or individual
-// They can buy tokens from other halls as well but they are recommended to buy from their hall
+// They can buy tokens from other halls as well but they are rocommended to buy from their hall
 // they can take meals by using their tokens
 // After eating they can review meals
 // We'll use Core/models and other classes to make code size as small as possible but readable
 // UI will be managed by Interface folder's classes
 // Dining Authority can publish notice,Add meal details(There will be default meal for every day but they can change it)
 // And Sell tokens, see review
+// I'm using char array for those variable which needs to be written and read in files
+// Also using database manager to reduce code size and manage fineness
 using namespace std;
 
 enum class MealType {
@@ -44,7 +54,7 @@ enum class TokenStatus {
 
 class Meal {
 private:
-    char MealPackage[300]; //it will have three packages for each mealtype like (Rice, Chicken Curry, Lentils) / (Rice, Fish, Vegetables) etc
+    char MealPackage[300]; // it will have three packages for each mealtype like (Rice, Chicken Curry, Lentils) / (Rice, Fish, Vegetables) etc
     MealType mealType;
     double price; // price in bdt
     int availableQuantity;
@@ -52,10 +62,12 @@ private:
     char date[12]; // Date class er object ke char array te rakhar jnno
     char time[10];
     Halls hallName;
-    static vector<Meal> cachedMeals;
-    static bool mealsLoaded;
-    static void loadMealsIntoCache();
-    static void saveMealsToDisk();
+
+    // Caching (similar to DatabaseManager pattern)
+    static vector<Meal> cachedMeals;          // in-memory cache
+    static bool mealsLoaded;                  // guard to ensure single load
+    static void loadMealsIntoCache();         // internal load w/ legacy support
+    static void saveMealsToDisk();            // full rewrite
 
 public:
     // Constructors
@@ -109,21 +121,23 @@ public:
     static bool updateMeal(const string& date, const string& hallName, MealType type, const Meal& updatedMeal);
     static bool deleteMealFromDatabase(const string& date, const string& hallName, MealType type);
     static void displayAllMeals();
+
+    // Instance method for saving current meal
     bool saveMealToDatabase() const;
 };
 
 class MealToken {
 private:
-    char tokenNumber[20];     //
-    char studentEmail[120];
-    char mealName[120];
+    char tokenNumber[20];     // Unique token identifier
+    char studentEmail[120];   // Student email owning the token
+    char mealName[120];       // Cached meal name
     MealType mealType;
     Halls hallName;
     double paidAmount;
     Date purchaseDate;
-    Date validDate;
+    Date validDate;           // Date when meal can be taken
     TokenStatus status;
-    char purchaseTime[10];
+    char purchaseTime[10];    // Time when token was purchased
 
 public:
     // Constructors
@@ -173,7 +187,7 @@ private:
     Date reviewDate;
     Halls hallName;
     int batch;
-    department dept;
+    department department;
 
 public:
     // Constructors
@@ -229,11 +243,28 @@ public:
     void loadAllTokens();
     void cleanupExpiredTokens();
 
-    // Review dibo vallagena
+    // Review dis vallagena
     void saveAllReviews();
     void loadAllReviews();
+
     void displayStudentTokens(const string& studentEmail) const;
     void displayAllReviews() const;
+
+private:
+    void createTokenFolder();
+    bool hasReviewedToken(const string& tokenNumber) const;
+};
+
+
+// Helper functiongula
+class MealUtils {
+public:
+    static bool isWithinMealTime(MealType type);
+    static string getCurrentTime();
+    static bool isMealTimeExpired(MealType type, const Date& mealDate);
+    static vector<string> getAvailableHalls();
+    static void displayMealMenu(const vector<Meal>& meals);
+    static void displayTokenReceipt(const MealToken& token);
 };
 
 #endif

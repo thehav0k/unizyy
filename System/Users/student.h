@@ -30,8 +30,8 @@ private:
 public:
     Student(const string &email, const string &password, const string &name, int age, const string &studentID,
             int classRoll, department dept, int batch, Halls hall,bool gender)
-        : User(email, password), age(age), classRoll(classRoll),
-          dept(dept), batch(batch), hall(hall) {
+            : User(email, password), age(age), classRoll(classRoll),
+              dept(dept), batch(batch), hall(hall) {
 
         // store as char array
         // use as string
