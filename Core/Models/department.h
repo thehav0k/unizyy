@@ -25,6 +25,23 @@ static inline const char* toString(department dept) {
         default: return "Unknown Department";
     }
 }
+
+// Convert a string to department enum (simple case-insensitive contains matching)
+static inline department stringToDepartmentEnum(const string& name) {
+    string s = name;
+    // normalize to lower
+    for (char& c : s) c = static_cast<char>(tolower(c));
+    if (s.find("computer") != string::npos || s == "cse") {
+        return department::Department_of_Computer_Science_and_Engineering;
+    }
+    if (s.find("phys") != string::npos) {
+        return department::Department_of_physics;
+    }
+    if (s.find("math") != string::npos) {
+        return department::Department_of_Mathematics;
+    }
+    return department::Department_of_Computer_Science_and_Engineering; // default
+}
 //eita nao lagte pare
 
 #endif //DEPARTMENT_H

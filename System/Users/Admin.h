@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
-
 #ifndef ADMIN_H
 #define ADMIN_H
 #include "user.h"
