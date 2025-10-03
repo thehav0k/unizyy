@@ -22,7 +22,16 @@ Date::Date() {
 Date::Date(int d, int m, int y) : day(d), month(m), year(y) {}
 
 Date::Date(const string& dateStr) {
-
+    // Expect DD-MM-YYYY
+    int d = 1, m = 1, y = 1970;
+    char sep1 = '-', sep2 = '-';
+    stringstream ss(dateStr);
+    if ((ss >> d >> sep1 >> m >> sep2 >> y) && sep1 == '-' && sep2 == '-') {
+        day = d; month = m; year = y;
+    } else {
+        // Fallback to today on parse failure
+        Date tmp; day = tmp.getDay(); month = tmp.getMonth(); year = tmp.getYear();
+    }
 }
 
 // Getters
@@ -44,19 +53,19 @@ string Date::toString() const {
     return ss.str();
 }
 
+static bool isLeap(int y) {
+    return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+}
+
 bool Date::isValid() const {
     if (year < 1900 || year > 2100) return false;
     if (month < 1 || month > 12) return false;
     if (day < 1) return false;
 
     int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    // Check for leap year
-    if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
-        return day <= 29;
-    }
-
-    return day <= daysInMonth[month - 1];
+    int dim = daysInMonth[month - 1];
+    if (month == 2 && isLeap(year)) dim = 29;
+    return day <= dim;
 }
 
 bool Date::isToday() const {
@@ -75,13 +84,38 @@ bool Date::isYesterday() const {
 }
 
 Date Date::getNextDay() const {
+    int y = year, m = month, d = day;
+    int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int dim = daysInMonth[m - 1];
+    if (m == 2 && isLeap(y)) dim = 29;
 
-    return nextDay;
+    d += 1;
+    if (d > dim) {
+        d = 1;
+        m += 1;
+        if (m > 12) {
+            m = 1;
+            y += 1;
+        }
+    }
+    return Date(d, m, y);
 }
 
 Date Date::getPreviousDay() const {
-
-    return prevDay;
+    int y = year, m = month, d = day;
+    if (d > 1) {
+        return Date(d - 1, m, y);
+    }
+    // Go to last day of previous month
+    m -= 1;
+    if (m < 1) {
+        m = 12;
+        y -= 1;
+    }
+    int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int dim = daysInMonth[m - 1];
+    if (m == 2 && isLeap(y)) dim = 29;
+    return Date(dim, m, y);
 }
 
 // Comparison operators
@@ -116,7 +150,7 @@ Date Date::getCurrentDate() {
     if (isSimulating) {
         return simulatedDate;
     }
-    return {};
+    return Date();
 }
 
 Date Date::getTomorrowDate() {
@@ -136,4 +170,3 @@ Date Date::SimulateDate(size_t n) {
 
     return simulatedDate;
 }
-
