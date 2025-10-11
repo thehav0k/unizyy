@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 10/8/25.
-//
-
 #pragma once
 
 #include <string>
@@ -15,12 +11,14 @@
 #include "../../Core/Models/Designation.h"
 #include "../../Core/Models/admintype.h"
 #include "../../Core/Database/DatabaseManager.h"
+#include "Role.h"
 
 using namespace std;
 
 class Auth {
 private:
-    DatabaseManager dbManager; // karon authentication basically login+reg and duitai basically database operation
+    DatabaseManager dbManager;// karon authentication basically login+reg and duitai basically database operation
+    Role currRole;
 public:
     Auth();
     // login er jnno database(basically cached vector) theke searching kora lagbe
@@ -45,6 +43,11 @@ public:
     static string getValidatedPassword();
     static string getValidatedStudentID();
     static string getValidatedName();
+
+    //for role
+    void setRole(Role r);
+    Role getRole() const;
+
 };
 
 // only system admin onno admin der registration korte parbe

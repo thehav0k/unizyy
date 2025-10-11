@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Student Interface for meal token management and student operations
-//
 
 #ifndef STUDENT_INTERFACE_H
 #define STUDENT_INTERFACE_H
@@ -42,6 +38,9 @@ private:
     void displayMealTypes();
     void displayMealDetailsForPurchase(const string& hallName, MealType mealType);
     Meal selectMealFromMenu(const vector<Meal>& meals);
+
+    //Notice
+    void handleViewNotices();
 };
 
 #endif //STUDENT_INTERFACE_H

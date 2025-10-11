@@ -35,15 +35,16 @@ void StudentInterface::displayMenu() {
     cout << "1. Meal Token Operations" << endl;
     cout << "2. View Profile" << endl;
     cout << "3. Change Password" << endl;
-    cout << "4. Logout" << endl;
+    cout << "4. View Notices" << endl;
+    cout << "5. Logout" << endl;
     displaySeparator('-', 40);
 }
 
 int StudentInterface::getChoice() {
     int choice;
-    cout << "Please enter your choice (0-4): ";
+    cout << "Please enter your choice (0-5): ";
 
-    while (!(cin >> choice) || choice < 0 || choice > 4) {
+    while (!(cin >> choice) || choice < 0 || choice > 6) {
         displayError("Invalid input! Please enter a number between 0-4.");
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -87,6 +88,8 @@ void StudentInterface::processChoice(int choice) {
             handleChangePassword();
             break;
         case 4:
+            handleViewNotices();
+        case 5:
             handleLogout();
             break;
         default:
@@ -414,6 +417,28 @@ void StudentInterface::handleChangePassword() {
 
     pauseForInput();
 }
+
+//Notice
+
+void StudentInterface::handleViewNotices() {
+    displayHeader("VIEW NOTICES");
+    vector<Notice> notices = DatabaseManager::loadNotices();
+
+    if (notices.empty()) {
+        displayInfo("No notices  available");
+    } else {
+        for (size_t i = 0; i < notices.size(); ++i) {
+            cout << "\nNotice " << (i + 1) << ":" << endl;
+            cout << "Title: " << notices[i].getTitle() << endl;
+            cout << "Date: " << notices[i].getDate().toString() << endl;
+            cout << "Message: " << notices[i].getMessage() << endl;
+            displaySeparator('-', 50);
+        }
+    }
+
+    pauseForInput();
+}
+
 
 void StudentInterface::handleLogout() {
     displayHeader("LOGOUT");

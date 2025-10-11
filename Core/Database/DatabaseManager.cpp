@@ -1,14 +1,11 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// DatabaseManager Implementation
-//
-
 #include "DatabaseManager.h"
 #include "../Users/student.h"
 #include "../Users/Teacher.h"
 #include "../Users/Admin.h"
 #include "../Users/DiningAuthority.h"
 #include "../../System/Modules/Meal/meal.h"
+#include<NoticeManager.h>
+
 using namespace std;
 
 // dat file gular location
@@ -20,7 +17,9 @@ const string DatabaseManager::ACTIVE_TOKENS_DB = "Database/active_tokens.dat";
 const string DatabaseManager::USED_TOKENS_DB = "Database/used_tokens.dat";
 const string DatabaseManager::REVIEWS_DB = "Database/meal_reviews.dat";
 const string DatabaseManager::MEALS_DB = "Database/meals.dat";
+const string DatabaseManager::NOTICES_DB = "Database/notices.dat";
 const string DatabaseManager::DATABASE_DIR = "Database";
+
 
 // login korar shathe auto data gula file theke load hoye jabe
 // then vector e save thakbe jate easily shob access kora jay
@@ -32,7 +31,7 @@ vector<MealToken> DatabaseManager::cachedActiveTokens;
 vector<MealToken> DatabaseManager::cachedUsedTokens;
 vector<MealReview> DatabaseManager::cachedReviews;
 vector<Meal> DatabaseManager::cachedMeals;
-
+vector<Notice> DatabaseManager::cachedNotices;
 // File-scope dataLoaded flag
 static bool dataLoaded = false;
 
@@ -72,6 +71,12 @@ void DatabaseManager::initializeDatabase() {
         ofstream file(MEALS_DB, ios::binary);
         file.close();
     }
+    if (!filesystem::exists(NOTICES_DB)) {
+        ofstream file(NOTICES_DB, ios::binary);
+        file.close();
+    }
+
+
 
     if (!dataLoaded) {
         cachedStudents = loadStudents();
@@ -82,6 +87,8 @@ void DatabaseManager::initializeDatabase() {
         cachedUsedTokens = loadUsedTokens();
         cachedReviews = loadReviews();
         cachedMeals = loadMeals();
+        cachedNotices = loadNotices();
+
         dataLoaded = true;
     }
 }
@@ -360,6 +367,30 @@ bool DatabaseManager::studentIDExists(const string& studentID) {
     return findStudentByID(studentID) != nullptr;
 }
 
+//For notice management
+vector<Notice> DatabaseManager::loadNotices() {
+    return loadObjects<Notice>(NOTICES_DB);
+}
+
+void DatabaseManager::saveNotices(const vector<Notice>& notices) {
+    saveObjects(notices, NOTICES_DB);
+    cachedNotices = notices;
+}
+
+bool DatabaseManager::addNotice(const Notice& notice) {
+    return addObject(cachedNotices, notice, NOTICES_DB);
+}
+
+bool DatabaseManager::updateNotice(int index, const Notice& updatedNotice) {
+    if (index < 0 || index >= static_cast<int>(cachedNotices.size())) return false;
+    cachedNotices[index] = updatedNotice;
+    saveObjects(cachedNotices, NOTICES_DB);
+    return true;
+}
+
+
+
+
 void DatabaseManager::clearAllData() {
     cachedStudents.clear();
     cachedTeachers.clear();
@@ -369,6 +400,7 @@ void DatabaseManager::clearAllData() {
     cachedUsedTokens.clear();
     cachedReviews.clear();
     cachedMeals.clear();
+    cachedNotices.clear();
 
     saveStudents(cachedStudents);
     saveTeachers(cachedTeachers);
@@ -377,6 +409,7 @@ void DatabaseManager::clearAllData() {
     saveActiveTokens(cachedActiveTokens);
     saveUsedTokens(cachedUsedTokens);
     saveReviews(cachedReviews);
+    saveNotices(cachedNotices);
 }
 
 size_t DatabaseManager::getStudentCount() {

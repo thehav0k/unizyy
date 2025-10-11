@@ -11,10 +11,12 @@
 #include <iostream>
 #include <filesystem>
 #include "../../System/Modules/Meal/meal.h"
+#include"NoticeManager.h"
 using namespace std;
 
 
-// forward declare jate ei class e use kora jay
+// forward declare jate ei class e use kora
+class Notice;
 class Student;
 class Teacher;
 class Admin;
@@ -30,6 +32,9 @@ private:
     static const string USED_TOKENS_DB;
     static const string REVIEWS_DB;
     static const string MEALS_DB;
+    static const string NOTICES_DB;
+
+
 
     // file er sob data vector gulay joma hbe program shurur por
     static vector<Student> cachedStudents;
@@ -40,6 +45,7 @@ private:
     static vector<MealToken> cachedUsedTokens;
     static vector<MealReview> cachedReviews;
     static vector<Meal> cachedMeals;
+    static vector<Notice> cachedNotices;
 
 public:
     // direct object writing & reading er jnno template method
@@ -151,6 +157,13 @@ public:
     static vector<Meal> getMealsByDate(const string& date);
     static vector<Meal> getMealsByType(MealType type);
 
+    //Notice opreations
+    static std::vector<Notice> loadNotices();
+    static void saveNotices(const std::vector<Notice>& notices);
+    static bool addNotice(const Notice& notice);
+    static bool updateNotice(int index, const Notice& updatedNotice);
+
+
     // Database statistics
     static size_t getStudentCount();
     static size_t getTeacherCount();
@@ -193,6 +206,7 @@ vector<T> DatabaseManager::loadObjects(const string& filePath) {
     }
     return objects;
 }
+
 
 // General template for saving objects
 template<typename T>

@@ -18,7 +18,7 @@ MainMenu::MainMenu(Auth* auth) : authSystem(auth), isRunning(true) {}
 
 void MainMenu::displayWelcomeBanner() {
     clearScreen();
-    cout << "\nUNIZY : JAHANGIRNAGAR UNIVERSITY MANAGEMENT SYSTEM" << endl;
+    cout << "\nUNI   ZY : JAHANGIRNAGAR UNIVERSITY MANAGEMENT SYSTEM" << endl;
     cout << "==========================================================" << endl;
     cout<< Date::getCurrentDateTimeString() << endl;
     cout << "==========================================================" << endl;

@@ -431,3 +431,11 @@ string Auth::getValidatedName() {
 
     return name;
 }
+
+void Auth::setRole(Role r) {
+    currRole = r;
+}
+
+Role Auth::getRole() const {
+    return currRole;
+}

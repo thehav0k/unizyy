@@ -8,6 +8,7 @@
 #include <iostream>
 #include <limits>
 #include "../../Core/Models/date.h"
+#include<NoticeManager.h>
 
 using namespace std;
 
@@ -31,21 +32,22 @@ void AdminInterface::displayMenu() {
     cout << "1. User Management" << endl;
     cout << "2. System Settings" << endl;
     cout << "3. System Reports" << endl;
-    cout << "4. Database Management" << endl;
-    cout << "5. Profile Settings" << endl;
-    cout << "6. Logout" << endl;
+    cout << "4. Notice Management(create,update,view)" << endl;
+    cout << "5. Database Management" << endl;
+    cout << "6. Profile Settings" << endl;
+    cout << "7. Logout" << endl;
     displaySeparator('-', 40);
 }
 
 int AdminInterface::getChoice() {
     int choice;
-    cout << "Please enter your choice (0-6): ";
+    cout << "Please enter your choice (0-7): ";
 
-    while (!(cin >> choice) || choice < 0 || choice > 6) {
+    while (!(cin >> choice) || choice < 0 || choice > 7) {
         displayError("Invalid input! Please enter a number between 0-6.");
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Please enter your choice (0-6): ";
+        cout << "Please enter your choice (0-7): ";
     }
 
     cin.ignore();
@@ -73,12 +75,15 @@ void AdminInterface::processChoice(int choice) {
             handleReports();
             break;
         case 4:
-            handleDatabaseManagement();
+            handleNoticeManagement();
             break;
         case 5:
-            handleProfile();
+            handleDatabaseManagement();
             break;
         case 6:
+            handleProfile();
+            break;
+        case 7:
             handleLogout();
             break;
         default:
@@ -115,6 +120,84 @@ void AdminInterface::handleReports() {
     cout << "-> Revenue analytics across all halls" << endl;
     cout << "-> System performance metrics" << endl;
     pauseForInput();
+}
+
+void AdminInterface::handleNoticeManagement() {
+    clearScreen();
+    displayHeader("NOTICE MANAGEMENT");
+
+    static vector<Notice> notices;
+
+    while (true) {
+        cout << "1. Create Notice" << endl;
+        cout << "2. Update Notice" << endl;
+        cout << "3. View All Notices" << endl;
+        cout << "4. Back to Admin Menu" << endl;
+        cout << "Enter choice from 1 to 4: ";
+
+        int choice;
+        cin >> choice;
+        cin.ignore();
+
+        if (choice == 1) {
+            string title, message,author;
+            cout << "Enter notice title: ";
+            getline(cin, title);
+            cout << "Enter message: ";
+            getline(cin, message);
+            author = currentAdmin->getName();
+            Notice n(title, message, Date::getCurrentDate());
+            notices.push_back(n);
+            displaySuccess("You've created the notice successfully!!!");
+
+        } else if (choice == 2) {
+            if (notices.empty()) {
+                displayInfo("Nothing   to update.");
+            } else {
+                for (int i = 0; i < notices.size(); i++) {
+                    cout << i << ". " << notices[i].getTitle() << endl;
+                }
+                cout << "Enter notice index to update: ";
+                int indx;
+                cin >> indx;
+                cin.ignore();
+                if (indx< 0 || indx >= (int)notices.size()) {
+                    displayError("Invalid index!");
+                } else {
+                    string nTitle, nMessage;
+                    cout << "Enter new title: ";
+                    getline(cin, nTitle);
+                    cout << "Enter new message: ";
+                    getline(cin, nMessage);
+                    notices[indx].setTitle(nTitle);
+                    notices[indx].setMessage(nMessage);
+                    displaySuccess("Notice updated successfully!");
+                }
+            }
+
+        } else if (choice == 3) {
+            if (notices.empty()) {
+                displayInfo("Nothing to show.");
+            } else {
+                for (const auto& n : notices) {
+                    cout << "\nTitle: " << n.getTitle() << endl;
+                    cout << "Date: " << n.getDate().toString() << endl;
+                    cout << "Message: " << n.getMessage() << endl;
+                    displaySeparator('-', 50);
+                }
+            }
+
+
+        } else if (choice == 4) {
+            break;
+        } else {
+            displayError("The  option is not valid!");
+        }
+
+        pauseForInput();
+        clearScreen();
+        displayHeader("NOTICE MANAGEMENT");
+    }
 }
 
 void AdminInterface::handleDatabaseManagement() {

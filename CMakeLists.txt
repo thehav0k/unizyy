@@ -34,6 +34,9 @@ set(SOURCES
     System/Interface/TeacherInterface.cpp
     System/Interface/DiningAuthorityInterface.cpp
     System/Interface/PublicRelationsAdminInterface.cpp
+        System/Interface/NoticeManagerInterface.h
+        System/Interface/NoticeManagerInterface.cpp
+        Core/Models/Role.h
 )
 
 add_executable(unizyy ${SOURCES})
