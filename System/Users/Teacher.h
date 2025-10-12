@@ -18,7 +18,7 @@ class Teacher: public User {
 private:
     char name[100];
     department dept;
-    designation AP;
+    designation dg;
 
 public:
     // Constructors
@@ -31,7 +31,7 @@ public:
     void setDepartment(department dept);
     department getDepartment() const;
     string getDepartmentName() const;
-    void setRank(designation AP);
+    void setDesignation(designation dg);
     designation getDesignation() const;
 
     // Virtual methods

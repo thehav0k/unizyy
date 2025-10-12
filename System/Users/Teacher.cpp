@@ -12,13 +12,13 @@ using namespace std;
 
 Teacher::Teacher(const string &email, const string &password, const string &name,
                  const string &department, designation desg)
-    : User(email, password), AP(desg) {
+    : User(email, password), dg(desg) {
     StringHelper::stringToCharArray(name, this->name);
     this->dept = stringToDepartmentEnum(department);
 }
 
 Teacher::Teacher() : User(), dept(department::Department_of_Computer_Science_and_Engineering),
-                     AP(designation::Lecturer) {
+                     dg(designation::Lecturer) {
     name[0] = '\0';
 }
 
@@ -43,11 +43,11 @@ string Teacher::getDepartmentName() const {
     return toString(dept);
 }
 
-void Teacher::setRank(designation AP) {
-    this->AP = AP;
+void Teacher::setDesignation(designation dg) {
+    this->dg = dg;
 }
 designation Teacher::getDesignation() const {
-    return AP;
+    return dg;
 }
 
 // Display All teachers
@@ -56,7 +56,7 @@ void Teacher::display() const {
     cout << "Name: " << getName() << endl;
     cout << "Email: " << getEmail() << endl;
     cout << "Department: " << toString(dept) << endl;
-    cout << "Rank: " << toString(AP) << endl;
+    cout << "Rank: " << toString(dg) << endl;
 }
 
 void Teacher::gradeStudent(Student &student, Course &course) {
