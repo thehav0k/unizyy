@@ -99,6 +99,7 @@ void MainMenu::processChoice(int choice) {
                     case 6: { Date::resetSimulation(); displaySuccess("Simulation reset."); } break;
                     default: displayInfo("Cancelled.");cout.flush();
                 }
+                cout.flush();
                 pauseForInput();
             }
             break;
