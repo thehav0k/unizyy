@@ -179,12 +179,18 @@ Date Date::SimulateDate(size_t n) {
         simulatedDate = Date();
         isSimulating = true;
     }
-
-    for (size_t i = 0; i < n; ++i) {
+    //negative er jonno int banailam
+    int days= static_cast<int>(n);
+    if (days >= 0)
+    for (int i = 0; i < n; ++i) {
         simulatedDate = simulatedDate.getNextDay();
     }
-
-    return simulatedDate;
+    //negative value er jonno korsi
+    else
+        for (int i = 0; i < -n; ++i) {
+            simulatedDate = simulatedDate.getPreviousDay();
+        }
+        return simulatedDate;
 }
 
 Date Date::SimulateMonths(size_t n) {
@@ -198,6 +204,11 @@ Date Date::SimulateMonths(size_t n) {
     while (simulatedDate.month > 12) {
         simulatedDate.month -= 12;
         simulatedDate.year++;
+    }
+    //negative month dile jate kaj kore tai add disi
+    while (simulatedDate.month < 1) {
+        simulatedDate.month += 12;
+        simulatedDate.year--;
     }
 
     return simulatedDate;
@@ -214,8 +225,14 @@ void Date::SimulateHours(size_t n) {
 
     while (simulatedHour >= 24) {
         simulatedHour -= 24;
-        SimulateDate(1); // Advance to next day
+        SimulateDate(1); // ekdin shamne gelo
     }
+    // negative hoile ki hobe?
+    while (simulatedHour < 0) {
+        simulatedHour += 24;
+        SimulateDate(static_cast<size_t>(-1)); // ekdin pechone jabe
+    }
+
 }
 
 void Date::setSimulatedDate(const Date& d) {

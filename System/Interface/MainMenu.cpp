@@ -57,10 +57,10 @@ int MainMenu::getChoice() {
             if (choice >= 0 && choice <= 4) {
                 return choice;
             } else {
-                displayError("Invalid input! Enter a number between 0-4.");
+                displayError("Invalid input! Enter a number between 0-4."); cout.flush();
             }
         } catch (const exception&) {
-            displayError("Invalid input! Enter a number between 0-4.");
+            displayError("Invalid input! Enter a number between 0-4."); cout.flush();
         }
     }
 }
@@ -83,21 +83,21 @@ void MainMenu::processChoice(int choice) {
                     case 1: {
                         cout << "Enter date (DD-MM-YYYY): "; string d; getline(cin, d);
                         if (d.empty()) displayError("Empty date"); else { Date dt(d); if(!dt.isValid()) displayError("Invalid date"); else { Date::setSimulatedDate(dt); displaySuccess("Simulation date set to " + dt.toString()); } }
-                    } break;
+                    } cout.flush();break;
                     case 2: {
                         cout << "Enter days to advance: "; size_t n; cin >> n; cin.ignore(); Date dt = Date::SimulateDate(n); displaySuccess("Advanced to " + dt.toString()); }
-                        break;
+                        cout.flush();break;
                     case 3: {
                         cout << "Enter months to advance: "; size_t n; cin >> n; cin.ignore(); Date dt = Date::SimulateMonths(n); displaySuccess("Advanced to " + dt.toString()); }
-                        break;
+                        cout.flush();break;
                     case 4: {
                         cout << "Enter hours to advance: "; size_t n; cin >> n; cin.ignore(); Date::SimulateHours(n); Date cur = Date::getCurrentDate(); int h = Date::getSimulatedHour(); displaySuccess("Time advanced. Now: " + cur.toString() + " " + to_string(h) + ":00"); }
-                        break;
+                        cout.flush();break;
                     case 5: {
-                        cout << "Enter date (DD-MM-YYYY): "; string d; getline(cin, d); cout << "Enter hour (0-23): "; int h; cin >> h; cin.ignore(); Date dt(d); if(!dt.isValid()) displayError("Invalid date"); else { Date::setSimulatedDateTime(dt,h); displaySuccess("Set to " + dt.toString() + " " + to_string(Date::getSimulatedHour()) + ":00"); } }
-                        break;
+                        cout << "Enter date (DD-MM-YYYY): "; string d; getline(cin, d); Date dt(d); if(!dt.isValid()) displayError("Invalid date"); else {cout << "Enter hour (0-23): "; int h; cin >> h; cin.ignore(); Date::setSimulatedDateTime(dt,h); displaySuccess("Set to " + dt.toString() + " " + to_string(Date::getSimulatedHour()) + ":00"); } }
+                        cout.flush();break;
                     case 6: { Date::resetSimulation(); displaySuccess("Simulation reset."); } break;
-                    default: displayInfo("Cancelled.");
+                    default: displayInfo("Cancelled.");cout.flush();
                 }
                 pauseForInput();
             }
@@ -115,7 +115,7 @@ void MainMenu::processChoice(int choice) {
             handleExit();
             break;
         default:
-            displayError("Invalid choice!");
+            displayError("Invalid choice!");cout.flush();
             pauseForInput();
     }
 }
