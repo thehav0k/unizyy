@@ -6,6 +6,7 @@
 #include "StudentInterface.h"
 #include "../Authentication/auth.h"
 #include "../../Core/Models/date.h"
+#include "../../Core/Models/Notice.h"
 #include "../../Core/Database/DatabaseManager.h"
 #include "../../Core/Utils/StringHelper.h"
 #include <iostream>

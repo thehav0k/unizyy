@@ -23,8 +23,7 @@ set(SOURCES
     System/Users/Admin.cpp
     System/Users/Teacher.cpp
     System/Users/DiningAuthority.cpp
-    System/Users/NoticeManager.cpp
-    System/Users/PublicRelationsAdmin.cpp
+        System/Users/PublicRelationsAdmin.cpp
     System/Authentication/auth.cpp
     System/Modules/Meal/meal.cpp
     System/Interface/MenuInterface.cpp
@@ -34,8 +33,6 @@ set(SOURCES
     System/Interface/TeacherInterface.cpp
     System/Interface/DiningAuthorityInterface.cpp
     System/Interface/PublicRelationsAdminInterface.cpp
-        System/Interface/NoticeManagerInterface.h
-        System/Interface/NoticeManagerInterface.cpp
         Core/Models/Role.h
 )
 

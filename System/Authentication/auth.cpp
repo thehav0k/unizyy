@@ -6,6 +6,7 @@
 #include "../Users/student.h"
 #include "../Users/Teacher.h"
 #include "../Users/Admin.h"
+#include "../Users/PublicRelationsAdmin.h"
 #include "../Users/DiningAuthority.h"
 #include "../../Core/Database/DatabaseManager.h"
 #include "../../Core/Utils/StringHelper.h"
@@ -225,8 +226,15 @@ bool Auth::registerAdmin(const string &name, const string &email, AdminType admi
         return false;
     }
 
-    Admin newAdmin(email, password, name, adminType);
-    DatabaseManager::addAdmin(newAdmin);
+    // Create appropriate admin subclass based on type
+    if (adminType == AdminType::PublicRelations) {
+        // Need to add age parameter - using default 30 for now
+        PublicRelationsAdmin newAdmin(email, password, name, 30);
+        DatabaseManager::addAdmin(newAdmin);
+    } else {
+        Admin newAdmin(email, password, name, adminType);
+        DatabaseManager::addAdmin(newAdmin);
+    }
 
     cout << "Admin registered successfully!" << endl;
     return true;

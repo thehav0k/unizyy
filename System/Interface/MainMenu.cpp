@@ -8,6 +8,8 @@
 #include "AdminInterface.h"
 #include "TeacherInterface.h"
 #include "DiningAuthorityInterface.h"
+#include "PublicRelationsAdminInterface.h"
+#include "../Users/PublicRelationsAdmin.h"
 #include <iostream>
 #include <limits>
 #include "../../Core/Models/date.h"  // for date simulation
@@ -18,7 +20,7 @@ MainMenu::MainMenu(Auth* auth) : authSystem(auth), isRunning(true) {}
 
 void MainMenu::displayWelcomeBanner() {
     clearScreen();
-    cout << "\nUNI   ZY : JAHANGIRNAGAR UNIVERSITY MANAGEMENT SYSTEM" << endl;
+    cout << "\nUNIZY : JAHANGIRNAGAR UNIVERSITY MANAGEMENT SYSTEM" << endl;
     cout << "==========================================================" << endl;
     cout<< Date::getCurrentDateTimeString() << endl;
     cout << "==========================================================" << endl;
@@ -135,8 +137,17 @@ void MainMenu::handleLogin() {
             studentUI.run();
         }
         else if (auto* admin = dynamic_cast<Admin*>(user)) {
-            AdminInterface adminUI(admin, authSystem);
-            adminUI.run();
+            // Check admin type to route to correct interface
+            if (admin->getAdminType() == AdminType::PublicRelations) {
+                // Create PublicRelationsAdmin interface with the admin
+                PublicRelationsAdmin* prAdmin = static_cast<PublicRelationsAdmin*>(admin);
+                PublicRelationsAdminInterface prAdminUI(prAdmin, authSystem);
+                prAdminUI.run();
+            } else {
+                // Generic admin interface for other admin types
+                AdminInterface adminUI(admin, authSystem);
+                adminUI.run();
+            }
         }
         else if (auto* teacher = dynamic_cast<Teacher*>(user)) {
             TeacherInterface teacherUI(teacher, authSystem);

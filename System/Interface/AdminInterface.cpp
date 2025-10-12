@@ -8,7 +8,7 @@
 #include <iostream>
 #include <limits>
 #include "../../Core/Models/date.h"
-#include<NoticeManager.h>
+#include "../../Core/Models/Notice.h"
 
 using namespace std;
 
@@ -126,7 +126,8 @@ void AdminInterface::handleNoticeManagement() {
     clearScreen();
     displayHeader("NOTICE MANAGEMENT");
 
-    static vector<Notice> notices;
+    // Load existing notices from database instead of using static local vector
+    vector<Notice> notices = DatabaseManager::loadNotices();
 
     while (true) {
         cout << "1. Create Notice" << endl;
@@ -140,19 +141,26 @@ void AdminInterface::handleNoticeManagement() {
         cin.ignore();
 
         if (choice == 1) {
-            string title, message,author;
+            string title, message;
             cout << "Enter notice title: ";
             getline(cin, title);
             cout << "Enter message: ";
             getline(cin, message);
-            author = currentAdmin->getName();
+
             Notice n(title, message, Date::getCurrentDate());
-            notices.push_back(n);
-            displaySuccess("You've created the notice successfully!!!");
+
+            // Save to database
+            if (DatabaseManager::addNotice(n)) {
+                displaySuccess("You've created the notice successfully!!!");
+                // Reload notices from database to keep in sync
+                notices = DatabaseManager::loadNotices();
+            } else {
+                displayError("Failed to save notice to database!");
+            }
 
         } else if (choice == 2) {
             if (notices.empty()) {
-                displayInfo("Nothing   to update.");
+                displayInfo("Nothing to update.");
             } else {
                 for (int i = 0; i < notices.size(); i++) {
                     cout << i << ". " << notices[i].getTitle() << endl;
@@ -161,7 +169,7 @@ void AdminInterface::handleNoticeManagement() {
                 int indx;
                 cin >> indx;
                 cin.ignore();
-                if (indx< 0 || indx >= (int)notices.size()) {
+                if (indx < 0 || indx >= (int)notices.size()) {
                     displayError("Invalid index!");
                 } else {
                     string nTitle, nMessage;
@@ -171,11 +179,20 @@ void AdminInterface::handleNoticeManagement() {
                     getline(cin, nMessage);
                     notices[indx].setTitle(nTitle);
                     notices[indx].setMessage(nMessage);
-                    displaySuccess("Notice updated successfully!");
+
+                    // Update in database
+                    if (DatabaseManager::updateNotice(indx, notices[indx])) {
+                        displaySuccess("Notice updated successfully!");
+                    } else {
+                        displayError("Failed to update notice in database!");
+                    }
                 }
             }
 
         } else if (choice == 3) {
+            // Reload from database to show latest
+            notices = DatabaseManager::loadNotices();
+
             if (notices.empty()) {
                 displayInfo("Nothing to show.");
             } else {
@@ -187,11 +204,10 @@ void AdminInterface::handleNoticeManagement() {
                 }
             }
 
-
         } else if (choice == 4) {
             break;
         } else {
-            displayError("The  option is not valid!");
+            displayError("The option is not valid!");
         }
 
         pauseForInput();

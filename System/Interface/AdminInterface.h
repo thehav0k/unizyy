@@ -3,7 +3,6 @@
 
 #include "MenuInterface.h"
 #include "../Users/Admin.h"
-#include<NoticeManagerInterface.h>
 // Forward declaration
 class Auth;
 

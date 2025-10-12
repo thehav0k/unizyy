@@ -4,7 +4,7 @@
 #include "../Users/Admin.h"
 #include "../Users/DiningAuthority.h"
 #include "../../System/Modules/Meal/meal.h"
-#include<NoticeManager.h>
+#include "../Models/Notice.h"
 
 using namespace std;
 
