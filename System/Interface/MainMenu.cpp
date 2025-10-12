@@ -36,6 +36,7 @@ void MainMenu::displayMenu() {
     cout << "3. About System & Features" << endl;
     cout << "4. Exit Application" << endl;
     cout << "----------------------------------------------------------" << endl;
+    cout.flush();
 }
 
 int MainMenu::getChoice() {

@@ -26,6 +26,12 @@ private:
     void handleSystemSettings();
     void handleReports();
 
+    void handleViewAllUsers();
+    void handleAddNewUser();
+    void handleSearchUser();
+    void handleUserStatistics();
+    void handleUserActivation();
+
     void handleNoticeManagement();
 
     void handleDatabaseManagement();
