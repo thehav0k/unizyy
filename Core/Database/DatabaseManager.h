@@ -21,6 +21,9 @@ class Student;
 class Teacher;
 class Admin;
 class DiningAuthority;
+
+// ekta static class, object bananor dorkar nai
+// anyway namespace o use kora jaito but static class sounds cool
 class DatabaseManager {
 private:
     static const string STUDENTS_DB;
@@ -34,9 +37,8 @@ private:
     static const string MEALS_DB;
     static const string NOTICES_DB;
 
-
-
     // file er sob data vector gulay joma hbe program shurur por
+    // style hocche load data to vector-> modify sob in vector -> tarpor abr save in file
     static vector<Student> cachedStudents;
     static vector<Teacher> cachedTeachers;
     static vector<Admin> cachedAdmins;
@@ -50,6 +52,7 @@ private:
 public:
     // direct object writing & reading er jnno template method
     // jate jekono object same method diye read write kora jay
+    // Man I love templates, code size 70% komaya diche
     template<typename T>
     static void writeObjectToBinary(ofstream& out, const T& obj);
     template<typename T>
@@ -61,29 +64,25 @@ public:
 
     template<typename T>
     static void saveObjects(const vector<T>& objects, const string& filePath);
-
+    // eita ektu tricky function er moddhe function parameter hisebe pass kora hoise
+    // func jekono method hote pare -> getemail/id etc
+    // func object er pointer return kore
     template<typename T, typename KeyType>
-    static T* findObjectByKey(vector<T>& container,
-                             const KeyType& key,
-                             KeyType (T::*getter)() const);
+    static T* findObjectByKey(vector<T>& container,const KeyType& key,KeyType (T::*func)() const);
 
     template<typename T>
     static bool addObject(vector<T>& cache, const T& object, const string& filePath);
 
     template<typename T, typename KeyType>
-    static bool updateObject(vector<T>& cache, const KeyType& key,
-                            const T& updatedObject, const string& filePath,
-                            KeyType (T::*getter)() const);
+    static bool updateObject(vector<T>& cache, const KeyType& key,const T& updatedObject, const string& filePath,KeyType (T::*func )() const);
 
     template<typename T, typename KeyType>
-    static bool deleteObject(vector<T>& cache, const KeyType& key,
-                            const string& filePath,
-                            KeyType (T::*getter)() const);
+    static bool deleteObject(vector<T>& cache, const KeyType& key,const string& filePath,KeyType (T::*func )() const);
 
-    // Database initialization
+    // Database initialize hobe mane sob file theke vector e cache hisebe laod hbe
     static void initializeDatabase();
 
-    // Student operations
+    // Student
     static vector<Student> loadStudents();
     static void saveStudents(const vector<Student>& students);
     static bool addStudent(const Student& student);
@@ -92,7 +91,7 @@ public:
     static Student* findStudentByEmail(const string& email);
     static Student* findStudentByID(const string& studentID);
 
-    // Teacher operations
+    // Teacher
     static vector<Teacher> loadTeachers();
     static void saveTeachers(const vector<Teacher>& teachers);
     static bool addTeacher(const Teacher& teacher);
@@ -100,7 +99,7 @@ public:
     static bool deleteTeacher(const string& email);
     static Teacher* findTeacherByEmail(const string& email);
 
-    // Admin operations
+    // Admin
     static vector<Admin> loadAdmins();
     static void saveAdmins(const vector<Admin>& admins);
     static bool addAdmin(const Admin& admin);
@@ -108,7 +107,7 @@ public:
     static bool updateAdmin(const string& email, const Admin& updatedAdmin);
     static bool deleteAdmin(const string& email);
 
-    // DiningAuthority operations
+    // DiningAuthority
     static vector<DiningAuthority> loadDiningAuthorities();
     static void saveDiningAuthorities(const vector<DiningAuthority>& authorities);
     static bool addDiningAuthority(const DiningAuthority& authority);
@@ -116,14 +115,14 @@ public:
     static bool updateDiningAuthority(const string& email, const DiningAuthority& updatedAuthority);
     static bool deleteDiningAuthority(const string& email);
 
-    // Helper operations
+    // habijabi
     static bool emailExists(const string& email);
     static bool studentIDExists(const string& studentID);
     static void clearAllData();
-    static void backupData(const string& backupDir);
-    static bool restoreData(const string& backupDir);
+    // static void backupData(const string& backupDir);
+    // static bool restoreData(const string& backupDir);
 
-    // Active Token operations
+    // Tokens
     static vector<MealToken> loadActiveTokens();
     static void saveActiveTokens(const vector<MealToken>& tokens);
     static bool addActiveToken(const MealToken& token);
@@ -139,7 +138,7 @@ public:
     static bool deleteUsedToken(const string& tokenID);
     static MealToken* findUsedTokenByID(const string& tokenID);
 
-    // Review operations
+    // Review
     static vector<MealReview> loadReviews();
     static void saveReviews(const vector<MealReview>& reviews);
     static bool addReview(const MealReview& review);
@@ -147,7 +146,7 @@ public:
     static bool deleteReview(const string& reviewID);
     static MealReview* findReviewByID(const string& reviewID);
 
-    // Meal operations
+    // Meal
     static vector<Meal> loadMeals();
     static void saveMeals(const vector<Meal>& meals);
     static bool addMeal(const Meal& meal);
@@ -157,9 +156,9 @@ public:
     static vector<Meal> getMealsByDate(const string& date);
     static vector<Meal> getMealsByType(MealType type);
 
-    //Notice opreations
-    static std::vector<Notice> loadNotices();
-    static void saveNotices(const std::vector<Notice>& notices);
+    //Notice
+    static  vector<Notice> loadNotices();
+    static void saveNotices(const  vector<Notice>& notices);
     static bool addNotice(const Notice& notice);
     static bool updateNotice(int index, const Notice& updatedNotice);
 
@@ -173,20 +172,21 @@ public:
     static void displayDatabaseStats();
 };
 
-// Template implementations (must be in header)
-// Write an object to a binary file
+// single object write read korar method
+// onek jaygay use hbe
 template<typename T>
 void DatabaseManager::writeObjectToBinary(ofstream& out, const T& obj) {
     out.write(reinterpret_cast<const char*>(&obj), sizeof(obj));
 }
 
-// Read an object from a binary file
 template<typename T>
 void DatabaseManager::readObjectFromBinary(ifstream& in, T& obj) {
     in.read(reinterpret_cast<char*>(&obj), sizeof(obj));
 }
 
-// General template for loading objects
+// file theke object load kore vector e anar method
+// file er first e ekta integer thakbe jeta size( mane koyat object) ache thakbe
+// tarpor ekta ekta kore for loop diyei object read kora jbe
 template<typename T>
 vector<T> DatabaseManager::loadObjects(const string& filePath) {
     vector<T> objects;
@@ -208,7 +208,7 @@ vector<T> DatabaseManager::loadObjects(const string& filePath) {
 }
 
 
-// General template for saving objects
+// vector theke file e save korar method
 template<typename T>
 void DatabaseManager::saveObjects(const vector<T>& objects, const string& filePath) {
     ofstream out(filePath, ios::binary);
@@ -223,20 +223,20 @@ void DatabaseManager::saveObjects(const vector<T>& objects, const string& filePa
     }
 }
 
-// Generic finder template using member function pointer
+// kono data find korar method
+// parameter hisebe vector, ekta function, ar oi data thakbe
+// pointer return korbe
 template<typename T, typename KeyType>
-T* DatabaseManager::findObjectByKey(vector<T>& container,
-                                   const KeyType& key,
-                                   KeyType (T::*getter)() const) {
+T* DatabaseManager::findObjectByKey(vector<T>& container,const KeyType& key,KeyType (T::*func)() const) {
     for (auto& object : container) {
-        if ((object.*getter)() == key) {
+        if ((object.*func)() == key) {
             return &object;
         }
     }
     return nullptr;
 }
 
-// Generic add object template
+// object add , just pushback and save
 template<typename T>
 bool DatabaseManager::addObject(vector<T>& cache, const T& object, const string& filePath) {
     try {
@@ -244,7 +244,7 @@ bool DatabaseManager::addObject(vector<T>& cache, const T& object, const string&
         saveObjects(cache, filePath);
         return true;
     } catch (const exception&) {
-        // If saving fails, remove the object from cache and return false
+        // save na hole cancel
         if (!cache.empty()) {
             cache.pop_back();
         }
@@ -252,39 +252,35 @@ bool DatabaseManager::addObject(vector<T>& cache, const T& object, const string&
     }
 }
 
-// Generic update object template
+// update jemon password change korar method, change in object and save to file
 template<typename T, typename KeyType>
-bool DatabaseManager::updateObject(vector<T>& cache, const KeyType& key,
-                                  const T& updatedObject, const string& filePath,
-                                  KeyType (T::*getter)() const) {
+bool DatabaseManager::updateObject(vector<T>& cache, const KeyType& key,const T& updatedObject, const string& filePath,KeyType (T::*func )() const) {
     try {
         for (size_t i = 0; i < cache.size(); i++) {
-            if ((cache[i].*getter)() == key) {
+            if ((cache[i].*func )() == key) {
                 cache[i] = updatedObject;
                 saveObjects(cache, filePath);
                 return true;
             }
         }
-        return false; // Object not found
+        return false; // Object nai
     } catch (const exception&) {
         return false;
     }
 }
 
-// Generic delete object template
+// delete o same way te, delete in vecttor and save to file
 template<typename T, typename KeyType>
-bool DatabaseManager::deleteObject(vector<T>& cache, const KeyType& key,
-                                  const string& filePath,
-                                  KeyType (T::*getter)() const) {
+bool DatabaseManager::deleteObject(vector<T>& cache, const KeyType& key,const string& filePath,KeyType (T::*func )() const) {
     try {
-        for (auto it = cache.begin(); it != cache.end(); it++) {
-            if (((*it).*getter)() == key) {
+        for (auto it = cache.begin(); it != cache.end(); ++it) {
+            if (((*it).*func )() == key) {
                 cache.erase(it);
                 saveObjects(cache, filePath);
                 return true;
             }
         }
-        return false; // Object not found
+        return false;
     } catch (const exception&) {
         return false;
     }
