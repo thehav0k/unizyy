@@ -57,6 +57,18 @@ string enumToStringHelper(EnumType value, const vector<pair<EnumType, string>>& 
     return defaultValue;
 }
 
+// Generic filter helper to reduce duplication in collection filtering
+template<typename T, typename Predicate>
+vector<T> filterCollection(const vector<T>& collection, Predicate pred) {
+    vector<T> result;
+    for (const auto& item : collection) {
+        if (pred(item)) {
+            result.push_back(item);
+        }
+    }
+    return result;
+}
+
 // ========== MEAL CLASS IMPLEMENTATION ==========
 // Do we really need?
 // Static methods using DatabaseManager
@@ -247,6 +259,12 @@ bool Meal::orderMeal(int quantity) {
     availableQuantity -= quantity;
     isAvailable = availableQuantity > 0;
     return true;
+}
+
+bool Meal::isExpired() const {
+    Date mealDate(getDate());
+    Date today = Date::getCurrentDate();
+    return mealDate < today;
 }
 
 void Meal::displayMeal() const {
@@ -471,20 +489,34 @@ string TokenManager::buyToken(const string& studentEmail, const string& hallName
     MealToken newToken(tokenNumber, studentEmail, meal.getMealName(),
                       mealType, hallName, meal.getPrice(), today, validDate);
 
-    activeTokens.push_back(newToken);
-    saveAllTokens();
-    newToken.saveToFile(TOKEN_FOLDER);
-    return tokenNumber;
+    // Use DatabaseManager to add token
+    if (DatabaseManager::addActiveToken(newToken)) {
+        activeTokens.push_back(newToken);
+        newToken.saveToFile(TOKEN_FOLDER);
+        return tokenNumber;
+    }
+    return "";
 }
 
 bool TokenManager::useToken(const string& tokenNumber, const string& studentEmail) {
-    for (auto it = activeTokens.begin(); it != activeTokens.end(); ++it) {
-        if (it->getTokenNumber() == tokenNumber && it->getStudentEmail() == studentEmail) {
-            if (!it->canBeUsed()) return false;
-            it->markAsUsed();
-            usedTokens.push_back(*it);
-            activeTokens.erase(it);
-            saveAllTokens();
+    // Find token in active tokens
+    MealToken* token = DatabaseManager::findActiveTokenByID(tokenNumber);
+    if (token && token->getStudentEmail() == studentEmail) {
+        if (!token->canBeUsed()) return false;
+
+        // Mark as used and move to used tokens
+        token->markAsUsed();
+        MealToken usedToken = *token;
+
+        // Add to used tokens and remove from active tokens
+        if (DatabaseManager::addUsedToken(usedToken) &&
+            DatabaseManager::deleteActiveToken(tokenNumber)) {
+            // Update local cache
+            activeTokens.erase(
+                remove_if(activeTokens.begin(), activeTokens.end(),
+                    [&](const MealToken& t) { return t.getTokenNumber() == tokenNumber; }),
+                activeTokens.end());
+            usedTokens.push_back(usedToken);
             return true;
         }
     }
@@ -502,17 +534,29 @@ bool TokenManager::canBuyToken(const string& studentEmail, MealType mealType, co
 
 bool TokenManager::addReview(const string& studentEmail, const string& tokenNumber,
                             MealRating rating, const string& comment) {
-    for (auto& token : usedTokens) {
-        if (token.getTokenNumber() == tokenNumber && token.getStudentEmail() == studentEmail) {
-            Date today;
-            string mealName = token.getMealName().empty() ? "Meal" : token.getMealName();
-            MealReview review(studentEmail, tokenNumber, mealName, rating, comment,
-                              today.toString(), token.getHallName());
+    // Find token in used tokens
+    MealToken* token = DatabaseManager::findUsedTokenByID(tokenNumber);
+    if (token && token->getStudentEmail() == studentEmail) {
+        Date today;
+        string mealName = token->getMealName().empty() ? "Meal" : token->getMealName();
+        MealReview review(studentEmail, tokenNumber, mealName, rating, comment,
+                          today.toString(), token->getHallName());
+
+        // Use DatabaseManager to add review
+        if (DatabaseManager::addReview(review)) {
             reviews.push_back(review);
-            token.markAsReviewed();
-            saveAllTokens();
-            saveAllReviews();
-            return true;
+            // Mark token as reviewed
+            token->markAsReviewed();
+            if (DatabaseManager::updateUsedToken(tokenNumber, *token)) {
+                // Update local cache
+                for (auto& t : usedTokens) {
+                    if (t.getTokenNumber() == tokenNumber) {
+                        t.markAsReviewed();
+                        break;
+                    }
+                }
+                return true;
+            }
         }
     }
     return false;
@@ -523,21 +567,25 @@ void TokenManager::cleanupExpiredTokens() {
     for (auto& token : activeTokens) {
         if (token.getStatus() == TokenStatus::ACTIVE && token.isExpired()) {
             token.setStatus(TokenStatus::EXPIRED);
+            DatabaseManager::updateActiveToken(token.getTokenNumber(), token);
             changed = true;
         }
     }
-    if (changed) saveAllTokens();
+    if (changed) {
+        loadAllTokens(); // Reload to sync
+    }
 }
 
 vector<MealToken> TokenManager::getStudentTokens(const string& studentEmail) const {
-    vector<MealToken> result;
-    for (const auto& token : activeTokens) {
-        if (token.getStudentEmail() == studentEmail) result.push_back(token);
-    }
-    for (const auto& token : usedTokens) {
-        if (token.getStudentEmail() == studentEmail) result.push_back(token);
-    }
-    return result;
+    // Use filterCollection helper to combine both active and used tokens
+    auto activeMatches = filterCollection(activeTokens,
+        [&](const MealToken& token) { return token.getStudentEmail() == studentEmail; });
+    auto usedMatches = filterCollection(usedTokens,
+        [&](const MealToken& token) { return token.getStudentEmail() == studentEmail; });
+
+    // Combine results
+    activeMatches.insert(activeMatches.end(), usedMatches.begin(), usedMatches.end());
+    return activeMatches;
 }
 
 void TokenManager::displayStudentTokens(const string& studentEmail) const {
@@ -588,19 +636,13 @@ void TokenManager::loadAllReviews() {
 }
 
 vector<MealReview> TokenManager::getMealReviews(const string& mealName) const {
-    vector<MealReview> result;
-    for (const auto& review : reviews) {
-        if (review.getMealName() == mealName) result.push_back(review);
-    }
-    return result;
+    return filterCollection(reviews,
+        [&](const MealReview& review) { return review.getMealName() == mealName; });
 }
 
 vector<MealReview> TokenManager::getHallReviews(const string& hallName) const {
-    vector<MealReview> result;
-    for (const auto& review : reviews) {
-        if (review.getHallName() == hallName) result.push_back(review);
-    }
-    return result;
+    return filterCollection(reviews,
+        [&](const MealReview& review) { return review.getHallName() == hallName; });
 }
 
 void TokenManager::displayAllReviews() const {

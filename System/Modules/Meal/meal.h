@@ -66,8 +66,6 @@ private:
     // Caching (similar to DatabaseManager pattern)
     static vector<Meal> cachedMeals;          // in-memory cache
     static bool mealsLoaded;                  // guard to ensure single load
-    static void loadMealsIntoCache();         // internal load w/ legacy support
-    static void saveMealsToDisk();            // full rewrite
 
 public:
     // Constructors
@@ -252,7 +250,6 @@ public:
 
 private:
     void createTokenFolder();
-    bool hasReviewedToken(const string& tokenNumber) const;
 };
 
 
