@@ -22,8 +22,7 @@ private:
 public:
     // Constructors
     DiningAuthority();
-    DiningAuthority(const string& email, const string& password, const string& name,
-                   const string& hallName);
+    DiningAuthority(const string& email, const string& password, const string& name,const string& hallName);
 
     // Getters
     string getName() const;
@@ -38,18 +37,18 @@ public:
     // Display methods
     void display() const override;
 
-    // Meal Management - Basic CRUD only
-    void createMeal(const string& mealName, const string& description, MealType type,
-                   double price, int quantity, const string& date, const string& time);
-    void updateMeal(int mealId, const string& newName, const string& newDescription,
-                   MealType newType, double newPrice, int newQuantity);
+    // Meal create,update delete r view korte parbe
+    // sobgulai meal class use korbe
+    // static id diye meal track kora hbe
+    void createMeal(const string& mealName, const string& description, MealType type,double price, int quantity, const string& date, const string& time);
+    void updateMeal(int mealId, const string& newName, const string& newDescription,MealType newType, double newPrice, int newQuantity);
     void deleteMeal(int mealId);
     void viewAllMeals() const;
 
-    // View Reviews from Students
+    // student er review gula dekhbe
     void viewFoodReviews() const;
 
-    // Notice Management
+    // Notice bakisob class er motoi
     void addNotice(const string& title, const string& message);
 };
 
