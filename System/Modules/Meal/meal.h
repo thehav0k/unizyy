@@ -54,26 +54,27 @@ enum class TokenStatus {
 
 class Meal {
 private:
-    char MealPackage[300]; // it will have three packages for each mealtype like (Rice, Chicken Curry, Lentils) / (Rice, Fish, Vegetables) etc
+    char MealPackage[300]; // package ta string ei rakhlam karon dal bhat mach egula eksathei comma diye lekha jbe
     MealType mealType;
-    double price; // price in bdt
+    double price;
     int availableQuantity;
     bool isAvailable;
     char date[12]; // Date class er object ke char array te rakhar jnno
-    char time[10];
+    char time[10]; // koytar somoy pawa jbe
     Halls hallName;
 
-    // Caching (similar to DatabaseManager pattern)
+    // Cache kora vector
+    // jodio sob database manager use korbe
     static vector<Meal> cachedMeals;          // in-memory cache
     static bool mealsLoaded;                  // guard to ensure single load
 
 public:
-    // Constructors
+    // constructor
     Meal(const string& name, const string& desc, MealType type, double price,
          int quantity, const string& date, const string& time, const string& hall);
     Meal();
 
-    // Getters
+    // getter
     string getMealName() const;
     string getDescription() const;
     MealType getMealType() const;
@@ -84,7 +85,7 @@ public:
     string getTime() const;
     string getHallName() const;
 
-    // Setters
+    // setter
     void setMealName(const string& name);
     void setDescription(const string& desc);
     void setMealType(MealType type);
@@ -95,20 +96,21 @@ public:
     void setTime(const string& time);
     void setHallName(const string& hall);
 
-    // Meal operations
+    // simple meal er operations
     bool orderMeal(int quantity = 1);
     void displayMeal() const;
     bool isExpired() const;
 
-    // Static utility functions
+    // meal type to string and ulta
     static string mealTypeToString(MealType type);
     static MealType stringToMealType(const string& typeStr);
 
-    // Regular meals - always available (not stored in database)
+    // Regular meal egla sobsomoy thake... alada meal add na korle egulai dekhabe
+    // unlimited
     static Meal getRegularMeal(MealType type, const string& hallName, const string& date);
     static bool isRegularMealAvailable(MealType type, const string& hallName, const string& date);
 
-    // Static database management functions
+    // database er methods mainly oi databaseManager file use korbe
     static void initializeMealDatabase();
     static void ensureMealsLoaded();
     static const vector<Meal>& getCachedMeals();
@@ -118,37 +120,34 @@ public:
     static vector<Meal> loadMealsByDate(const string& date);
     static vector<Meal> loadMealsByType(MealType type);
 
-    // CRUD operations
+    // basic CRUD er methodgula
     static bool addMeal(const Meal& meal);
     static bool updateMeal(const string& date, const string& hallName, MealType type, const Meal& updatedMeal);
     static bool deleteMealFromDatabase(const string& date, const string& hallName, MealType type);
     static void displayAllMeals();
-
-    // Instance method for saving current meal
     bool saveMealToDatabase() const;
 };
 
 class MealToken {
 private:
-    char tokenNumber[20];     // Unique token identifier
-    char studentEmail[120];   // Student email owning the token
-    char mealName[120];       // Cached meal name
+    char tokenNumber[20];     // Random token thakbe
+    char studentEmail[120];   // porichoy hisbe email
+    char mealName[120];       // meal er name
     MealType mealType;
     Halls hallName;
     double paidAmount;
     Date purchaseDate;
-    Date validDate;           // Date when meal can be taken
-    TokenStatus status;
-    char purchaseTime[10];    // Time when token was purchased
+    Date validDate;           // khawa jabe jedin
+    TokenStatus status;       // status: used, expired naki reviewed
+    char purchaseTime[10];    // kokhon kena hoise
 
 public:
-    // Constructors
+    // constructor
     MealToken();
-    MealToken(const string& tokenNum, const string& studentEmail,
-              const string& mealName, MealType type, const string& hall,
+    MealToken(const string& tokenNum, const string& studentEmail,const string& mealName, MealType type, const string& hall,
               double amount, const Date& purchaseDate, const Date& validDate);
 
-    // Getters
+    // getter
     string getTokenNumber() const;
     string getStudentEmail() const;
     string getMealName() const;
@@ -160,10 +159,10 @@ public:
     TokenStatus getStatus() const;
     string getPurchaseTime() const;
 
-    // Setters
+    // setter
     void setStatus(TokenStatus status);
 
-    // Token operations
+    // token er joto methods
     bool isValid() const;
     bool isExpired() const;
     bool canBeUsed() const;
@@ -173,12 +172,13 @@ public:
     void saveToFile(const string& folderPath) const;
 
 
-    // Static utility functions
+    // helper functions
+    // random token generate korbe ekta algorithm follow kore
     static string generateTokenNumber();
     static string tokenStatusToString(TokenStatus status);
 };
 
-// Meal review er class
+// review class
 class MealReview {
 private:
     char Name[100];
@@ -193,11 +193,10 @@ private:
 
 public:
     // Constructors
-    MealReview(const string& email, const string& tokenNum, const string& meal,
-               MealRating rating, const string& comment, const string& date, const string& hall);
+    MealReview(const string& email, const string& tokenNum, const string& meal,MealRating rating, const string& comment, const string& date, const string& hall);
     MealReview();
 
-    // Getters
+    // getters
     string getStudentEmail() const;
     string getTokenNumber() const;
     string getMealName() const;
@@ -209,8 +208,7 @@ public:
     // Display
     void displayReview() const;
 
-
-    // Static utility functions
+    // helper
     static string ratingToString(MealRating rating);
 };
 
@@ -219,13 +217,13 @@ private:
     vector<MealToken> activeTokens;
     vector<MealToken> usedTokens;
     vector<MealReview> reviews;
-    static const string TOKEN_FOLDER;
+    static const string TOKEN_FOLDER; // ekta folder e tokengula save thakbe
 
 public:
-    // Constructor
+    // constructor
     TokenManager();
 
-    // Token operations
+    // tokene er sob functions
     string buyToken(const string& studentEmail, const string& hallName,
                    MealType mealType, const Meal& meal);
     bool useToken(const string& tokenNumber, const string& studentEmail);
@@ -235,12 +233,12 @@ public:
     vector<MealToken> getUsedTokens() const { return usedTokens; }
 
     // Review er function gula
-    bool addReview(const string& studentEmail, const string& tokenNumber,
-                  MealRating rating, const string& comment);
+    bool addReview(const string& studentEmail, const string& tokenNumber,MealRating rating, const string& comment);
     vector<MealReview> getMealReviews(const string& mealName) const;
     vector<MealReview> getHallReviews(const string& hallName) const;
 
     // File -> vector er kaj
+    // Mainly database Manager
     void saveAllTokens();
     void loadAllTokens();
     void cleanupExpiredTokens();
@@ -257,7 +255,7 @@ private:
 };
 
 
-// Helper functiongula
+// meal Helper functiongula
 class MealUtils {
 public:
     static bool isWithinMealTime(MealType type);
