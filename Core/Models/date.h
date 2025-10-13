@@ -13,7 +13,17 @@ private:
     int day;
     int month;
     int year;
-
+private:
+    static bool isLeapYear(int year) {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    }
+    static int getDaysInMonth(int month, int year) {
+        static const int days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        if (month == 2 && isLeapYear(year)) {
+            return 29;
+        }
+        return days[month - 1];
+    }
 public:
     // Constructors
     Date();
@@ -52,9 +62,9 @@ public:
     // Static functions
     static Date getCurrentDate();
     static Date getTomorrowDate();
-    static Date SimulateDate(size_t n);
-    static Date SimulateMonths(size_t n); // new: advance months
-    static void SimulateHours(size_t n);  // advance hours (affects meal time logic)
+    static Date SimulateDate(int n);
+    static Date SimulateMonths(int n); // new: advance months
+    static void SimulateHours(int n);  // advance hours (affects meal time logic)
     static void setSimulatedDate(const Date& d);
     static void setSimulatedDateTime(const Date& d, int hour); // set date and hour
     static int getSimulatedHour();
@@ -64,6 +74,8 @@ public:
     // New time methods for MenuInterface
     static string getCurrentTimeString(); // Returns YYYY-MM-DD HH:MM format (no seconds)
     static string getCurrentDateTimeString(); // Returns YYYY-MM-DD HH:MM:SS format
+    friend ostream& operator<<(ostream& os, const Date& date);
+
 };
 
 #endif // DATE_H

@@ -22,18 +22,9 @@ Date::Date() {
 Date::Date(int d, int m, int y) : day(d), month(m), year(y) {}
 
 Date::Date(const string& dateStr) {
-    // Parse DD-MM-YYYY format
-    stringstream ss(dateStr);
-    string token;
-
-    getline(ss, token, '-');
-    day = stoi(token);
-
-    getline(ss, token, '-');
-    month = stoi(token);
-
-    getline(ss, token);
-    year = stoi(token);
+    day = stoi(dateStr.substr(0, 2));
+    month = stoi(dateStr.substr(3, 2));
+    year = stoi(dateStr.substr(6, 4));
 }
 
 // Getters
@@ -49,9 +40,7 @@ void Date::setYear(int y) { year = y; }
 // Utility functions
 string Date::toString() const {
     stringstream ss;
-    ss << setfill('0') << setw(2) << day << "-"
-       << setfill('0') << setw(2) << month << "-"
-       << year;
+    ss << *this;  // Uses operator<<
     return ss.str();
 }
 
@@ -60,14 +49,9 @@ bool Date::isValid() const {
     if (month < 1 || month > 12) return false;
     if (day < 1) return false;
 
-    int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    // Check for leap year
-    if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
-        return day <= 29;
-    }
-
-    return day <= daysInMonth[month - 1];
+    // Use the helper function
+    int maxDays = getDaysInMonth(month, year);
+    return day <= maxDays;
 }
 
 bool Date::isToday() const {
@@ -89,14 +73,10 @@ Date Date::getNextDay() const {
     Date nextDay = *this;
     nextDay.day++;
 
-    int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    // Use the helper function
+    int maxDays = getDaysInMonth(month, year);
 
-    // Check for leap year
-    if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
-        daysInMonth[1] = 29;
-    }
-
-    if (nextDay.day > daysInMonth[month - 1]) {
+    if (nextDay.day > maxDays) {
         nextDay.day = 1;
         nextDay.month++;
 
@@ -121,14 +101,8 @@ Date Date::getPreviousDay() const {
             prevDay.year--;
         }
 
-        int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-        // Check for leap year
-        if (prevDay.month == 2 && ((prevDay.year % 4 == 0 && prevDay.year % 100 != 0) || (prevDay.year % 400 == 0))) {
-            daysInMonth[1] = 29;
-        }
-
-        prevDay.day = daysInMonth[prevDay.month - 1];
+        // Use the helper function
+        prevDay.day = getDaysInMonth(prevDay.month, prevDay.year);
     }
 
     return prevDay;
@@ -174,13 +148,14 @@ Date Date::getTomorrowDate() {
     return today.getNextDay();
 }
 
-Date Date::SimulateDate(size_t n) {
+Date Date::SimulateDate(int n) {
     if (!isSimulating) {
         simulatedDate = Date();
         isSimulating = true;
     }
     //negative er jonno int banailam
-    int days= static_cast<int>(n);
+    // bro just function parameter change korlei to hoto
+    int days= n;
     if (days >= 0)
     for (int i = 0; i < n; ++i) {
         simulatedDate = simulatedDate.getNextDay();
@@ -190,39 +165,46 @@ Date Date::SimulateDate(size_t n) {
         for (int i = 0; i < -n; ++i) {
             simulatedDate = simulatedDate.getPreviousDay();
         }
-        return simulatedDate;
+    return simulatedDate;
 }
 
-Date Date::SimulateMonths(size_t n) {
+Date Date::SimulateMonths(int n) {
     if (!isSimulating) {
         simulatedDate = Date();
         isSimulating = true;
     }
-
-    simulatedDate.month += static_cast<int>(n);
+// ektu vul chilo jan1 theke 31 mash simulate korle feb 31 hoito
+    simulatedDate.month += n;
 
     while (simulatedDate.month > 12) {
         simulatedDate.month -= 12;
         simulatedDate.year++;
     }
-    //negative month dile jate kaj kore tai add disi
+
     while (simulatedDate.month < 1) {
         simulatedDate.month += 12;
         simulatedDate.year--;
     }
 
+    // Use the helper function
+    int maxDays = getDaysInMonth(simulatedDate.month, simulatedDate.year);
+    if (simulatedDate.day > maxDays) {
+        simulatedDate.day = maxDays;
+    }
+
     return simulatedDate;
 }
 
-void Date::SimulateHours(size_t n) {
+
+void Date::SimulateHours(int n) {
     if (simulatedHour == -1) {
         time_t now = time(nullptr);
         tm* ltm = localtime(&now);
         simulatedHour = ltm->tm_hour;
     }
 
-    simulatedHour += static_cast<int>(n);
-
+    simulatedHour += n;
+// shala stupid size_t ke ke cast mare lol
     while (simulatedHour >= 24) {
         simulatedHour -= 24;
         SimulateDate(1); // ekdin shamne gelo
@@ -230,7 +212,7 @@ void Date::SimulateHours(size_t n) {
     // negative hoile ki hobe?
     while (simulatedHour < 0) {
         simulatedHour += 24;
-        SimulateDate(static_cast<size_t>(-1)); // ekdin pechone jabe
+        SimulateDate(-1); // ekdin pechone jabe
     }
 
 }
@@ -276,9 +258,7 @@ string Date::getCurrentTimeString() {
     int currentMinute = ltm->tm_min;
 
     stringstream ss;
-    ss << currentDate.year << "-"
-       << setfill('0') << setw(2) << currentDate.month << "-"
-       << setfill('0') << setw(2) << currentDate.day << " "
+    ss << currentDate.toString() << " "
        << setfill('0') << setw(2) << currentHour << ":"
        << setfill('0') << setw(2) << currentMinute;
     return ss.str();
@@ -294,11 +274,16 @@ string Date::getCurrentDateTimeString() {
     int currentSecond = ltm->tm_sec;
 
     stringstream ss;
-    ss << currentDate.year << "-"
-       << setfill('0') << setw(2) << currentDate.month << "-"
-       << setfill('0') << setw(2) << currentDate.day << " "
+    ss << currentDate.toString() << " "
        << setfill('0') << setw(2) << currentHour << ":"
        << setfill('0') << setw(2) << currentMinute << ":"
        << setfill('0') << setw(2) << currentSecond;
     return ss.str();
+}
+
+ostream& operator<<(ostream& os, const Date& date) {
+    os << setfill('0') << setw(2) << date.day << "-"
+       << setfill('0') << setw(2) << date.month << "-"
+       << date.year;
+    return os;
 }
