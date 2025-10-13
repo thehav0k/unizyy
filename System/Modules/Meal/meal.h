@@ -104,6 +104,10 @@ public:
     static string mealTypeToString(MealType type);
     static MealType stringToMealType(const string& typeStr);
 
+    // Regular meals - always available (not stored in database)
+    static Meal getRegularMeal(MealType type, const string& hallName, const string& date);
+    static bool isRegularMealAvailable(MealType type, const string& hallName, const string& date);
+
     // Static database management functions
     static void initializeMealDatabase();
     static void ensureMealsLoaded();

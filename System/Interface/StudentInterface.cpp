@@ -173,7 +173,38 @@ void StudentInterface::handleBuyToken() {
             return;
     }
 
+    // Load actual meal from database
+    Date tomorrow = Date::getTomorrowDate();
+    vector<Meal> availableMeals = Meal::loadMealsByHall(selectedHall);
+    Meal* selectedMeal = nullptr;
+    bool isRegularMeal = false;
+    Meal regularMealStorage; // Storage for regular meal
+
+    // Find matching meal by type and date
+    for (auto& meal : availableMeals) {
+        if (meal.getMealType() == selectedType && meal.getDate() == tomorrow.toString()) {
+            selectedMeal = &meal;
+            break;
+        }
+    }
+
+    // If no special meal found, use regular meal
+    if (selectedMeal == nullptr) {
+        regularMealStorage = Meal::getRegularMeal(selectedType, selectedHall, tomorrow.toString());
+        selectedMeal = &regularMealStorage;
+        isRegularMeal = true;
+    }
+
+    // Display meal details
     displayMealDetailsForPurchase(selectedHall, selectedType);
+
+    // Regular meals are always available, no need to check quantity or availability
+    // Only check for special meals from database
+    if (!isRegularMeal && selectedMeal->getAvailableQuantity() <= 0) {
+        displayError("Sorry, this special meal is sold out! You can purchase the regular meal instead.");
+        pauseForInput();
+        return;
+    }
 
     cout << "\nDo you want to proceed with purchasing this meal token? (y/n): ";
     char confirm;
@@ -186,19 +217,30 @@ void StudentInterface::handleBuyToken() {
         return;
     }
 
-    Date tomorrow = Date::getTomorrowDate();
     if (!tokenManager->canBuyToken(currentStudent->getEmail(), selectedType, tomorrow)) {
         displayError("You already have a token for this meal type tomorrow!");
         pauseForInput();
         return;
     }
 
-    string mealName = "Sample " + Meal::mealTypeToString(selectedType);
-    Meal sampleMeal(mealName, "Delicious meal from " + selectedHall,
-                   selectedType, 85.50, 50, tomorrow.toString(), "12:00", selectedHall);
+    // Decrease meal quantity only for special meals (not regular meals)
+    if (!isRegularMeal) {
+        int newQuantity = selectedMeal->getAvailableQuantity() - 1;
+        selectedMeal->setAvailableQuantity(newQuantity);
 
-    // Buy token
-    string tokenNumber = tokenManager->buyToken(currentStudent->getEmail(), selectedHall, selectedType, sampleMeal);
+        // Update meal in database
+        bool updated = Meal::updateMeal(selectedMeal->getDate(), selectedMeal->getHallName(),
+                                        selectedMeal->getMealType(), *selectedMeal);
+
+        if (!updated) {
+            displayError("Failed to update meal quantity. Please try again.");
+            pauseForInput();
+            return;
+        }
+    }
+
+    // Buy token with meal data (regular or special)
+    string tokenNumber = tokenManager->buyToken(currentStudent->getEmail(), selectedHall, selectedType, *selectedMeal);
 
     if (!tokenNumber.empty()) {
         displaySuccess("Token purchased successfully!");
@@ -207,11 +249,19 @@ void StudentInterface::handleBuyToken() {
         cout << "Hall: " << selectedHall << endl;
         cout << "Meal Type: " << Meal::mealTypeToString(selectedType) << endl;
         cout << "Valid For: " << tomorrow.toString() << endl;
-        cout << "Amount Paid: ৳85.50 BDT" << endl;
+        cout << "Amount Paid: " << fixed << setprecision(2) << selectedMeal->getPrice() << " BDT" << endl;
 
         displayInfo("Token details saved in 'Meal Tokens' folder.");
     } else {
         displayError("Failed to purchase token!");
+
+        // Revert quantity if token purchase failed (only for special meals)
+        if (!isRegularMeal) {
+            int revertQuantity = selectedMeal->getAvailableQuantity() + 1;
+            selectedMeal->setAvailableQuantity(revertQuantity);
+            Meal::updateMeal(selectedMeal->getDate(), selectedMeal->getHallName(),
+                            selectedMeal->getMealType(), *selectedMeal);
+        }
     }
 
     pauseForInput();
@@ -303,63 +353,29 @@ void StudentInterface::displayMealDetailsForPurchase(const string& hallName, Mea
 
     // Try to load actual meal data from database
     vector<Meal> availableMeals = Meal::loadMealsByHall(hallName);
-    vector<Meal> matchingMeals;
+    Meal* selectedMeal = nullptr;
 
     // Filter meals by type and date
-    for (const auto& meal : availableMeals) {
+    for (auto& meal : availableMeals) {
         if (meal.getMealType() == mealType && meal.getDate() == tomorrow.toString()) {
-            matchingMeals.push_back(meal);
+            selectedMeal = &meal;
+            break;
         }
     }
 
-    if (!matchingMeals.empty()) {
-        cout << "🍽️  TOMORROW'S " << Meal::mealTypeToString(mealType) << " AT " << hallName << endl;
+    if (selectedMeal != nullptr) {
+        // Special meal from database
+        cout << "SPECIAL " << Meal::mealTypeToString(mealType) << " AT " << hallName << endl;
         displaySeparator('=', 60);
-
-        const Meal& meal = matchingMeals[0];
-        meal.displayMeal();
-
+        selectedMeal->displayMeal();
+        displayInfo("This is a special meal added by Dining Authority.");
     } else {
-        cout << "🍽️  SAMPLE " << Meal::mealTypeToString(mealType) << " AT " << hallName << endl;
+        // Show regular meal (always available)
+        Meal regularMeal = Meal::getRegularMeal(mealType, hallName, tomorrow.toString());
+        cout << Meal::mealTypeToString(mealType) << " AT " << hallName << endl;
         displaySeparator('=', 60);
-
-        cout << "📋 Meal Details:" << endl;
-        cout << "   Meal Name: Sample " << Meal::mealTypeToString(mealType) << endl;
-        cout << "   Description: Delicious meal from " << hallName << endl;
-
-        // Display sample meal items based on meal type
-        cout << "🥘 Meal Items:" << endl;
-        switch (mealType) {
-            case MealType::BREAKFAST:
-                cout << "   • Paratha/Roti with Butter" << endl;
-                cout << "   • Omelet/Boiled Egg" << endl;
-                cout << "   • Mixed Vegetables" << endl;
-                cout << "   • Tea/Coffee" << endl;
-                cout << "   • Fruits (Seasonal)" << endl;
-                break;
-            case MealType::LUNCH:
-                cout << "   • Steamed Rice" << endl;
-                cout << "   • Fish/Chicken Curry" << endl;
-                cout << "   • Dal (Lentil Soup)" << endl;
-                cout << "   • Mixed Vegetables" << endl;
-                cout << "   • Salad" << endl;
-                break;
-            case MealType::DINNER:
-                cout << "   • Rice/Roti" << endl;
-                cout << "   • Meat/Fish Curry" << endl;
-                cout << "   • Dal" << endl;
-                cout << "   • Vegetables" << endl;
-                cout << "   • Sweet Dish" << endl;
-                break;
-        }
-
-        cout << "💰 Price: ৳85.50 BDT" << endl;
-        cout << "📅 Valid For: " << tomorrow.toString() << endl;
-        cout << "🏛️  Hall: " << hallName << endl;
-        cout << "✅ Availability: Available" << endl;
-        cout << "📦 Quantity: 50+ portions available" << endl;
-
-        displayInfo("Note: This is sample meal information. Actual meals may vary.");
+        regularMeal.displayMeal();
+        displayInfo("This is the regular meal, always available.");
     }
 
     displaySeparator('-', 60);

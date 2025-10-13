@@ -296,6 +296,42 @@ MealType Meal::stringToMealType(const string& typeStr) {
     return MealType::LUNCH; // default
 }
 
+// Regular meal functions - always available
+Meal Meal::getRegularMeal(MealType type, const string& hallName, const string& date) {
+    string name, description;
+    double price;
+    string time;
+
+    switch (type) {
+        case MealType::BREAKFAST:
+            name = "Regular Breakfast";
+            description = "Paratha, Egg, Vegetables, Tea";
+            price = 50.0;
+            time = "08:00";
+            break;
+        case MealType::LUNCH:
+            name = "Regular Lunch";
+            description = "Rice, Dal, Fish Curry, Vegetables";
+            price = 80.0;
+            time = "13:00";
+            break;
+        case MealType::DINNER:
+            name = "Regular Dinner";
+            description = "Rice, Meat Curry, Dal, Vegetables";
+            price = 85.0;
+            time = "20:00";
+            break;
+    }
+
+    // Regular meals always have unlimited quantity
+    return Meal(name, description, type, price, 999, date, time, hallName);
+}
+
+bool Meal::isRegularMealAvailable(MealType type, const string& hallName, const string& date) {
+    // Regular meals are always available for any hall and any future date
+    return true;
+}
+
 // ========== MEAL TOKEN CLASS IMPLEMENTATION ==========
 
 MealToken::MealToken() : mealType(MealType::LUNCH), hallName(Halls::Al_Beruni_Hall),
