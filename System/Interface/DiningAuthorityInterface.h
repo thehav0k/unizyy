@@ -33,8 +33,8 @@ private:
     void handleMealManagement();
     void handleCreateMeal();
     void handleUpdateMeal();
-    void handleViewMeals();
-    void handleReports();
+    void handleViewReviews();
+    void handleAddNotice();
     void handleProfile();
     void handleLogout();
 };

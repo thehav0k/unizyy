@@ -241,7 +241,7 @@ bool Auth::registerAdmin(const string &name, const string &email, AdminType admi
 }
 
 bool Auth::registerDiningAuthority(const string &name, const string &email, const string &hallName,
-                                   const string &designation, const string &phoneNumber, const string &password) {
+                                   const string &password) {
     if (name.empty() || hallName.empty()) {
         cout << "Error: Name and Hall cannot be empty." << endl;
         return false;

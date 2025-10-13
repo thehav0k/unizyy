@@ -339,15 +339,55 @@ void MainMenu::handleRegistration() {
                 string email = Auth::getValidatedEmail();
                 string password = Auth::getValidatedPassword();
 
-                string hallName, designation, phone;
-                cout << "Enter Assigned Hall Name: ";
-                getline(cin, hallName);
-                cout << "Enter Designation: ";
-                getline(cin, designation);
-                cout << "Enter Phone Number: ";
-                getline(cin, phone);
+                int hallChoice;
+                cout << "Select Assigned Hall:" << endl;
+                cout << "1. Al Beruni Hall" << endl;
+                cout << "2. Meer Mosharraf Hossain Hall" << endl;
+                cout << "3. Shaheed Salam Barkat Hall" << endl;
+                cout << "4. AFM Kamaluddin Hall" << endl;
+                cout << "5. Moulana Bhasani Hall" << endl;
+                cout << "6. Bangabondhu Sheikh Majibur Rahman Hall" << endl;
+                cout << "7. Jatiya Kabi Kazi Nazrul Islam Hall" << endl;
+                cout << "8. Rabindra Nath Tagore Hall" << endl;
+                cout << "9. Shahid Tajuddin Ahmed Hall" << endl;
+                cout << "10. Shahid Sheikh Russel Hall" << endl;
+                cout << "11. Shaheed Rafiq Jabbar Hall" << endl;
+                cout << "12. Nawab Faizunnesa Hall" << endl;
+                cout << "13. Fazilatunnesa Hall" << endl;
+                cout << "14. Jahanara Imam Hall" << endl;
+                cout << "15. Preetilata Hall" << endl;
+                cout << "16. Begum Khaleda Zia Hall" << endl;
+                cout << "17. Sheikh Hasina Hall" << endl;
+                cout << "18. Bir Pratik Taramon Bibi Hall" << endl;
+                cout << "Enter choice (1-18): ";
+                cin >> hallChoice;
+                cin.ignore();
 
-                success = authSystem->registerDiningAuthority(name, email, hallName, designation, phone, password);
+                Halls hall = Halls::Al_Beruni_Hall;
+                switch (hallChoice) {
+                    case 1: hall = Halls::Al_Beruni_Hall; break;
+                    case 2: hall = Halls::Meer_Mosharraf_Hossain_Hall; break;
+                    case 3: hall = Halls::Shaheed_Salam_Barkat_Hall; break;
+                    case 4: hall = Halls::AFM_Kamaluddin_Hall; break;
+                    case 5: hall = Halls::Moulana_Bhasani_Hall; break;
+                    case 6: hall = Halls::Bangabondhu_Sheikh_Majibur_Rahman_Hall; break;
+                    case 7: hall = Halls::Jatiya_Kabi_Kazi_Nazrul_Islam_Hall; break;
+                    case 8: hall = Halls::Rabindra_Nath_Tagore_Hall; break;
+                    case 9: hall = Halls::Shahid_Tajuddin_Ahmed_Hall; break;
+                    case 10: hall = Halls::Shahid_Sheikh_Russel_Hall; break;
+                    case 11: hall = Halls::Shaheed_Rafiq_Jabbar_Hall; break;
+                    case 12: hall = Halls::Nawab_Faizunnesa_Hall; break;
+                    case 13: hall = Halls::Fazilatunnesa_Hall; break;
+                    case 14: hall = Halls::Jahanara_Imam_Hall; break;
+                    case 15: hall = Halls::Preetilata_Hall; break;
+                    case 16: hall = Halls::Begum_Khaleda_Zia_Hall; break;
+                    case 17: hall = Halls::Sheikh_Hasina_Hall; break;
+                    case 18: hall = Halls::Bir_Pratik_Taramon_Bibi_Hall; break;
+                    default: hall = Halls::Al_Beruni_Hall; break;
+                }
+
+                string hallName = hallToString(hall);
+                success = authSystem->registerDiningAuthority(name, email, hallName, password);
                 break;
             }
         }

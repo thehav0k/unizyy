@@ -31,7 +31,7 @@ public:
                         designation desg, const string &password);
     static bool registerAdmin(const string &name, const string &email, AdminType adminType, const string &password);
     static bool registerDiningAuthority(const string &name, const string &email, const string &hallName,
-                                const string &designation, const string &phoneNumber, const string &password);
+                                const string &password);
    // search by using vector.find()
     // thakle reg korte dewa jabena
     static bool isEmailRegistered(const string& email);

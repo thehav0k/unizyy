@@ -7,6 +7,7 @@
 
 #include "user.h"
 #include "../../Core/Models/hall.h"
+#include "../../Core/Models/Notice.h"
 #include "../Modules/Meal/meal.h" // added for MealType
 #include <string>
 #include <vector>
@@ -36,20 +37,20 @@ public:
 
     // Display methods
     void display() const override;
-    void displayDiningMenu() const;
 
-
+    // Meal Management - Basic CRUD only
     void createMeal(const string& mealName, const string& description, MealType type,
                    double price, int quantity, const string& date, const string& time);
     void updateMeal(int mealId, const string& newName, const string& newDescription,
                    MealType newType, double newPrice, int newQuantity);
     void deleteMeal(int mealId);
-    void displayAllMeals() const;
-    void searchMealsByName(const string& name) const;
-    void searchMealsByType(MealType type) const;
-    void generateMealReport() const;
-    void DisplayTokenSellsReport() const; // student buys meal token which will be saved in the database and will be displayed
-    void ViewFoodReviews() const; // students review for meal
+    void viewAllMeals() const;
+
+    // View Reviews from Students
+    void viewFoodReviews() const;
+
+    // Notice Management
+    void addNotice(const string& title, const string& message);
 };
 
 #endif //UNIZYY_DININGAUTHORITY_H
