@@ -1,6 +1,6 @@
-# unizyy - University Management System
+# Unizy - University Management System
 
-A C++17 console application for managing university operations including multi-role authentication, dining services, meal tokenization, time simulation, and persistent file storage.
+A C++17 console application
 
 ## Features
 

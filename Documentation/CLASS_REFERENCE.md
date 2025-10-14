@@ -17,8 +17,8 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 |------|--------|-------|
 | `AdminType` | Transport, HallDining, PublicRelations, Department, SystemAdmin | Admin role specialization |
 | `department` | Department_of_Computer_Science_and_Engineering, Department_of_physics, Department_of_Mathematics | Academic departments with helper string converters |
-| `AcademicPosition` (in Designation.h) | Professor, AssociateProfessor, AssistantProfessor, Lecturer | Teacher rank |
-| `Halls` | Al_Beruni_Hall, Meer_Mosharraf_Hossain_Hall, ... , Bir_Pratik_Taramon_Bibi_Hall | University residential halls |
+| `designation` | Professor, AssociateProfessor, AssistantProfessor, Lecturer | Teacher rank (in Designation.h) |
+| `Halls` | Al_Beruni_Hall, Meer_Mosharraf_Hossain_Hall, Shaheed_Salam_Barkat_Hall, AFM_Kamaluddin_Hall, Moulana_Bhasani_Hall, Bangabondhu_Sheikh_Majibur_Rahman_Hall, Jatiya_Kabi_Kazi_Nazrul_Islam_Hall, Rabindra_Nath_Tagore_Hall, Shahid_Tajuddin_Ahmed_Hall, Shahid_Sheikh_Russel_Hall, Shaheed_Rafiq_Jabbar_Hall, Nawab_Faizunnesa_Hall, Fazilatunnesa_Hall, Jahanara_Imam_Hall, Preetilata_Hall, Begum_Khaleda_Zia_Hall, Sheikh_Hasina_Hall, Bir_Pratik_Taramon_Bibi_Hall | University residential halls (18 total) |
 | `MealType` | BREAKFAST, LUNCH, DINNER | Token & meal classification |
 | `MealRating` | POOR–EXCELLENT (1–5) | Review scale |
 | `TokenStatus` | ACTIVE, USED, EXPIRED, REVIEWED | Token lifecycle |
@@ -28,8 +28,9 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 ### StringHelper (static)
 | Method | Purpose |
 |--------|---------|
-| `stringToCharArray(src, dest)` (templated / sized) | Safe copy with truncation guard |
-| `safeStringToCharArray(src, dest, fieldName)` | Copy + warning if truncated |
+| `stringToCharArray<N>(src, dest)` (templated) | Safe copy with null termination |
+| `stringToCharArray(src, dest, maxSize)` (overloaded) | Non-template variant with size parameter |
+| `safeStringToCharArray<N>(src, dest, fieldName)` | Copy + warning if truncated |
 | `charArrayToString(char*)` | Wrap raw char array into std::string |
 | `validateEmail(email)` | Basic domain & structure validation (`@juniv.edu`) |
 | `validatePassword(pass)` | Length ≥6 with upper/lower/digit |
@@ -51,11 +52,11 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | `Date()` / `Date(d,m,y)` / `Date("DD-MM-YYYY")` | C | Constructors (parsing variant) |
 | `getDay/Month/Year()` | | Accessors |
 | `toString()` | | `DD-MM-YYYY` |
-| Comparators (`== != < > <= >=`) | | Date ordering |
-| `getNextDay() / getPreviousDay()` | | Arithmetic |
+| Comparators (`== != < > <= >=`) | | Date ordering (operator overloading) |
+| `getNextDay() / getPreviousDay()` | | Date arithmetic |
 | `isToday/Tomorrow/Yesterday()` | | Relative checks |
 | `getCurrentDate()` | S | Real or simulated date |
-| `getTomorrowDate()` | S | Convenience |
+| `getTomorrowDate()` | S | Convenience wrapper |
 | `SimulateDate(n)` | S | Advance n days |
 | `SimulateMonths(n)` | S | Advance n months (clamps day) |
 | `SimulateHours(n)` | S | Advance hours (auto day roll) |
@@ -64,8 +65,9 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | `getSimulatedHour()` | S | Returns simulated hour or -1 |
 | `isSimulationActive()` | S | Flag query |
 | `resetSimulation()` | S | Disable simulation |
-| `saveSimulationState()` | S | Persist to `Database/simulation_state.dat` |
-| `loadSimulationState()` | S | Restore simulation state |
+| `getCurrentTimeString()` | S | Returns YYYY-MM-DD HH:MM format (no seconds) |
+| `getCurrentDateTimeString()` | S | Returns YYYY-MM-DD HH:MM:SS format |
+| `operator<<` | Friend | Stream insertion operator for display |
 
 ---
 ## Base User Hierarchy
@@ -87,22 +89,23 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | Member | Type | Notes |
 |--------|------|-------|
 | `name` | char[60] | Student full name |
-| `age` | int | Age (16–35 validated externally) |
+| `age` | int | Age |
 | `studentID` | char[15] | Unique student ID |
 | `classRoll` | int | Class roll number |
 | `dept` | department | Academic department |
 | `batch` | int | Cohort year / batch |
 | `hall` | Halls | Assigned residential hall |
-| `balance` | double | Planned financial balance (future logic) |
+| `Gender` | int | 1 for male / 0 for female |
+| `balance` | double | Financial balance (future logic) |
 
 | Method | Description |
 |--------|-------------|
 | Constructors (full / default) | Initialize fields |
 | `get/set` for all members | Accessors & mutators |
 | `display()` | Implements User::display |
-| `ChangePassword()` | Placeholder behavior |
-| `BuyMealToken()` / `TakeMeal()` / `ReviewMeal()` | High-level meal ops (UI triggers) |
-| `ViewResult()` / `ViewNotice()` / `ViewClassSchedule()` / `ViewTransportSchedule()` | Stubs for future modules |
+| `ChangePassword()` | Password change functionality |
+| `BuyMealToken()` / `TakeMeal()` / `ReviewMeal()` | High-level meal operations |
+| `ViewResult()` / `ViewNotice()` / `ViewClassSchedule()` / `ViewTransportSchedule()` | Module stubs |
 | Static CRUD: `loadAllStudents`, `add/update/deleteStudentInDB`, `findStudentByEmail/ID` | DatabaseManager wrappers |
 
 ### Teacher : User
@@ -110,18 +113,18 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 |--------|------|-------|
 | `name` | char[100] | Teacher name |
 | `dept` | department | Department enum |
-| `AP` | AcademicPosition | Rank / designation |
+| `dg` | designation | Academic rank/designation |
 
 | Method | Description |
 |--------|-------------|
 | Constructors | Full & default |
 | `set/getName` | Name management |
-| `set/getDepartment` | Enum access |
-| `getDepartmentName()` | Friendly string |
-| `set/getRank()` / `getDesignation()` | Rank ops |
+| `set/getDepartment` | Department enum access |
+| `getDepartmentName()` | Friendly string conversion |
+| `set/getDesignation()` | Designation/rank operations |
 | `display()` | Role details |
-| `gradeStudent(Student&, Course&)` | TBD grading flow |
-| Static CRUD: `loadAllTeachers`, etc. | Persistence wrappers |
+| `gradeStudent(Student&, Course&)` | Grading flow (TBD) |
+| Static CRUD: `loadAllTeachers`, `addTeacherToDB`, `updateTeacherInDB`, `deleteTeacherFromDB`, `findTeacherByEmail` | Persistence wrappers |
 
 ### Admin : User
 | Member | Type | Notes |
@@ -145,29 +148,30 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 
 | Method Groups | Key Methods |
 |--------------|-------------|
-| Meal CRUD | `createMeal`, `updateMealAvailability/Quantity/Price`, `removeMeal` |
-| Viewing | `viewAllMeals`, `viewMealsByType/Date`, `viewTodaysMeals`, `viewUpcomingMeals` |
-| Tokens & Reviews (stubs) | `viewActiveTokens`, `viewUsedTokens`, `viewFoodReviews`, `viewReviewsByMeal`, `viewHallReviews`, `respondToReview` |
-| Notices | `postNotice`, `viewNotices`, `removeNotice` |
-| Analytics | `generateDailyReport`, `viewPopularMeals`, `viewRevenueReport` |
-| Inventory | `updateInventory`, `viewLowStockMeals`, `restockMeal` |
-| Static CRUD | add/update/delete/find |
-| Helpers | `getMealsByHall/Type`, `getAvailableMeals`, `canManageHall` |
+| Constructors | Default & full parameter constructor |
+| Getters/Setters | `getName/setName`, `getHallName/setHallName`, `getHall/setHall` |
+| Meal CRUD | `createMeal`, `updateMeal`, `deleteMeal`, `viewAllMeals` |
+| Review Management | `viewFoodReviews` |
+| Display | `display()` - override from User |
+| Static CRUD | add/update/delete/find operations |
 
-### PublicRelationsAdmin : User
+### PublicRelationsAdmin : Admin
 | Member | Type | Notes |
 |--------|------|-------|
-| `name` | char[100] | PR admin name |
-| (static) `NOTICE_DB_FILE` | string | Text notice storage file |
+| (inherits from Admin) | | Inherits name, email, password, adminType |
 
 | Method | Description |
 |--------|-------------|
-| Constructors | Default + credential/name constructor |
-| `get/setName` | Name mutation |
-| `postNotice(title, body)` | Append notice with current/sim date |
-| `loadNotices()` | Parse notices into vector pairs |
-| `removeNotice(title)` | Title-match removal |
-| `listNotices()` | Console render |
+| Constructors | Default + credential/name constructor (sets AdminType::PublicRelations) |
+| `display()` | Override display method |
+| `createNotice()` | Interactive notice creation |
+| `viewAllNotices()` | Display all notices |
+| `editNotice()` | Modify existing notice |
+| `deleteNotice()` | Remove notice |
+| `viewNoticeDetails()` | Detailed notice view |
+| `searchNotices()` | Search functionality |
+| `displayNoticeStatistics()` | Notice analytics |
+| Static CRUD: `loadAllNotices`, `addNoticeToDB`, `updateNoticeInDB`, `saveNoticesToDB` | Notice persistence operations |
 
 ---
 ## Meal & Token System
@@ -175,7 +179,7 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | Member | Type | Notes |
 |--------|------|-------|
 | `MealPackage` | char[300] | "Name - Description" combined storage |
-| `mealType` | MealType | Category |
+| `mealType` | MealType | Category (BREAKFAST/LUNCH/DINNER) |
 | `price` | double | Cost (BDT) |
 | `availableQuantity` | int | Remaining portions |
 | `isAvailable` | bool | Availability flag |
@@ -183,16 +187,22 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | `time` | char[10] | Scheduled time string |
 | `hallName` | Halls | Associated hall |
 
+| Static Members | Type | Notes |
+|---------------|------|-------|
+| `cachedMeals` | vector<Meal> | In-memory cache |
+| `mealsLoaded` | bool | Guard to ensure single load |
+
 | Method Group | Highlights |
 |--------------|-----------|
-| Accessors | `getMealName`, `getDescription`, scalar getters |
+| Constructors | Full parameter & default constructor |
+| Accessors | `getMealName`, `getDescription`, `getMealType`, `getPrice`, `getAvailableQuantity`, `getIsAvailable`, `getDate`, `getTime`, `getHallName` |
 | Mutators | `setMealName/Description/Type/Price/AvailableQuantity/IsAvailable/Date/Time/HallName` |
-| Ops | `orderMeal(quantity)` |
-| Display | `displayMeal()` |
+| Operations | `orderMeal(quantity)` - decrease available quantity |
+| Display | `displayMeal()` - console output |
 | Static Utils | `mealTypeToString`, `stringToMealType` |
 | Persistence (Static) | `loadAllMealsFromDatabase`, `loadMealsByHall/Date/Type`, `deleteMealFromDatabase`, `initializeMealDatabase`, `displayAllMeals`, `getMealCount` |
 | Persistence (Instance) | `saveMealToDatabase`, binary write/read helpers |
-| Lifecycle | `isExpired()` |
+| Lifecycle | `isExpired()` - check if meal date has passed |
 
 ### MealToken
 | Member | Type | Notes |
@@ -211,7 +221,7 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | Method | Description |
 |--------|-------------|
 | Constructors | Default + full parameter |
-| Getters | All field access |
+| Getters | `getTokenNumber`, `getStudentEmail`, `getMealName`, `getMealType`, `getHallName`, `getPaidAmount`, `getPurchaseDate`, `getValidDate`, `getStatus`, `getPurchaseTime` |
 | `setStatus()` | Manual status change |
 | `isValid()` | ACTIVE & not expired |
 | `canBeUsed()` | Date match & meal window |
@@ -231,13 +241,13 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | `comment` | char[300] | Feedback text |
 | `reviewDate` | Date | Submission date |
 | `hallName` | Halls | Hall context |
-| `batch` | int | Placeholder academic batch |
+| `batch` | int | Student academic batch |
 | `department` | department | Student department |
 
 | Method | Description |
 |--------|-------------|
-| Constructors | Default + full |
-| Getters | For each attribute |
+| Constructors | Default + full parameter |
+| Getters | `getStudentEmail`, `getTokenNumber`, `getMealName`, `getRating`, `getComment`, `getReviewDate`, `getHallName` |
 | Display | `displayReview()` |
 | Static | `ratingToString()` |
 
@@ -246,20 +256,23 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 |--------|------|-------|
 | `activeTokens` | vector<MealToken> | In-memory active set |
 | `usedTokens` | vector<MealToken> | Used/reviewed tokens |
-| `reviews` | vector<MealReview> | In-memory reviews (binary persistence WIP) |
-| `TOKEN_FOLDER` | string (static) | Receipt export path |
+| `reviews` | vector<MealReview> | In-memory reviews |
+| `TOKEN_FOLDER` | string (static const) | Receipt export path |
 
 | Method | Description |
 |--------|-------------|
-| Constructor | Loads tokens & ensures folder |
+| Constructor | Loads tokens & ensures folder exists |
 | `buyToken(email, hall, type, meal)` | Creates & stores token |
 | `useToken(tokenNumber, email)` | Validates & moves to used list |
 | `canBuyToken(email, type, date)` | Prevent duplicate daily type |
 | `addReview(email, tokenNumber, rating, comment)` | Marks token reviewed + persists |
 | `getStudentTokens(email)` | Combined active+used list |
+| `getActiveTokens()` / `getUsedTokens()` | Vector accessors |
+| `getMealReviews(mealName)` / `getHallReviews(hallName)` | Filter reviews |
 | `displayStudentTokens(email)` | Grouped listing |
 | Lifecycle | `cleanupExpiredTokens()` to mark expirations |
-| Persistence | `saveAllTokens()` / `loadAllTokens()` (binary) |
+| Persistence | `saveAllTokens()` / `loadAllTokens()`, `saveAllReviews()` / `loadAllReviews()` |
+| Private | `createTokenFolder()` - ensure directory exists |
 
 ### MealUtils (static)
 | Method | Description |
@@ -289,29 +302,64 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | `marksToCGPA()` | Placeholder conversion |
 | `display()` | Console output |
 
-### Notice (abstract)
+### Notice
 | Member | Type | Notes |
 |--------|------|-------|
-| `date` | Date | Notice date |
-| `description` | char[300] | Text body |
+| `title` | char[90] | Notice title |
+| `message` | char[300] | Text body |
+| `date` | Date | Notice date (composition/aggregation) |
 
 | Method | Description |
 |--------|-------------|
-| Constructors | Base initialization |
-| `get/setDate` | Date access |
-| `get/setDescription` | Text access |
-| `displayNotice()` | Pure virtual (implementation TBD) |
+| Constructors | Default & full parameter (title, message, date) |
+| `getTitle/setTitle` | Title access |
+| `getMessage/setMessage` | Message content access |
+| `getDate/setDate` | Date access |
 
 ---
-## Future / Placeholder Entities
-| File | Purpose | Status |
-|------|---------|--------|
-| `Results/` (module) | Academic results | Scaffold only |
-| `Transport/` (module) | Transport scheduling | Scaffold only |
-| `StudentUtility/` | Misc utilities | Scaffold only |
+## DatabaseManager (Static Utility)
+| Purpose | Central binary file persistence manager using templates |
+|---------|----------------------------------------------------------|
+
+| Static Constants | File Paths |
+|-----------------|------------|
+| `STUDENTS_DB` / `TEACHERS_DB` / `ADMINS_DB` / `DINING_AUTH_DB` | User role databases |
+| `MEALS_DB` | Meal database |
+| `ACTIVE_TOKENS_DB` / `USED_TOKENS_DB` / `REVIEWS_DB` | Token system databases |
+| `NOTICES_DB` | Notice database |
+| `DATABASE_DIR` | Base directory path |
+
+| Static Cache Vectors | Holds in-memory data |
+|---------------------|----------------------|
+| `cachedStudents` / `cachedTeachers` / `cachedAdmins` / `cachedDiningAuthorities` | User caches |
+| `cachedMeals` / `cachedActiveTokens` / `cachedUsedTokens` / `cachedReviews` / `cachedNotices` | Domain object caches |
+
+| Template Methods | Description |
+|-----------------|-------------|
+| `writeObjectToBinary<T>(out, obj)` | Write single object |
+| `readObjectFromBinary<T>(in, obj)` | Read single object |
+| `loadObjects<T>(filePath)` | Load all objects of type T |
+| `saveObjects<T>(objects, filePath)` | Save vector of type T |
+| `findObjectByKey<T,KeyType>(container, key, memberFunc)` | Find by key using member function pointer |
+| `addObject<T>(cache, object, filePath)` | Add to cache & persist |
+| `updateObject<T,KeyType>(cache, key, updatedObject, filePath, memberFunc)` | Update in cache & persist |
+| `deleteObject<T,KeyType>(cache, key, filePath, memberFunc)` | Delete from cache & persist |
+
+| Specialized Methods | Per-Class CRUD Operations |
+|--------------------|---------------------------|
+| Student/Teacher/Admin/DiningAuthority | load/save/add/update/delete/find operations |
+| Meal/Token/Review/Notice | Specialized persistence operations |
+| `initializeDatabase()` | Load all data into caches at startup |
 
 ---
-## Persistence Files (Relevant to Classes)
+## Future / Placeholder Modules
+| Module | Location | Status |
+|--------|----------|--------|
+| Results | `System/Modules/Results/` | Empty - planned for academic results |
+| Transport | `System/Modules/Transport/` | Empty - planned for transport scheduling |
+
+---
+## Persistence Files (Binary & Text Formats)
 | File | Classes Affected | Format |
 |------|------------------|--------|
 | `Database/students.dat` | Student | Binary fixed-size records |
@@ -321,34 +369,56 @@ Comprehensive reference for the core domain model, user roles, meal/token system
 | `Database/meals.dat` | Meal | Binary |
 | `Database/active_tokens.dat` | MealToken (ACTIVE) | Binary |
 | `Database/used_tokens.dat` | MealToken (USED/REVIEWED) | Binary |
-| `Database/meal_reviews.dat` | MealReview | (Planned/partial) |
-| `Database/simulation_state.dat` | Date | Binary trio (bool, Date, int) |
-| `Database/pr_notices.txt` | PublicRelationsAdmin | Delimited text |
+| `Database/meal_reviews.dat` | MealReview | Binary |
+| `Database/notices.dat` | Notice | Binary |
+| `Meal Tokens/` | MealToken | Text receipts (individual files) |
+
+---
+## Key OOP Features Demonstrated
+| Feature | Location | Example |
+|---------|----------|---------|
+| **Inheritance** | User hierarchy | Student, Teacher, Admin, DiningAuthority, PublicRelationsAdmin inherit from User/Admin |
+| **Polymorphism** | `display()` method | Virtual function overridden in each User subclass |
+| **Encapsulation** | All classes | Private members with public getters/setters |
+| **Abstraction** | User class | Pure virtual `display()` method |
+| **Aggregation** | Notice class | Notice contains Date object (has-a relationship) |
+| **Composition** | Student class | Student contains department and Halls enums |
+| **Operator Overloading** | Date class | Comparison operators, stream insertion operator |
+| **Friend Functions** | Date class | `operator<<` as friend function |
+| **Templates** | DatabaseManager, StringHelper | Generic type-safe operations |
+| **Enumerations** | Multiple files | Type-safe enum classes for domain concepts |
+| **Static Members** | Meal, Date, DatabaseManager | Class-level data and operations |
+| **STL Containers** | Throughout | vector for collections |
 
 ---
 ## Extension Guidance
-| Area | Additions |
-|------|-----------|
-| Reviews | Serialize MealReview fully (append + load) |
-| Notice | Implement concrete subclasses & `displayNotice()` |
+| Area | Recommendations |
+|------|----------------|
 | Security | Hash passwords before binary persistence |
-| Serialization | Add version headers to binary files |
-| Testing | Introduce unit tests for date simulation & token transitions |
+| Serialization | Add version headers to binary files for backward compatibility |
+| Testing | Unit tests for date simulation & token transitions |
+| Validation | Enhanced input validation across all user inputs |
+| Results Module | Implement grade management system |
+| Transport Module | Implement bus/transport scheduling |
+| Notice System | Add categories, priorities, expiration dates |
 
 ---
 ## Quick Cross-Reference
-| Class | Key Enums Used | Depends On |
-|-------|----------------|------------|
-| Student | department, Halls | User, StringHelper |
-| Teacher | department, AcademicPosition | User, Course |
-| Admin | AdminType | User |
-| DiningAuthority | Halls, MealType | User, Meal, Date |
-| PublicRelationsAdmin | (none) | User, Date, StringHelper |
-| Meal | MealType, Halls | StringHelper, Date |
+| Class | Key Enums Used | Key Dependencies |
+|-------|----------------|------------------|
+| Student | department, Halls | User, StringHelper, DatabaseManager |
+| Teacher | department, designation | User, Course, DatabaseManager |
+| Admin | AdminType | User, StringHelper, DatabaseManager |
+| DiningAuthority | Halls, MealType | User, Meal, Notice, DatabaseManager |
+| PublicRelationsAdmin | (inherits AdminType) | Admin, Notice, Date, DatabaseManager |
+| Meal | MealType, Halls | StringHelper, Date, DatabaseManager |
 | MealToken | MealType, Halls, TokenStatus | Date, MealUtils |
 | MealReview | MealRating, Halls, department | Date |
-| TokenManager | MealType, TokenStatus | Meal, MealToken, MealReview |
+| TokenManager | MealType, TokenStatus | Meal, MealToken, MealReview, DatabaseManager |
+| Notice | (none) | Date, StringHelper |
+| Date | (none) | Standard library only |
+| DatabaseManager | (all user/domain classes) | Student, Teacher, Admin, DiningAuthority, Meal, MealToken, MealReview, Notice |
 
 ---
-Generated: (auto documentation snapshot)
-
+**Generated:** Documentation snapshot for unizyy University Management System  
+**Last Updated:** Based on project inspection
