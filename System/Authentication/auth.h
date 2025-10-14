@@ -27,13 +27,13 @@ public:
     static bool registerTeacher(const string &name, const string &email, const department &dept,designation desg, const string &password);
     static bool registerAdmin(const string &name, const string &email, AdminType adminType, const string &password);
     static bool registerDiningAuthority(const string &name, const string &email, const string &hallName,const string &password);
-   // search by using vector.find()
-    // thakle reg korte dewa jabena
+   // search by using linear search
+    // Already register kora email hole reg korte dewa jabena
     static bool isEmailRegistered(const string& email);
     static DiningAuthority* getDiningAuthorityByEmail(const string& email);
     static void displayAllUsers();
     void logout();
-
+// email, pass , id, validation
     static string getValidatedEmail();
     static string getValidatedPassword();
     static string getValidatedStudentID();
@@ -45,6 +45,7 @@ public:
 bool registerAdminByAdmin(const string &currentAdminEmail, const string &name, const string &email, AdminType adminType, const string &password);
 
 //Helper functions
+// mainly DatabaseManager er static methods call korbe
 void initializeDatabase();
 void loadDataFromFiles();
 void saveDataToFiles();

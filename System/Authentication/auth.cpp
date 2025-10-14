@@ -9,7 +9,6 @@
 #include <iostream>
 
 using namespace std;
-// ei issue resolve kora lagbe
 void initializeDatabase() {
     DatabaseManager::initializeDatabase();
 }
@@ -84,17 +83,16 @@ void clearAuthData() {
     cout << "All authentication data cleared." << endl;
 }
 
-// Auth class implementations
+// Authentication static class
 Auth::Auth() {
     DatabaseManager::initializeDatabase();
 }
-
+// login ekdom simple: search in cache vector, jodi pawa pass thik kina check
 User* Auth::login(const string& email, const string& password) {
     if (!StringHelper::validateEmail(email)) {
         cout << "Error: Invalid email format." << endl;
         return nullptr;
     }
-
     Student* student = DatabaseManager::findStudentByEmail(email);
     if (student && student->getPassword() == password) {
         return student;
@@ -117,13 +115,11 @@ User* Auth::login(const string& email, const string& password) {
     cout << "Error: Invalid email or password." << endl;
     return nullptr;
 }
-
+// logout faka karon eta just loop break korte use hbe
 void Auth::logout() {
 }
 
-bool Auth::registerStudent(const string &studentID, const string &name, const string &email,
-                            int age, int classRoll, department dept, int batch,
-                            Halls hall, const string &password) {
+bool Auth::registerStudent(const string &studentID, const string &name, const string &email,int age, int classRoll, department dept, int batch,Halls hall, const string &password) {
     if (name.empty() || studentID.empty()) {
         cout << "Error: Name and Student ID cannot be empty." << endl;
         return false;
@@ -166,8 +162,7 @@ bool Auth::registerStudent(const string &studentID, const string &name, const st
     return true;
 }
 
-bool Auth::registerTeacher(const string &name, const string &email, const department &dept,
-                            designation desg, const string &password) {
+bool Auth::registerTeacher(const string &name, const string &email, const department &dept,designation desg, const string &password) {
     if (name.empty()) {
         cout << "Error: Name cannot be empty." << endl;
         return false;
@@ -187,7 +182,6 @@ bool Auth::registerTeacher(const string &name, const string &email, const depart
         cout << "Error: Email already exists." << endl;
         return false;
     }
-
     Teacher newTeacher(email, password, name, dept, desg);
     DatabaseManager::addTeacher(newTeacher);
 
@@ -201,17 +195,14 @@ bool Auth::registerAdmin(const string &name, const string &email, AdminType admi
         cout << "Error: Admin already exists. Use registerAdminByAdmin for additional admins." << endl;
         return false;
     }
-
     if (name.empty()) {
         cout << "Error: Name cannot be empty." << endl;
         return false;
     }
-
     if (!StringHelper::validateEmail(email)) {
         cout << "Error: Invalid email format." << endl;
         return false;
     }
-
     if (!StringHelper::validatePassword(password)) {
         cout << "Error: Password must be at least 6 characters long." << endl;
         return false;
@@ -221,7 +212,6 @@ bool Auth::registerAdmin(const string &name, const string &email, AdminType admi
         cout << "Error: Email already exists." << endl;
         return false;
     }
-
     if (adminType == AdminType::PublicRelations) {
         PublicRelationsAdmin newAdmin(email, password, name);
         DatabaseManager::addAdmin(newAdmin);
@@ -229,11 +219,9 @@ bool Auth::registerAdmin(const string &name, const string &email, AdminType admi
         Admin newAdmin(email, password, name, adminType);
         DatabaseManager::addAdmin(newAdmin);
     }
-
     cout << "Admin registered successfully!" << endl;
     return true;
 }
-
 bool Auth::registerDiningAuthority(const string &name, const string &email, const string &hallName,
                                    const string &password) {
     if (name.empty() || hallName.empty()) {
@@ -244,7 +232,6 @@ bool Auth::registerDiningAuthority(const string &name, const string &email, cons
         cout << "Error: Invalid email or password format." << endl;
         return false;
     }
-
     if (DatabaseManager::emailExists(email)) {
         cout << "Error: Email already exists." << endl;
         return false;
@@ -255,15 +242,12 @@ bool Auth::registerDiningAuthority(const string &name, const string &email, cons
     cout << "Dining authority registered successfully!" << endl;
     return true;
 }
-
 bool Auth::isEmailRegistered(const string &email) {
     return DatabaseManager::emailExists(email);
 }
-
 DiningAuthority* Auth::getDiningAuthorityByEmail(const string& email) {
     return DatabaseManager::findDiningAuthorityByEmail(email);
 }
-
 void Auth::displayAllUsers() {
     cout << "\n=== ALL REGISTERED USERS ===" << endl;
 
@@ -282,7 +266,6 @@ void Auth::displayAllUsers() {
             cout << "---" << endl;
         }
     }
-
     cout << "\n--- TEACHERS ---" << endl;
     if (teachers.empty()) {
         cout << "No teachers registered." << endl;
@@ -293,7 +276,6 @@ void Auth::displayAllUsers() {
             cout << "---" << endl;
         }
     }
-
     cout << "\n--- ADMINS ---" << endl;
     if (admins.empty()) {
         cout << "No admins registered." << endl;
@@ -304,7 +286,6 @@ void Auth::displayAllUsers() {
             cout << "---" << endl;
         }
     }
-
     cout << "\n--- DINING AUTHORITIES ---" << endl;
     if (diningAuthorities.empty()) {
         cout << "No dining authorities registered." << endl;
@@ -315,11 +296,10 @@ void Auth::displayAllUsers() {
             cout << "---" << endl;
         }
     }
-
     DatabaseManager::displayDatabaseStats();
 }
 
-// Static validation helper methods
+// input validation er jnno helper functions
 string Auth::getValidatedEmail() {
     string email;
     bool isValid = false;
@@ -340,12 +320,10 @@ string Auth::getValidatedEmail() {
             cout << "-> Example: jucse33@juniv.edu" << endl;
             continue;
         }
-
         if (DatabaseManager::emailExists(email)) {
             cout << "This email is already registered. Please use a different email." << endl;
             continue;
         }
-
         isValid = true;
     }
 
@@ -364,63 +342,50 @@ string Auth::getValidatedPassword() {
             cout << "Password cannot be empty. Please try again." << endl;
             continue;
         }
-
         if (!StringHelper::validatePassword(password)) {
             cout << "Password does not meet requirements: Atleast six characters long with lowercase,uppercase and digit" << endl;
             cout << "-> Example: MyPass123" << endl;
             continue;
         }
-
         isValid = true;
     }
-
     return password;
 }
 
 string Auth::getValidatedStudentID() {
     string studentID;
     bool isValid = false;
-
     while (!isValid) {
         cout << "Enter Student ID: ";
         getline(cin, studentID);
-
         if (studentID.empty()) {
             cout << "Student ID cannot be empty. Please try again." << endl;
             continue;
         }
-
         if (!StringHelper::isValidstudentID(studentID)) {
             cout << "Invalid Student ID format. Must be exactly 11 digits" << endl;
             continue;
         }
-
         if (DatabaseManager::studentIDExists(studentID)) {
             cout << "This Student ID is already registered. Please use a different ID." << endl;
             continue;
         }
-
         isValid = true;
     }
-
     return studentID;
 }
 
 string Auth::getValidatedName() {
     string name;
     bool isValid = false;
-
     while (!isValid) {
         cout << "Enter Name: ";
         getline(cin, name);
-
         if (!StringHelper::isValidString(name)) {
             cout << "Invalid name. Try again" << endl;
             continue;
         }
-
         isValid = true;
     }
-
     return name;
 }
