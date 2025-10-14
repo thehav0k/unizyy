@@ -16,25 +16,17 @@
 using namespace std;
 
 class PublicRelationsAdmin : public Admin {
-private:
-    int age;
-
 public:
     // Constructors
     PublicRelationsAdmin(const string& email, const string& password,
-                        const string& name, int age)
-        : Admin(email, password, name, AdminType::PublicRelations), age(age) {
+                        const string& name)
+        : Admin(email, password, name, AdminType::PublicRelations) {
     }
 
     // Default constructor for binary I/O
-    PublicRelationsAdmin() : Admin(), age(0) {
+    PublicRelationsAdmin() : Admin() {
         setAdminType(AdminType::PublicRelations);
     }
-
-    // Getters and Setters
-    int getAge() const { return age; }
-    void setAge(int age) { this->age = age; }
-
     // Display override
     void display() const override;
 

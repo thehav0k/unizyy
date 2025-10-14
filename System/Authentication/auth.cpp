@@ -229,7 +229,7 @@ bool Auth::registerAdmin(const string &name, const string &email, AdminType admi
     // Create appropriate admin subclass based on type
     if (adminType == AdminType::PublicRelations) {
         // Need to add age parameter - using default 30 for now
-        PublicRelationsAdmin newAdmin(email, password, name, 30);
+        PublicRelationsAdmin newAdmin(email, password, name);
         DatabaseManager::addAdmin(newAdmin);
     } else {
         Admin newAdmin(email, password, name, adminType);
