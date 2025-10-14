@@ -100,7 +100,6 @@ Date Date::getPreviousDay() const {
             prevDay.month = 12;
             prevDay.year--;
         }
-
         // Use the helper function
         prevDay.day = getDaysInMonth(prevDay.month, prevDay.year);
     }
