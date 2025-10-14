@@ -11,10 +11,10 @@
 using namespace std;
 
 Teacher::Teacher(const string &email, const string &password, const string &name,
-                 const string &department, designation desg)
+                 const department &dept, designation desg)
     : User(email, password), dg(desg) {
     StringHelper::stringToCharArray(name, this->name);
-    this->dept = stringToDepartmentEnum(department);
+    this->dept = dept;
 }
 
 Teacher::Teacher() : User(), dept(department::Department_of_Computer_Science_and_Engineering),

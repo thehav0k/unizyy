@@ -281,9 +281,13 @@ void MainMenu::handleRegistration() {
                 string email = Auth::getValidatedEmail();
                 string password = Auth::getValidatedPassword();
 
-                string dept;
-                cout << "Enter Department: ";
-                getline(cin, dept);
+                int dept;
+                cout << "Select Department:" << endl;
+                cout << "1. Computer Science and Engineering" << endl;
+                cout << "2. Physics" << endl;
+                cout << "3. Mathematics" << endl;
+                cout << "Enter choice (1-3): ";
+                cin >> dept;
 
                 int desg;
                 cout << "Select Designation:" << endl;
@@ -300,7 +304,12 @@ void MainMenu::handleRegistration() {
                 else if (desg == 3) des = designation::AssistantProfessor;
                 else if (desg == 4) des = designation::Lecturer;
 
-                success = authSystem->registerTeacher(name, email, dept, des, password);
+                department deptchoice = department::Department_of_Computer_Science_and_Engineering;
+                if (dept == 2) deptchoice = department::Department_of_physics;
+                else if (dept == 3) deptchoice = department::Department_of_Mathematics;
+
+
+                success = authSystem->registerTeacher(name, email, deptchoice, des, password);
                 break;
             }
             case 3: {
@@ -391,8 +400,6 @@ void MainMenu::handleRegistration() {
                 break;
             }
         }
-        if (success) displaySuccess("Registration successful!");
-        else displayError("Registration failed. Please try again.");
     } else {
         displayError("Invalid selection!");
     }

@@ -22,7 +22,7 @@ private:
 
 public:
     // Constructors
-    Teacher(const string &email, const string &password, const string &name, const string &department, designation rank);
+    Teacher(const string &email, const string &password, const string &name, const department &dept, designation rank);
     Teacher();
 
     // Getters and setters

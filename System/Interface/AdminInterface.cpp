@@ -239,13 +239,23 @@ void AdminInterface::handleAddNewUser() {
             string email = Auth::getValidatedEmail();
             string password = Auth::getValidatedPassword();
 
-            string dept;
-            cout << "Enter Department: ";
-            getline(cin, dept);
+            int dept;
+            cout << "Select Department:" << endl;
+            cout << "1. Computer Science and Engineering" << endl;
+            cout << "2. Physics" << endl;
+            cout << "3. Mathematics" << endl;
+            cout << "Enter choice (1-3): ";
+            cin >> dept;
+
+            cin.ignore();
+
+            department deptchoice = department::Department_of_Computer_Science_and_Engineering;
+            if (dept == 2) deptchoice = department::Department_of_physics;
+            else if (dept == 3) deptchoice = department::Department_of_Mathematics;
 
             designation des = designation::Lecturer; // Default
 
-            success = authSystem->registerTeacher(name, email, dept, des, password);
+            success = authSystem->registerTeacher(name, email, deptchoice, des, password);
             break;
         }
         case 3: {

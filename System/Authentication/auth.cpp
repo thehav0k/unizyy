@@ -170,10 +170,10 @@ bool Auth::registerStudent(const string &studentID, const string &name, const st
     return true;
 }
 
-bool Auth::registerTeacher(const string &name, const string &email, const string &department,
+bool Auth::registerTeacher(const string &name, const string &email, const department &dept,
                             designation desg, const string &password) {
-    if (name.empty() || department.empty()) {
-        cout << "Error: Name and Department cannot be empty." << endl;
+    if (name.empty()) {
+        cout << "Error: Name cannot be empty." << endl;
         return false;
     }
 
@@ -192,7 +192,7 @@ bool Auth::registerTeacher(const string &name, const string &email, const string
         return false;
     }
 
-    Teacher newTeacher(email, password, name, department, desg);
+    Teacher newTeacher(email, password, name, dept, desg);
     DatabaseManager::addTeacher(newTeacher);
 
     cout << "Teacher registered successfully!" << endl;

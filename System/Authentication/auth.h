@@ -27,7 +27,7 @@ public:
     static bool registerStudent(const string &studentID, const string &name, const string &email,
                         int age, int classRoll, department dept, int batch,
                         Halls hall, const string &password);
-    static bool registerTeacher(const string &name, const string &email, const string &department,
+    static bool registerTeacher(const string &name, const string &email, const department &dept,
                         designation desg, const string &password);
     static bool registerAdmin(const string &name, const string &email, AdminType adminType, const string &password);
     static bool registerDiningAuthority(const string &name, const string &email, const string &hallName,
