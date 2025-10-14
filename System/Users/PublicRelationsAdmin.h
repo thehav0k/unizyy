@@ -1,6 +1,3 @@
-//
-// Created by Md. Asif Khan on 12/10/25.
-//
 
 #ifndef PUBLICRELATIONSADMIN_H
 #define PUBLICRELATIONSADMIN_H
