@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
-
 #ifndef ADMIN_H
 #define ADMIN_H
 #include "user.h"
@@ -17,7 +13,7 @@ private:
     AdminType adminType;
 
 public:
-    // constructors // setters // getters
+    //Parameter constructors
     Admin(const string &email, const string &password, const string &name, AdminType adminType)
         : User(email, password), adminType(adminType) {
         // Use StringHelper for conversion
@@ -28,7 +24,7 @@ public:
     Admin() : User(), adminType(AdminType::SystemAdmin) {
         name[0] = '\0';
     }
-
+    // setters & getters
     string getName() const {
         return StringHelper::charArrayToString(name);
     }
@@ -52,7 +48,7 @@ public:
         cout << "Admin Type: " << static_cast<int>(adminType) << endl;
     }
 
-    // Database er sob kaj Database Manager korbe
+    //Database er sob kaj Database Manager korbe
     static vector<Admin> loadAllAdmins();
     static bool addAdminToDB(const Admin& admin);
     static bool updateAdminInDB(const string& email, const Admin& updatedAdmin);

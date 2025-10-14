@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 12/10/25.
-//
-
 #ifndef PUBLICRELATIONSADMININTERFACE_H
 #define PUBLICRELATIONSADMININTERFACE_H
 
@@ -13,9 +9,9 @@ class Auth;
 
 class PublicRelationsAdminInterface : public MenuInterface {
 private:
-    PublicRelationsAdmin* currentAdmin;
-    Auth* authSystem;
-    bool isRunning;
+    PublicRelationsAdmin* currentAdmin; //Ei admin er current login info
+    Auth* authSystem;   //Authentication system er jonno pointer
+    bool isRunning;       //Interface cholche kina tar status(true or false)
 
 public:
     PublicRelationsAdminInterface(PublicRelationsAdmin* admin, Auth* auth);
@@ -26,6 +22,7 @@ public:
 
 private:
     void displayAdminDashboard();
+    //Notice operations
     void handleCreateNotice();
     void handleViewAllNotices();
     void handleEditNotice();

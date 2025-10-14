@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-//
-
 #include "meal.h"
 #include <iostream>
 #include <iomanip>
@@ -14,21 +10,21 @@
 
 using namespace std;
 
-// Constants - centralized for DRY
+//Constant folder path for meal token files
 const string TokenManager::TOKEN_FOLDER = "Meal Tokens/";
 
-// Static member definitions
+//Static member definitions
 vector<Meal> Meal::cachedMeals;
 bool Meal::mealsLoaded = false;
 
-// ========== HELPER FUNCTIONS (DRY) ==========
+// ========== HELPER FUNCTIONS ==========
 
-// Helper function to generate meal composite key
+// Meal er unique key banay (date + hall + type)
 string generateMealKey(const string& dateStr, const string& hallName, MealType type) {
     return dateStr + "_" + hallName + "_" + to_string(static_cast<int>(type));
 }
 
-// Helper function to parse package string
+//Package string ke name & desc e divide kore
 pair<string, string> parsePackageString(const string& package) {
     size_t pos = package.find(" - ");
     if (pos != string::npos) {
@@ -37,18 +33,18 @@ pair<string, string> parsePackageString(const string& package) {
     return {package, ""};
 }
 
-// Helper function to build package string
+//Name & description diye package string create kore
 string buildPackageString(const string& name, const string& description) {
     return description.empty() ? name : name + " - " + description;
 }
 
-// Helper function to safely set char array using StringHelper
+
 template<size_t N>
 void setCharArrayField(char (&field)[N], const string& value, const string& fieldName) {
     StringHelper::safeStringToCharArray(value, field, fieldName);
 }
 
-// Helper function for enum to string conversions (DRY for all enum conversions)
+//Enum value ke string e convert kore
 template<typename EnumType>
 string enumToStringHelper(EnumType value, const vector<pair<EnumType, string>>& mapping, const string& defaultValue = "Unknown") {
     for (const auto& pair : mapping) {
@@ -57,7 +53,7 @@ string enumToStringHelper(EnumType value, const vector<pair<EnumType, string>>& 
     return defaultValue;
 }
 
-// Generic filter helper to reduce duplication in collection filtering
+
 template<typename T, typename Predicate>
 vector<T> filterCollection(const vector<T>& collection, Predicate pred) {
     vector<T> result;
@@ -70,7 +66,7 @@ vector<T> filterCollection(const vector<T>& collection, Predicate pred) {
 }
 
 // ========== MEAL CLASS IMPLEMENTATION ==========
-// Do we really need?
+
 // Static methods using DatabaseManager
 void Meal::initializeMealDatabase() {
     DatabaseManager::initializeDatabase();

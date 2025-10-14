@@ -1,6 +1,3 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
 
 #ifndef USER_H
 #define USER_H
@@ -27,7 +24,7 @@ public:
         email[0] = '\0';
         password[0] = '\0';
     }
-// getters and setters
+//getters and setters
     string getEmail() const {
         return StringHelper::charArrayToString(email);
     }

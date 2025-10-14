@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
-
 #ifndef STUDENT_H
 #define STUDENT_H
 #include "user.h"

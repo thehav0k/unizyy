@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 12/10/25.
-//
-
 #include "PublicRelationsAdminInterface.h"
 #include "../Authentication/auth.h"
 #include "../../Core/Models/date.h"
@@ -11,10 +7,11 @@
 
 using namespace std;
 
+//Constructor
 PublicRelationsAdminInterface::PublicRelationsAdminInterface(PublicRelationsAdmin* admin, Auth* auth)
     : currentAdmin(admin), authSystem(auth), isRunning(true) {
 }
-
+//Showing dashboard of admin
 void PublicRelationsAdminInterface::displayAdminDashboard() {
     clearScreen();
     displayHeader("PUBLIC RELATIONS ADMIN DASHBOARD");
@@ -40,6 +37,7 @@ void PublicRelationsAdminInterface::displayMenu() {
     displaySeparator('-', 40);
 }
 
+//User er choice ney
 int PublicRelationsAdminInterface::getChoice() {
     int choice;
     cout << "Please enter your choice (1-10): ";
@@ -54,7 +52,7 @@ int PublicRelationsAdminInterface::getChoice() {
     cin.ignore();
     return choice;
 }
-
+//User er choice onujaye operation chalay
 void PublicRelationsAdminInterface::processChoice(int choice) {
     switch (choice) {
         case 1:
@@ -92,7 +90,7 @@ void PublicRelationsAdminInterface::processChoice(int choice) {
             pauseForInput();
     }
 }
-
+//Main interface run kore and loop e cholte thake
 void PublicRelationsAdminInterface::run() {
     while (isRunning) {
         displayMenu();
@@ -101,6 +99,7 @@ void PublicRelationsAdminInterface::run() {
     }
 }
 
+//Create Notice
 void PublicRelationsAdminInterface::handleCreateNotice() {
     clearScreen();
     displayHeader("CREATE NEW NOTICE");
@@ -108,20 +107,21 @@ void PublicRelationsAdminInterface::handleCreateNotice() {
     pauseForInput();
 }
 
+//Sob notice dekha
 void PublicRelationsAdminInterface::handleViewAllNotices() {
     clearScreen();
     displayHeader("ALL NOTICES");
     currentAdmin->viewAllNotices();
     pauseForInput();
 }
-
+//Edit Notice
 void PublicRelationsAdminInterface::handleEditNotice() {
     clearScreen();
     displayHeader("EDIT NOTICE");
     currentAdmin->editNotice();
     pauseForInput();
 }
-
+//Delete Notice
 void PublicRelationsAdminInterface::handleDeleteNotice() {
     clearScreen();
     displayHeader("DELETE NOTICE");
@@ -129,6 +129,7 @@ void PublicRelationsAdminInterface::handleDeleteNotice() {
     pauseForInput();
 }
 
+//Nirdishto Notice dekha
 void PublicRelationsAdminInterface::handleViewNoticeDetails() {
     clearScreen();
     displayHeader("NOTICE DETAILS");
@@ -136,6 +137,7 @@ void PublicRelationsAdminInterface::handleViewNoticeDetails() {
     pauseForInput();
 }
 
+//Search kore notice ber kora
 void PublicRelationsAdminInterface::handleSearchNotices() {
     clearScreen();
     displayHeader("SEARCH NOTICES");
@@ -150,6 +152,7 @@ void PublicRelationsAdminInterface::handleNoticeStatistics() {
     pauseForInput();
 }
 
+//Admin er profile dekhabe
 void PublicRelationsAdminInterface::handleViewProfile() {
     clearScreen();
     displayHeader("MY PROFILE");
@@ -181,7 +184,7 @@ void PublicRelationsAdminInterface::handleChangePassword() {
     if (currentAdmin->changePassword(currentPassword, newPassword)) {
         displaySuccess("Password changed successfully!");
 
-        // Update in database
+
         if (DatabaseManager::updateAdmin(currentAdmin->getEmail(), *currentAdmin)) {
             displayInfo("Changes saved to database.");
         } else {
@@ -194,6 +197,7 @@ void PublicRelationsAdminInterface::handleChangePassword() {
     pauseForInput();
 }
 
+//Logout korar handle kore
 void PublicRelationsAdminInterface::handleLogout() {
     clearScreen();
     displayHeader("LOGOUT");

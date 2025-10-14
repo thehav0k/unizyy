@@ -200,7 +200,7 @@ bool DatabaseManager::deleteDiningAuthority(const string& email) {
     return deleteObject<DiningAuthority, string>(cachedDiningAuthorities, email, DINING_AUTH_DB, &DiningAuthority::getEmail);
 }
 
-// Active Token operations
+// ActiveToken operations
 vector<MealToken> DatabaseManager::loadActiveTokens() {
     return loadObjects<MealToken>(ACTIVE_TOKENS_DB);
 }
@@ -226,7 +226,7 @@ bool DatabaseManager::deleteActiveToken(const string& tokenID) {
     return deleteObject(cachedActiveTokens, tokenID, ACTIVE_TOKENS_DB, &MealToken::getTokenNumber);
 }
 
-// Used Token operations
+// UsedToken operations
 vector<MealToken> DatabaseManager::loadUsedTokens() {
     return loadObjects<MealToken>(USED_TOKENS_DB);
 }
@@ -267,17 +267,17 @@ bool DatabaseManager::addReview(const MealReview& review) {
 }
 
 MealReview* DatabaseManager::findReviewByID(const string& reviewID) {
-    // MealReview uses tokenNumber as identifier, not reviewID
+    // MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
     return findObjectByKey<MealReview, string>(cachedReviews, reviewID, &MealReview::getTokenNumber);
 }
 
 bool DatabaseManager::updateReview(const string& reviewID, const MealReview& updatedReview) {
-    // MealReview uses tokenNumber as identifier, not reviewID
+    /// MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
     return updateObject<MealReview, string>(cachedReviews, reviewID, updatedReview, REVIEWS_DB, &MealReview::getTokenNumber);
 }
 
 bool DatabaseManager::deleteReview(const string& reviewID) {
-    // MealReview uses tokenNumber as identifier, not reviewID
+    /// MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
     return deleteObject<MealReview, string>(cachedReviews, reviewID, REVIEWS_DB, &MealReview::getTokenNumber);
 }
 
@@ -296,7 +296,6 @@ bool DatabaseManager::addMeal(const Meal& meal) {
 }
 
 bool DatabaseManager::updateMeal(const string& mealKey, const Meal& updatedMeal) {
-    // Use a composite key: date_hall_mealType for unique identification
     for (size_t i = 0; i < cachedMeals.size(); i++) {
         string existingKey = cachedMeals[i].getDate() + "_" +
                            cachedMeals[i].getHallName() + "_" +
@@ -311,7 +310,6 @@ bool DatabaseManager::updateMeal(const string& mealKey, const Meal& updatedMeal)
 }
 
 bool DatabaseManager::deleteMeal(const string& mealKey) {
-    // Use a composite key: date_hall_mealType for unique identification
     for (auto it = cachedMeals.begin(); it != cachedMeals.end(); it++) {
         string existingKey = it->getDate() + "_" +
                            it->getHallName() + "_" +
@@ -355,7 +353,7 @@ vector<Meal> DatabaseManager::getMealsByType(MealType type) {
     return result;
 }
 
-// Utility operations
+//Utility operations
 bool DatabaseManager::emailExists(const string& email) {
     return findStudentByEmail(email) != nullptr ||
            findTeacherByEmail(email) != nullptr ||
@@ -367,7 +365,7 @@ bool DatabaseManager::studentIDExists(const string& studentID) {
     return findStudentByID(studentID) != nullptr;
 }
 
-//For notice management
+//NoticeManagement operations
 vector<Notice> DatabaseManager::loadNotices() {
     return loadObjects<Notice>(NOTICES_DB);
 }
@@ -392,6 +390,7 @@ bool DatabaseManager::updateNotice(int index, const Notice& updatedNotice) {
 
 
 void DatabaseManager::clearAllData() {
+    //all cached data clear kora hoise eikhane
     cachedStudents.clear();
     cachedTeachers.clear();
     cachedAdmins.clear();
@@ -402,6 +401,7 @@ void DatabaseManager::clearAllData() {
     cachedMeals.clear();
     cachedNotices.clear();
 
+    //ekhon empty list gula abar save kora hocche file e
     saveStudents(cachedStudents);
     saveTeachers(cachedTeachers);
     saveAdmins(cachedAdmins);
@@ -438,6 +438,7 @@ size_t DatabaseManager::getDiningAuthorityCount() {
     return cachedDiningAuthorities.size();
 }
 
+//prottek typer er user,dining related and  total user er count display kore
 void DatabaseManager::displayDatabaseStats() {
     cout << "\n=== DATABASE STATISTICS ===" << endl;
     cout << "Students: " << getStudentCount() << endl;

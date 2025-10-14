@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// University Management System Main Entry Point
-//
-
 #include <iostream>
 #include "System/Authentication/auth.h"
 #include "System/Interface/MainMenu.h"

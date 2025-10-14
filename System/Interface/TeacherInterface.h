@@ -1,30 +1,26 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Teacher Interface for teacher operations
-//
-
 #ifndef TEACHER_INTERFACE_H
 #define TEACHER_INTERFACE_H
 
 #include "MenuInterface.h"
 #include "../Users/Teacher.h"
 
-// Forward declaration
+//Forward declaration
 class Auth;
 
 class TeacherInterface : public MenuInterface {
 private:
-    Teacher* currentTeacher;
-    Auth* authSystem;
-    bool isRunning;
+    Teacher* currentTeacher;  //Ei teacher er current login info
+    Auth* authSystem;    //Authentication system er jonno pointer
+    bool isRunning;   //Interface cholche kina tar status(true or false)
 
 public:
+    //Constructor
     TeacherInterface(Teacher* teacher, Auth* auth);
 
     void displayMenu() override;
     int getChoice() override;
-    void processChoice(int choice) override;
-    void run() override;
+    void processChoice(int choice) override; //Choice onujayi operation process kore
+    void run() override;  //Main interface loop run kore
 
 private:
     void displayTeacherDashboard();

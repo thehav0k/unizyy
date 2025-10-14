@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Admin Interface Implementation
-//
-
 #include "AdminInterface.h"
 #include "../Authentication/auth.h"
 #include <iostream>

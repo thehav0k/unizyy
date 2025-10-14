@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Dining Authority Interface for meal management
-//
-
 #ifndef DINING_AUTHORITY_INTERFACE_H
 #define DINING_AUTHORITY_INTERFACE_H
 

@@ -1,6 +1,4 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
+
 
 #include "Teacher.h"
 #include <iostream>
@@ -9,7 +7,7 @@
 #include "../../Core/Database/DatabaseManager.h"
 
 using namespace std;
-
+//Parameter constructor
 Teacher::Teacher(const string &email, const string &password, const string &name,
                  const department &dept, designation desg)
     : User(email, password), dg(desg) {

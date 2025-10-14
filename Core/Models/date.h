@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 10/8/25.
-//
-
 #ifndef DATE_H
 #define DATE_H
 

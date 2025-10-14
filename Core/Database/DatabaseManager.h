@@ -53,7 +53,7 @@ public:
     template<typename T>
     static void readObjectFromBinary(ifstream& in, T& obj);
 
-    // Generic template methods for common database operations
+    // Common database operation er jonno generic template method gula
     template<typename T>
     static vector<T> loadObjects(const string& filePath);
 
@@ -77,7 +77,7 @@ public:
     // Database initialize hobe mane sob file theke vector e cache hisebe laod hbe
     static void initializeDatabase();
 
-    // Student
+    // Student related database operations
     static vector<Student> loadStudents();
     static void saveStudents(const vector<Student>& students);
     static bool addStudent(const Student& student);
@@ -86,7 +86,7 @@ public:
     static Student* findStudentByEmail(const string& email);
     static Student* findStudentByID(const string& studentID);
 
-    // Teacher
+    // Teacher related database operations
     static vector<Teacher> loadTeachers();
     static void saveTeachers(const vector<Teacher>& teachers);
     static bool addTeacher(const Teacher& teacher);
@@ -94,7 +94,7 @@ public:
     static bool deleteTeacher(const string& email);
     static Teacher* findTeacherByEmail(const string& email);
 
-    // Admin
+    // Admin related database operations
     static vector<Admin> loadAdmins();
     static void saveAdmins(const vector<Admin>& admins);
     static bool addAdmin(const Admin& admin);
@@ -102,7 +102,7 @@ public:
     static bool updateAdmin(const string& email, const Admin& updatedAdmin);
     static bool deleteAdmin(const string& email);
 
-    // DiningAuthority
+    // DiningAuthority related database operations
     static vector<DiningAuthority> loadDiningAuthorities();
     static void saveDiningAuthorities(const vector<DiningAuthority>& authorities);
     static bool addDiningAuthority(const DiningAuthority& authority);
@@ -117,7 +117,7 @@ public:
     // static void backupData(const string& backupDir);
     // static bool restoreData(const string& backupDir);
 
-    // Tokens
+    // MealToken related database operations
     static vector<MealToken> loadActiveTokens();
     static void saveActiveTokens(const vector<MealToken>& tokens);
     static bool addActiveToken(const MealToken& token);
@@ -125,7 +125,7 @@ public:
     static bool deleteActiveToken(const string& tokenID);
     static MealToken* findActiveTokenByID(const string& tokenID);
 
-    // Used Token operations
+    // UsedToken related database operations
     static vector<MealToken> loadUsedTokens();
     static void saveUsedTokens(const vector<MealToken>& tokens);
     static bool addUsedToken(const MealToken& token);
@@ -133,7 +133,7 @@ public:
     static bool deleteUsedToken(const string& tokenID);
     static MealToken* findUsedTokenByID(const string& tokenID);
 
-    // Review
+    // Review related database operations
     static vector<MealReview> loadReviews();
     static void saveReviews(const vector<MealReview>& reviews);
     static bool addReview(const MealReview& review);
@@ -141,7 +141,7 @@ public:
     static bool deleteReview(const string& reviewID);
     static MealReview* findReviewByID(const string& reviewID);
 
-    // Meal
+    // Meal related database operations
     static vector<Meal> loadMeals();
     static void saveMeals(const vector<Meal>& meals);
     static bool addMeal(const Meal& meal);
@@ -151,7 +151,7 @@ public:
     static vector<Meal> getMealsByDate(const string& date);
     static vector<Meal> getMealsByType(MealType type);
 
-    //Notice
+    //Notice related database operations
     static  vector<Notice> loadNotices();
     static void saveNotices(const  vector<Notice>& notices);
     static bool addNotice(const Notice& notice);

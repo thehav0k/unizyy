@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
-
 #ifndef DESIGNATION_H
 #define DESIGNATION_H
 

@@ -14,20 +14,20 @@ using namespace std;
 
 class PublicRelationsAdmin : public Admin {
 public:
-    // Constructors
+    //Constructors
     PublicRelationsAdmin(const string& email, const string& password,
                         const string& name)
         : Admin(email, password, name, AdminType::PublicRelations) {
     }
 
-    // Default constructor for binary I/O
+    //Binary I/O er jonno default constructor(file theke read/write er shomoy use hoy)
     PublicRelationsAdmin() : Admin() {
         setAdminType(AdminType::PublicRelations);
     }
-    // Display override
+
     void display() const override;
 
-    // Notice Management Operations (interactive menu-driven)
+    //Notice Management Operations
     void createNotice();
     void viewAllNotices() const;
     void editNotice();
@@ -36,7 +36,7 @@ public:
     void searchNotices() const;
     void displayNoticeStatistics() const;
 
-    // Database operations (delegates to DatabaseManager like Student does)
+    //Database operations
     static vector<Notice> loadAllNotices();
     static bool addNoticeToDB(const Notice& notice);
     static bool updateNoticeInDB(int index, const Notice& updatedNotice);

@@ -1,6 +1,4 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
+
 
 #ifndef TEACHER_H
 #define TEACHER_H
@@ -21,11 +19,11 @@ private:
     designation dg;
 
 public:
-    // Constructors
+    //Parameter Constructors
     Teacher(const string &email, const string &password, const string &name, const department &dept, designation rank);
     Teacher();
 
-    // Getters and setters
+    //Getters and setters
     void setName(const string &name);
     string getName() const;
     void setDepartment(department dept);
@@ -34,11 +32,11 @@ public:
     void setDesignation(designation dg);
     designation getDesignation() const;
 
-    // Virtual methods
+    //Virtual methods
     void display() const override;
     void gradeStudent(Student&, Course&);
 
-    // Static database operations
+    //Static database operations
     static vector<Teacher> loadAllTeachers();
     static bool addTeacherToDB(const Teacher& teacher);
     static bool updateTeacherInDB(const string& email, const Teacher& updatedTeacher);

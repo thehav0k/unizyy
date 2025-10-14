@@ -1,5 +1,3 @@
-// DiningAuthority.cpp
-
 #include "DiningAuthority.h"
 #include "../../Core/Utils/StringHelper.h"
 #include "../../Core/Database/DatabaseManager.h"
@@ -10,7 +8,7 @@
 
 using namespace std;
 
-// constructors
+//constructors
 DiningAuthority::DiningAuthority() : User(), hallname(Halls::Al_Beruni_Hall) {
     name[0] = '\0';
 }
@@ -31,7 +29,7 @@ void DiningAuthority::setHallName(const string &newHallName) { hallname = string
 void DiningAuthority::setHall(Halls hall) { hallname = hall; }
 
 //profile display
-// sob info to char arr te so print korar age string banaya nite hbe
+//sob info to char arr te so print korar age string banaya nite hbe
 void DiningAuthority::display() const {
     cout << "Dining Authority Details:" << endl;
     cout << "Name: " << getName() << endl;
@@ -47,9 +45,9 @@ void DiningAuthority::createMeal(const string &mealName, const string &descripti
     bool ok = Meal::addMeal(meal);
     cout << (ok ? "Meal created successfully!" : "Failed to create meal.") << endl;
 }
-// meal id use kore update kor
-// index er mto display korbe
-// okhan theke select kore update
+//meal id use kore update kor
+//index er mto display korbe
+//okhan theke select kore update
 void DiningAuthority::updateMeal(int mealId, const string &newName, const string &newDescription,
                                  MealType newType, double newPrice, int newQuantity) {
     vector<Meal> meals = DatabaseManager::getMealsByHall(getHallName());
@@ -68,7 +66,7 @@ void DiningAuthority::updateMeal(int mealId, const string &newName, const string
     bool ok = Meal::updateMeal(target.getDate(), target.getHallName(), meals[mealId].getMealType(), target);
     cout << (ok ? "Meal updated successfully!" : "Failed to update meal.") << endl;
 }
-// delete o same vabe hbe
+//delete o same vabe hbe
 void DiningAuthority::deleteMeal(int mealId) {
     vector<Meal> meals = DatabaseManager::getMealsByHall(getHallName());
     if (mealId < 0 || mealId >= static_cast<int>(meals.size())) {
@@ -97,7 +95,7 @@ void DiningAuthority::viewAllMeals() const {
     }
 }
 
-// Review gula database theke niye display
+//Review gula database theke niye display
 void DiningAuthority::viewFoodReviews() const {
     vector<MealReview> reviews = DatabaseManager::loadReviews();
     cout << "\n=== MEAL REVIEWS FOR " << getHallName() << " ===" << endl;
@@ -112,7 +110,7 @@ void DiningAuthority::viewFoodReviews() const {
     if (!count) cout << "No reviews yet." << endl;
 }
 
-// notice normal notice er motoi
+//notice normal notice er motoi
 void DiningAuthority::addNotice(const string& title, const string& message) {
     if (title.empty() || message.empty()) {
         cout << "Error: Title and message cannot be empty." << endl;

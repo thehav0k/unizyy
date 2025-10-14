@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Teacher Interface Implementation
-//
-
 #include "TeacherInterface.h"
 #include "../Authentication/auth.h"
 #include <iostream>
@@ -12,9 +7,11 @@
 
 using namespace std;
 
+//Constructor
 TeacherInterface::TeacherInterface(Teacher* teacher, Auth* auth)
     : currentTeacher(teacher), authSystem(auth), isRunning(true) {}
 
+//Shows dashboard
 void TeacherInterface::displayTeacherDashboard() {
     clearScreen();
     displayHeader("TEACHER DASHBOARD");
@@ -38,6 +35,7 @@ void TeacherInterface::displayMenu() {
     displaySeparator('-', 40);
 }
 
+//User theke input ney
 int TeacherInterface::getChoice() {
     int choice;
     cout << "Please enter your choice (0-5): ";
@@ -53,6 +51,7 @@ int TeacherInterface::getChoice() {
     return choice;
 }
 
+//Choice onujayi operation kaj kore
 void TeacherInterface::processChoice(int choice) {
     switch (choice) {
         case 0: {
@@ -90,6 +89,7 @@ void TeacherInterface::processChoice(int choice) {
     }
 }
 
+//Course management
 void TeacherInterface::handleCourseManagement() {
     displayHeader("COURSE MANAGEMENT");
     displayInfo("Course management features:");
@@ -100,6 +100,7 @@ void TeacherInterface::handleCourseManagement() {
     pauseForInput();
 }
 
+//Student Grading
 void TeacherInterface::handleStudentGrading() {
     displayHeader("STUDENT GRADING");
     displayInfo("Grading system features:");
@@ -133,6 +134,7 @@ void TeacherInterface::handleLogout() {
     }
 }
 
+//Main run loop — jotokkhon isRunning true thakbe cholte thakbe
 void TeacherInterface::run() {
     while (isRunning) {
         displayMenu();

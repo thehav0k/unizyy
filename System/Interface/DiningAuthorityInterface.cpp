@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Dining Authority Interface Implementation
-//
-
 #include "DiningAuthorityInterface.h"
 #include "../Authentication/auth.h"
 #include <iostream>

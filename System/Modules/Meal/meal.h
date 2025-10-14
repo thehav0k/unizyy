@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Meal Management System Header
-//
-
 #ifndef MEAL_H
 #define MEAL_H
 

@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-//
-
 #ifndef MAIN_MENU_H
 #define MAIN_MENU_H
 

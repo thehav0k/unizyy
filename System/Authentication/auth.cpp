@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 10/8/25.
-//
-
 #include "auth.h"
 #include "../Users/student.h"
 #include "../Users/Teacher.h"

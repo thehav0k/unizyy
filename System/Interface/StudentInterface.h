@@ -11,11 +11,12 @@ class Auth;
 
 class StudentInterface : public MenuInterface {
 private:
-    Student* currentStudent;
-    Auth* authSystem;
-    TokenManager* tokenManager;
-    bool isRunning;
+    Student* currentStudent;  //Ei student er current login info
+    Auth* authSystem;        //Authentication system er jonno pointer
+    TokenManager* tokenManager;  //Meal token system
+    bool isRunning;                 //Interface cholche kina tar status(true or false)
 public:
+    //Constructor
     StudentInterface(Student* student, Auth* auth);
     void displayMenu() override;
     int getChoice() override;
@@ -23,6 +24,7 @@ public:
     void run() override;
 
 private:
+    //Dashboard and menu related
     void displayStudentDashboard();
     void handleMealTokenOperations();
     void handleBuyToken();
@@ -33,13 +35,13 @@ private:
     void handleChangePassword();
     void handleLogout();
 
-    // Meal token specific UI methods
+
     void displayAvailableHalls();
     void displayMealTypes();
     void displayMealDetailsForPurchase(const string& hallName, MealType mealType);
     Meal selectMealFromMenu(const vector<Meal>& meals);
 
-    //Notice
+    //Notices
     void handleViewNotices();
 };
 

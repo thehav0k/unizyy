@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-//
-
 #ifndef MENU_INTERFACE_H
 #define MENU_INTERFACE_H
 #include <string>

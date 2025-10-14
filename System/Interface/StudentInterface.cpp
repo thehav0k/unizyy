@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Student Interface Implementation
-//
-
 #include "StudentInterface.h"
 #include "../Authentication/auth.h"
 #include "../../Core/Models/date.h"
@@ -19,7 +14,7 @@ StudentInterface::StudentInterface(Student* student, Auth* auth)
     : currentStudent(student), authSystem(auth), isRunning(true) {
     tokenManager = new TokenManager();
 }
-
+//Dashboard show korte
 void StudentInterface::displayStudentDashboard() {
     clearScreen();
     displayHeader("STUDENT DASHBOARD");
@@ -28,7 +23,7 @@ void StudentInterface::displayStudentDashboard() {
     cout << "Hall: " << hallToString(currentStudent->getHall()) << endl;
     displaySeparator('-', 60);
 }
-
+//Main menu show korte
 void StudentInterface::displayMenu() {
     displayStudentDashboard();
     cout << "\nSTUDENT MENU OPTIONS:" << endl;
@@ -41,6 +36,7 @@ void StudentInterface::displayMenu() {
     displaySeparator('-', 40);
 }
 
+//User input ney
 int StudentInterface::getChoice() {
     int choice;
     cout << "Please enter your choice (0-5): ";
@@ -55,6 +51,7 @@ int StudentInterface::getChoice() {
     cin.ignore();
     return choice;
 }
+
 
 void StudentInterface::processChoice(int choice) {
     switch (choice) {
@@ -99,6 +96,7 @@ void StudentInterface::processChoice(int choice) {
     }
 }
 
+//Meal token menu
 void StudentInterface::handleMealTokenOperations() {
     while (true) {
         clearScreen();
@@ -138,6 +136,7 @@ void StudentInterface::handleMealTokenOperations() {
     }
 }
 
+//Buy token logic
 void StudentInterface::handleBuyToken() {
     displayHeader("BUY MEAL TOKEN");
     displayAvailableHalls();
@@ -173,14 +172,14 @@ void StudentInterface::handleBuyToken() {
             return;
     }
 
-    // Load actual meal from database
+    //Load  meal from db
     Date tomorrow = Date::getTomorrowDate();
     vector<Meal> availableMeals = Meal::loadMealsByHall(selectedHall);
     Meal* selectedMeal = nullptr;
     bool isRegularMeal = false;
     Meal regularMealStorage; // Storage for regular meal
 
-    // Find matching meal by type and date
+    //special meal er jonno check
     for (auto& meal : availableMeals) {
         if (meal.getMealType() == selectedType && meal.getDate() == tomorrow.toString()) {
             selectedMeal = &meal;
@@ -188,18 +187,19 @@ void StudentInterface::handleBuyToken() {
         }
     }
 
-    // If no special meal found, use regular meal
+    //no special meal
+    //use regular meal
     if (selectedMeal == nullptr) {
         regularMealStorage = Meal::getRegularMeal(selectedType, selectedHall, tomorrow.toString());
         selectedMeal = &regularMealStorage;
         isRegularMeal = true;
     }
 
-    // Display meal details
+    //Display meal details
     displayMealDetailsForPurchase(selectedHall, selectedType);
 
-    // Regular meals are always available, no need to check quantity or availability
-    // Only check for special meals from database
+
+
     if (!isRegularMeal && selectedMeal->getAvailableQuantity() <= 0) {
         displayError("Sorry, this special meal is sold out! You can purchase the regular meal instead.");
         pauseForInput();
@@ -223,12 +223,12 @@ void StudentInterface::handleBuyToken() {
         return;
     }
 
-    // Decrease meal quantity only for special meals (not regular meals)
+
     if (!isRegularMeal) {
         int newQuantity = selectedMeal->getAvailableQuantity() - 1;
         selectedMeal->setAvailableQuantity(newQuantity);
 
-        // Update meal in database
+
         bool updated = Meal::updateMeal(selectedMeal->getDate(), selectedMeal->getHallName(),
                                         selectedMeal->getMealType(), *selectedMeal);
 
@@ -239,7 +239,7 @@ void StudentInterface::handleBuyToken() {
         }
     }
 
-    // Buy token with meal data (regular or special)
+    //Buy token with meal data (regular or special)
     string tokenNumber = tokenManager->buyToken(currentStudent->getEmail(), selectedHall, selectedType, *selectedMeal);
 
     if (!tokenNumber.empty()) {
@@ -351,11 +351,11 @@ void StudentInterface::displayMealDetailsForPurchase(const string& hallName, Mea
 
     Date tomorrow = Date::getTomorrowDate();
 
-    // Try to load actual meal data from database
+
     vector<Meal> availableMeals = Meal::loadMealsByHall(hallName);
     Meal* selectedMeal = nullptr;
 
-    // Filter meals by type and date
+
     for (auto& meal : availableMeals) {
         if (meal.getMealType() == mealType && meal.getDate() == tomorrow.toString()) {
             selectedMeal = &meal;
@@ -435,8 +435,7 @@ void StudentInterface::handleChangePassword() {
     pauseForInput();
 }
 
-//Notice
-
+//View the Notices(only operation regarding Notice)
 void StudentInterface::handleViewNotices() {
     displayHeader("VIEW NOTICES");
     vector<Notice> notices = DatabaseManager::loadNotices();

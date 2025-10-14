@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
-
 #ifndef COURSE_H
 #define COURSE_H
 #include <string>
@@ -15,10 +11,11 @@ private:
     char courseCode[20];
     double totalMarks;
 public:
+    //Parameter Constructor
     Course(const string& courseName, const string& courseCode, double totalMarks)
         : totalMarks(totalMarks) {
-        StringHelper::stringToCharArray(courseName, this->courseName);
-        StringHelper::stringToCharArray(courseCode, this->courseCode);
+        StringHelper::stringToCharArray(courseName, this->courseName);//used this pointer
+        StringHelper::stringToCharArray(courseCode, this->courseCode);//used this pointer
     }
     // Default constructor
     Course() : totalMarks(0.0) {
@@ -26,6 +23,7 @@ public:
         courseCode[0] = '\0';
     }
 
+    //getter and setter
     string getCourseName() const {
         return StringHelper::charArrayToString(courseName);
     }

@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Enhanced Menu Interface Implementation with Modern UI
-//
-
 #include "MenuInterface.h"
 #include "../../Core/Models/date.h"
 #include <iostream>

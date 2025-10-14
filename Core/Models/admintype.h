@@ -1,10 +1,7 @@
-//
-// Created by Md. Asif Khan on 8/8/25.
-//
-
 #ifndef ADMINTYPE_H
 #define ADMINTYPE_H
 
+// AdminType(used in enum defining) different admin role gula represent korte help kore
 enum class AdminType {
     Transport,
     HallDining,
@@ -13,6 +10,7 @@ enum class AdminType {
     SystemAdmin
 };
 
+// AdminType ke string e convert korar helper function
 static inline const char* toString(AdminType type) {
     switch (type) {
         case AdminType::Transport: return "Transport";

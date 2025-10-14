@@ -1,8 +1,3 @@
-//
-// Created by Md. Asif Khan on 11/8/25.
-// Universal String/CharArray Utility Class
-//
-
 #ifndef STRINGUTILS_H
 #define STRINGUTILS_H
 

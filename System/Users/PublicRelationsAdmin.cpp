@@ -1,7 +1,3 @@
-//
-// Created by Md. Asif Khan on 12/10/25.
-//
-
 #include "PublicRelationsAdmin.h"
 #include <iostream>
 #include <algorithm>
@@ -16,7 +12,7 @@ void PublicRelationsAdmin::display() const {
     cout << "Role: " << toString(getAdminType()) << endl;
 }
 
-// Create notice (interactive menu-driven like Student::BuyMealToken)
+//Create notice
 void PublicRelationsAdmin::createNotice() {
     string title, message;
 
@@ -40,19 +36,19 @@ void PublicRelationsAdmin::createNotice() {
         return;
     }
 
-    // Use current date from Date class
+    //current date use kore new notice creation
     Date currentDate = Date::getCurrentDate();
     Notice newNotice(title, message, currentDate);
 
     if (DatabaseManager::addNotice(newNotice)) {
-        cout << "\n✓ Success: Notice created successfully!" << endl;
+        cout << "\nSuccess: Notice created successfully!" << endl;
         cout << "   Date: " << currentDate.toString() << endl;
     } else {
         cout << "\nError: Failed to create notice." << endl;
     }
 }
 
-// View all notices
+//existing notice gula dekhay
 void PublicRelationsAdmin::viewAllNotices() const {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
@@ -73,7 +69,7 @@ void PublicRelationsAdmin::viewAllNotices() const {
     cout << "\nTotal Notices: " << notices.size() << endl;
 }
 
-// Edit existing notice
+//Existing notice editing
 void PublicRelationsAdmin::editNotice() {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
@@ -82,7 +78,7 @@ void PublicRelationsAdmin::editNotice() {
         return;
     }
 
-    // Show all notices first
+    //Show all notices first
     viewAllNotices();
 
     cout << "\nEnter notice number to edit (0 to cancel): ";
@@ -122,18 +118,18 @@ void PublicRelationsAdmin::editNotice() {
         notice.setMessage(newMessage);
     }
 
-    // Update date to current date
+    //Update date and set to current date
     notice.setDate(Date::getCurrentDate());
 
     if (DatabaseManager::updateNotice(index, notice)) {
-        cout << "\n✓ Success: Notice updated successfully!" << endl;
+        cout << "\n Success: Notice updated successfully!" << endl;
         cout << "   Updated on: " << Date::getCurrentDate().toString() << endl;
     } else {
         cout << "\nError: Failed to update notice." << endl;
     }
 }
 
-// Delete notice
+//Deleting notice
 void PublicRelationsAdmin::deleteNotice() {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
@@ -172,7 +168,7 @@ void PublicRelationsAdmin::deleteNotice() {
     }
 }
 
-// View detailed notice
+//View notice
 void PublicRelationsAdmin::viewNoticeDetails() const {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
@@ -181,7 +177,7 @@ void PublicRelationsAdmin::viewNoticeDetails() const {
         return;
     }
 
-    // Show all notices first
+
     viewAllNotices();
 
     cout << "\nEnter notice number to view details (0 to cancel): ";
@@ -209,7 +205,7 @@ void PublicRelationsAdmin::viewNoticeDetails() const {
     cout << "\n" << string(70, '=') << endl;
 }
 
-// Search notices by keyword
+
 void PublicRelationsAdmin::searchNotices() const {
     cout << "\nEnter search keyword: ";
     string keyword;
@@ -224,18 +220,18 @@ void PublicRelationsAdmin::searchNotices() const {
     vector<Notice> notices = DatabaseManager::loadNotices();
     vector<Notice> results;
 
-    // Case-insensitive search in title
+    //keyword ke lowercase e convert kore compare kora
     transform(keyword.begin(), keyword.end(), keyword.begin(), ::tolower);
 
     for (const auto& notice : notices) {
         string title = notice.getTitle();
         string message = notice.getMessage();
 
-        // Convert to lowercase for comparison
+
         transform(title.begin(), title.end(), title.begin(), ::tolower);
         transform(message.begin(), message.end(), message.begin(), ::tolower);
 
-        // Search in both title and message
+        //title and message diye searching
         if (title.find(keyword) != string::npos || message.find(keyword) != string::npos) {
             results.push_back(notice);
         }
@@ -258,7 +254,7 @@ void PublicRelationsAdmin::searchNotices() const {
     cout << "\nFound " << results.size() << " matching notice(s)." << endl;
 }
 
-// Display statistics
+//Display statistics
 void PublicRelationsAdmin::displayNoticeStatistics() const {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
@@ -267,7 +263,7 @@ void PublicRelationsAdmin::displayNoticeStatistics() const {
     cout << "Total Notices: " << notices.size() << endl;
 
     if (!notices.empty()) {
-        // Group by month-year
+        //Month/year onujayi notice count kore
         map<string, int> monthlyCount;
 
         for (const auto& notice : notices) {
@@ -283,7 +279,7 @@ void PublicRelationsAdmin::displayNoticeStatistics() const {
             cout << "  " << pair.first << ": " << pair.second << " notice(s)" << endl;
         }
 
-        // Recent notices (last 7 days)
+        //last 7 din er notice count kore
         Date today = Date::getCurrentDate();
         int recentCount = 0;
 
@@ -300,7 +296,7 @@ void PublicRelationsAdmin::displayNoticeStatistics() const {
     cout << string(70, '=') << endl;
 }
 
-// Static database delegates (following Student pattern)
+
 vector<Notice> PublicRelationsAdmin::loadAllNotices() {
     return DatabaseManager::loadNotices();
 }
