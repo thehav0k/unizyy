@@ -11,10 +11,7 @@ using namespace std;
 
 int main() {
     try {
-        // Initialize authentication system
         Auth authSystem;
-
-        // Create and run main menu interface
         MainMenu mainMenu(&authSystem);
         mainMenu.run();
 

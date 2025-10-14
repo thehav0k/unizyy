@@ -13,7 +13,6 @@ void PublicRelationsAdmin::display() const {
     cout << "\n=== Public Relations Admin Details ===" << endl;
     cout << "Name: " << getName() << endl;
     cout << "Email: " << getEmail() << endl;
-    cout << "Age: " << age << endl;
     cout << "Role: " << toString(getAdminType()) << endl;
 }
 
@@ -29,7 +28,7 @@ void PublicRelationsAdmin::createNotice() {
     getline(cin, title);
 
     if (title.empty()) {
-        cout << "\n✗ Error: Title cannot be empty!" << endl;
+        cout << "\nError: Title cannot be empty!" << endl;
         return;
     }
 
@@ -37,7 +36,7 @@ void PublicRelationsAdmin::createNotice() {
     getline(cin, message);
 
     if (message.empty()) {
-        cout << "\n✗ Error: Message cannot be empty!" << endl;
+        cout << "\nError: Message cannot be empty!" << endl;
         return;
     }
 
@@ -49,7 +48,7 @@ void PublicRelationsAdmin::createNotice() {
         cout << "\n✓ Success: Notice created successfully!" << endl;
         cout << "   Date: " << currentDate.toString() << endl;
     } else {
-        cout << "\n✗ Error: Failed to create notice." << endl;
+        cout << "\nError: Failed to create notice." << endl;
     }
 }
 
@@ -96,7 +95,7 @@ void PublicRelationsAdmin::editNotice() {
     }
 
     if (choice < 1 || choice > static_cast<int>(notices.size())) {
-        cout << "\n✗ Error: Invalid notice number!" << endl;
+        cout << "\nError: Invalid notice number!" << endl;
         return;
     }
 
@@ -130,7 +129,7 @@ void PublicRelationsAdmin::editNotice() {
         cout << "\n✓ Success: Notice updated successfully!" << endl;
         cout << "   Updated on: " << Date::getCurrentDate().toString() << endl;
     } else {
-        cout << "\n✗ Error: Failed to update notice." << endl;
+        cout << "\nError: Failed to update notice." << endl;
     }
 }
 
@@ -156,20 +155,20 @@ void PublicRelationsAdmin::deleteNotice() {
     }
 
     if (choice < 1 || choice > static_cast<int>(notices.size())) {
-        cout << "\n✗ Error: Invalid notice number!" << endl;
+        cout << "\nError: Invalid notice number!" << endl;
         return;
     }
 
-    cout << "\n⚠  Warning: Are you sure you want to delete this notice? (y/n): ";
+    cout << "\n Warning: Are you sure you want to delete this notice? (y/n): ";
     char confirm;
     cin >> confirm;
 
     if (confirm == 'y' || confirm == 'Y') {
         notices.erase(notices.begin() + (choice - 1));
         DatabaseManager::saveNotices(notices);
-        cout << "\n✓ Success: Notice deleted successfully!" << endl;
+        cout << "\nSuccess: Notice deleted successfully!" << endl;
     } else {
-        cout << "\nℹ Info: Deletion cancelled." << endl;
+        cout << "\nInfo: Deletion cancelled." << endl;
     }
 }
 
@@ -178,7 +177,7 @@ void PublicRelationsAdmin::viewNoticeDetails() const {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
     if (notices.empty()) {
-        cout << "\nℹ Info: No notices available." << endl;
+        cout << "\nInfo: No notices available." << endl;
         return;
     }
 
@@ -194,7 +193,7 @@ void PublicRelationsAdmin::viewNoticeDetails() const {
     }
 
     if (choice < 1 || choice > static_cast<int>(notices.size())) {
-        cout << "\n✗ Error: Invalid notice number!" << endl;
+        cout << "\nError: Invalid notice number!" << endl;
         return;
     }
 
@@ -218,7 +217,7 @@ void PublicRelationsAdmin::searchNotices() const {
     getline(cin, keyword);
 
     if (keyword.empty()) {
-        cout << "\n✗ Error: Search keyword cannot be empty!" << endl;
+        cout << "\nError: Search keyword cannot be empty!" << endl;
         return;
     }
 

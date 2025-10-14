@@ -11,27 +11,22 @@
 #include "../../Core/Models/Designation.h"
 #include "../../Core/Models/admintype.h"
 #include "../../Core/Database/DatabaseManager.h"
-#include "Role.h"
 
 using namespace std;
 
 class Auth {
 private:
     DatabaseManager dbManager;// karon authentication basically login+reg and duitai basically database operation
-    Role currRole;
 public:
     Auth();
     // login er jnno database(basically cached vector) theke searching kora lagbe
     static User* login(const string& email, const string& password);
     // cache vector e new object push_back kora lagbe (student teacher admin sob same)
-    static bool registerStudent(const string &studentID, const string &name, const string &email,
-                        int age, int classRoll, department dept, int batch,
+    static bool registerStudent(const string &studentID, const string &name, const string &email,int age, int classRoll, department dept, int batch,
                         Halls hall, const string &password);
-    static bool registerTeacher(const string &name, const string &email, const department &dept,
-                        designation desg, const string &password);
+    static bool registerTeacher(const string &name, const string &email, const department &dept,designation desg, const string &password);
     static bool registerAdmin(const string &name, const string &email, AdminType adminType, const string &password);
-    static bool registerDiningAuthority(const string &name, const string &email, const string &hallName,
-                                const string &password);
+    static bool registerDiningAuthority(const string &name, const string &email, const string &hallName,const string &password);
    // search by using vector.find()
     // thakle reg korte dewa jabena
     static bool isEmailRegistered(const string& email);
@@ -43,10 +38,6 @@ public:
     static string getValidatedPassword();
     static string getValidatedStudentID();
     static string getValidatedName();
-
-    //for role
-    void setRole(Role r);
-    Role getRole() const;
 
 };
 

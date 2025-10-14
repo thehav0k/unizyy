@@ -33,7 +33,6 @@ set(SOURCES
         System/Interface/TeacherInterface.cpp
         System/Interface/DiningAuthorityInterface.cpp
         System/Interface/PublicRelationsAdminInterface.cpp
-        Core/Models/Role.h
 )
 
 # Create main executable
