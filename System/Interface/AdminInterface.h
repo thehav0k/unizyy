@@ -24,7 +24,6 @@ private:
     void displayAdminDashboard();
     void handleUserManagement();
     void handleSystemSettings();
-    void handleReports();
 
     void handleViewAllUsers();
     void handleAddNewUser();
@@ -34,7 +33,6 @@ private:
 
     void handleNoticeManagement();
 
-    void handleDatabaseManagement();
     void handleProfile();
     void handleLogout();
 };

@@ -28,23 +28,21 @@ void AdminInterface::displayMenu() {
 
     cout << "1. User Management" << endl;
     cout << "2. System Settings" << endl;
-    cout << "3. System Reports" << endl;
-    cout << "4. Notice Management(create,update,view)" << endl;
-    cout << "5. Database Management" << endl;
-    cout << "6. Profile Settings" << endl;
-    cout << "7. Logout" << endl;
+    cout << "3. Notice Management(create,update,view)" << endl;
+    cout << "4. Profile Settings" << endl;
+    cout << "5. Logout" << endl;
     displaySeparator('-', 40);
 }
 
 int AdminInterface::getChoice() {
     int choice;
-    cout << "Please enter your choice (0-7): ";
+    cout << "Please enter your choice (0-5): ";
 
-    while (!(cin >> choice) || choice < 0 || choice > 7) {
-        displayError("Invalid input! Please enter a number between 0-6.");
+    while (!(cin >> choice) || choice < 0 || choice > 5) {
+        displayError("Invalid input! Please enter a number between 0-5.");
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Please enter your choice (0-7): ";
+        cout << "Please enter your choice (0-5): ";
     }
 
     cin.ignore();
@@ -69,18 +67,12 @@ void AdminInterface::processChoice(int choice) {
             handleSystemSettings();
             break;
         case 3:
-            handleReports();
-            break;
-        case 4:
             handleNoticeManagement();
             break;
-        case 5:
-            handleDatabaseManagement();
-            break;
-        case 6:
+        case 4:
             handleProfile();
             break;
-        case 7:
+        case 5:
             handleLogout();
             break;
         default:
@@ -437,16 +429,6 @@ void AdminInterface::handleSystemSettings() {
     pauseForInput();
 }
 
-void AdminInterface::handleReports() {
-    displayHeader("SYSTEM REPORTS");
-    displayInfo("Comprehensive system reporting:");
-    cout << "-> User activity reports" << endl;
-    cout << "-> Meal token usage statistics" << endl;
-    cout << "-> Revenue analytics across all halls" << endl;
-    cout << "-> System performance metrics" << endl;
-    pauseForInput();
-}
-
 void AdminInterface::handleNoticeManagement() {
     clearScreen();
     displayHeader("NOTICE MANAGEMENT");
@@ -539,16 +521,6 @@ void AdminInterface::handleNoticeManagement() {
         clearScreen();
         displayHeader("NOTICE MANAGEMENT");
     }
-}
-
-void AdminInterface::handleDatabaseManagement() {
-    displayHeader("DATABASE MANAGEMENT");
-    displayInfo("Database management tools:");
-    cout << "-> Backup and restore operations" << endl;
-    cout << "-> Data cleanup and maintenance" << endl;
-    cout << "-> System integrity checks" << endl;
-    cout << "-> Performance optimization" << endl;
-    pauseForInput();
 }
 
 void AdminInterface::handleProfile() {
