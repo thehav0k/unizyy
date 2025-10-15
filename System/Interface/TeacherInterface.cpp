@@ -25,8 +25,8 @@ void TeacherInterface::displayTeacherDashboard() {
 void TeacherInterface::displayMenu() {
     displayTeacherDashboard();
 
-    cout << "0. Simulate Date" << endl;
     cout << "\nTEACHER MENU OPTIONS:" << endl;
+    cout << "0. Simulate Date" << endl;
     cout << "1. View Profile" << endl;
     cout << "2. Logout" << endl;
     displaySeparator('-', 40);
