@@ -24,7 +24,6 @@ private:
     void displayAdminDashboard();
     void handleUserManagement();
     void handleSystemSettings();
-
     void handleViewAllUsers();
     void handleAddNewUser();
     void handleSearchUser();

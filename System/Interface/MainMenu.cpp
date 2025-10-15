@@ -68,7 +68,6 @@ int MainMenu::getChoice() {
 void MainMenu::processChoice(int choice) {
     switch (choice) {
         case 0:
-
             {
                 displayHeader("SIMULATE DATE & TIME");
                 cout << "1. Set specific date (DD-MM-YYYY)" << endl;
@@ -403,33 +402,42 @@ void MainMenu::handleRegistration() {
     } else {
         displayError("Invalid selection!");
     }
-
     pauseForInput();
 }
 
 void MainMenu::handleAbout() {
     displayHeader("ABOUT UNIVERSITY MANAGEMENT SYSTEM");
 
-    cout << "System Features:" << endl;
-    cout << "   • Student Management" << endl;
-    cout << "   • Teacher Management" << endl;
-    cout << "   • Administrative Functions" << endl;
-    cout << "   • Dining Hall Management" << endl;
-    cout << "   • Meal Token System" << endl;
-    cout << "   • Analytics & Reports" << endl;
-    cout << "   • Secure Authentication" << endl;
+    cout << "UNIZYY - Jahangirnagar University Management System" << endl;
+    cout << endl;
+    cout << "SYSTEM FEATURES:" << endl;
+    cout << "- Student Management" << endl;
+    cout << "- Teacher Management" << endl;
+    cout << "- Administrative Functions" << endl;
+    cout << "- Dining Hall Management" << endl;
+    cout << "- Meal Token System" << endl;
+    cout << "- Notice Management" << endl;
+    cout << "- Secure Authentication" << endl;
+    cout << endl;
 
-    cout << "\nMeal Token System:" << endl;
-    cout << "   • Buy tokens day before meals" << endl;
-    cout << "   • Maximum 1 token per meal type per day" << endl;
-    cout << "   • Time-based validation system" << endl;
-
-    cout << "\nNew Registration Experience:" << endl;
-    cout << "   • Instant email validation feedback" << endl;
-    cout << "   • Real-time password requirement checking" << endl;
-    cout << "   • Immediate duplicate email/ID detection" << endl;
-    cout << "   • Clear error messages and requirements" << endl;
-
+    cout << "MEAL TOKEN SYSTEM:" << endl;
+    cout << "- Purchase tokens one day before meals" << endl;
+    cout << "- Maximum 1 token per meal type per day" << endl;
+    cout << "- Time-based validation for purchases" << endl;
+    cout << "- Real-time token status tracking" << endl;
+    cout << endl;
+    cout << "USER REGISTRATION:" << endl;
+    cout << "- Instant email validation feedback" << endl;
+    cout << "- Real-time password requirement checking" << endl;
+    cout << "- Duplicate email and ID detection" << endl;
+    cout << "- Clear error messages and guidance" << endl;
+    cout << endl;
+    cout << "SUPPORTED USER ROLES:" << endl;
+    cout << "- Students" << endl;
+    cout << "- Teachers" << endl;
+    cout << "- Administrators" << endl;
+    cout << "- Dining Authority Staff" << endl;
+    cout << endl;
     pauseForInput();
 }
 
