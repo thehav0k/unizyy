@@ -107,7 +107,7 @@ Date Date::getPreviousDay() const {
     return prevDay;
 }
 
-// Comparison operators
+//======= Operator Overloading ========
 bool Date::operator==(const Date& other) const {
     return (day == other.day && month == other.month && year == other.year);
 }
@@ -134,7 +134,6 @@ bool Date::operator>=(const Date& other) const {
     return (*this > other) || (*this == other);
 }
 
-// Static functions
 Date Date::getCurrentDate() {
     if (isSimulating) {
         return simulatedDate;
@@ -156,12 +155,12 @@ Date Date::SimulateDate(int n) {
     // bro just function parameter change korlei to hoto
     int days= n;
     if (days >= 0)
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; i++) {
         simulatedDate = simulatedDate.getNextDay();
     }
     //negative value er jonno korsi
     else
-        for (int i = 0; i < -n; ++i) {
+        for (int i = 0; i < -n; i++) {
             simulatedDate = simulatedDate.getPreviousDay();
         }
     return simulatedDate;
@@ -172,7 +171,7 @@ Date Date::SimulateMonths(int n) {
         simulatedDate = Date();
         isSimulating = true;
     }
-// ektu vul chilo jan1 theke 31 mash simulate korle feb 31 hoito
+// ektu vul chilo jan1 theke 1 mash simulate korle feb 31 hoito
     simulatedDate.month += n;
 
     while (simulatedDate.month > 12) {
@@ -240,14 +239,14 @@ int Date::getSimulatedHour() {
 void Date::resetSimulation() {
     isSimulating = false;
     simulatedHour = -1;
-    // simulatedDate will be ignored when isSimulating is false
 }
 
 bool Date::isSimulationActive() {
     return isSimulating;
 }
 
-// Time methods for MenuInterface
+// MenuInterface e time display korar methods
+// date + hour + min thakbe
 string Date::getCurrentTimeString() {
     Date currentDate = getCurrentDate();
     int currentHour = getSimulatedHour();

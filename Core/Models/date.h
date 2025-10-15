@@ -27,9 +27,9 @@ public:
     explicit Date(const string& dateStr); // Format: DD-MM-YYYY
 
     // Getters
-    [[nodiscard]] int getDay() const;
-    [[nodiscard]] int getMonth() const;
-    [[nodiscard]] int getYear() const;
+    int getDay() const;
+    int getMonth() const;
+    int getYear() const;
 
     // Setters
     void setDay(int d);
@@ -37,17 +37,16 @@ public:
     void setYear(int y);
 
     // Utility functions
-    //debugging er shubidha er jonno nodiscard use kora hoise, basically jodi keu container chara kono function
-    //call kore jeitar return type void na, tokhon warning dekhabe
-    [[nodiscard]] string toString() const;           // Returns DD-MM-YYYY format
-    [[nodiscard]] bool isValid() const;
-    [[nodiscard]] bool isToday() const;
-    [[nodiscard]] bool isTomorrow() const;
-    [[nodiscard]] bool isYesterday() const;
-    [[nodiscard]] Date getNextDay() const;
-    [[nodiscard]] Date getPreviousDay() const;
+    // normal date ke string e convert
+    string toString() const;
+    bool isValid() const;
+    bool isToday() const;
+    bool isTomorrow() const;
+    bool isYesterday() const;
+    Date getNextDay() const;
+    Date getPreviousDay() const;
 
-    // date gula compare korar jonno operator overloading
+    // ============ Operator Overloading ===========
     bool operator==(const Date& other) const;
     bool operator!=(const Date& other) const;
     bool operator<(const Date& other) const;
@@ -59,8 +58,8 @@ public:
     static Date getCurrentDate();
     static Date getTomorrowDate();
     static Date SimulateDate(int n);
-    static Date SimulateMonths(int n); // new: advance months
-    static void SimulateHours(int n);  // advance hours (affects meal time logic)
+    static Date SimulateMonths(int n);
+    static void SimulateHours(int n);  // advance hours
     static void setSimulatedDate(const Date& d);
     static void setSimulatedDateTime(const Date& d, int hour); // set date and hour
     static int getSimulatedHour();
@@ -70,6 +69,9 @@ public:
     // interface e display korar jnno
     static string getCurrentTimeString();
     static string getCurrentDateTimeString();
+
+    // ================ Friend function ====================
+    //overloader extraction operator diye direct date print kora jabe
     friend ostream& operator<<(ostream& os, const Date& date);
 
 };

@@ -14,7 +14,7 @@ static inline const char* toString(designation des) {
         case designation::AssociateProfessor: return "Associate Professor";
         case designation::AssistantProfessor: return "Assistant Professor";
         case designation::Lecturer: return "Lecturer";
-        default: return "Unknown Rank";
+        default: return "Unknown";
     }
 }
 static inline const char* toEnum(designation des) {
