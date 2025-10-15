@@ -280,12 +280,12 @@ void StudentInterface::handleUseToken() {
     } else {
         displayError("Invalid token or token cannot be used now!");
         cout << "\nPlease ensure:" << endl;
-        cout << "• Token is valid and active" << endl;
-        cout << "• It's the correct date for the meal" << endl;
-        cout << "• You're within the meal time window" << endl;
-        cout << "• Breakfast: 7:00 AM - 10:00 AM" << endl;
-        cout << "• Lunch: 12:00 PM - 2:30 PM" << endl;
-        cout << "• Dinner: 7:00 PM - 10:30 PM" << endl;
+        cout << "-> Token is valid and active" << endl;
+        cout << "-> It's the correct date for the meal" << endl;
+        cout << "-> You're within the meal time window" << endl;
+        cout << "-> Breakfast: 7:00 AM - 10:00 AM" << endl;
+        cout << "-> Lunch: 12:00 PM - 2:30 PM" << endl;
+        cout << "-> Dinner: 7:00 PM - 10:30 PM" << endl;
     }
 
     pauseForInput();
@@ -416,10 +416,10 @@ void StudentInterface::handleChangePassword() {
 
     if (!StringHelper::validatePassword(newPassword)) {
         displayError("New password doesn't meet requirements:");
-        cout << "   • At least 6 characters long" << endl;
-        cout << "   • Must contain at least one uppercase letter" << endl;
-        cout << "   • Must contain at least one lowercase letter" << endl;
-        cout << "   • Must contain at least one digit" << endl;
+        cout << "   -> At least 6 characters long" << endl;
+        cout << "   -> Must contain at least one uppercase letter" << endl;
+        cout << "   -> Must contain at least one lowercase letter" << endl;
+        cout << "   -> Must contain at least one digit" << endl;
         pauseForInput();
         return;
     }

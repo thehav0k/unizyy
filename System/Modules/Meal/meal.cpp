@@ -417,7 +417,7 @@ void MealToken::displayToken() const {
     cout << "Token: " << getTokenNumber() << endl;
     cout << "Type: " << Meal::mealTypeToString(mealType) << endl;
     cout << "Hall: " << getHallName() << endl;
-    cout << "Amount: $" << fixed << setprecision(2) << paidAmount << endl;
+    cout << "Amount: BDT" << fixed << setprecision(2) << paidAmount << endl;
     cout << "Valid Date: " << validDate.toString() << endl;
     TokenStatus effective = status;
     if (status == TokenStatus::ACTIVE && isExpired()) effective = TokenStatus::EXPIRED;
@@ -762,7 +762,7 @@ void MealUtils::displayTokenReceipt(const MealToken& token) {
     cout << "Token Number: " << token.getTokenNumber() << endl;
     cout << "Meal Type: " << Meal::mealTypeToString(token.getMealType()) << endl;
     cout << "Hall: " << token.getHallName() << endl;
-    cout << "Amount Paid: $" << fixed << setprecision(2) << token.getPaidAmount() << endl;
+    cout << "Amount Paid: BDT" << fixed << setprecision(2) << token.getPaidAmount() << endl;
     cout << "Purchase Date: " << token.getPurchaseDate().toString() << endl;
     cout << "Valid Date: " << token.getValidDate().toString() << endl;
     cout << "Purchase Time: " << token.getPurchaseTime() << endl;
