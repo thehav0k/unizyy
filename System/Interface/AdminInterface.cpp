@@ -11,6 +11,7 @@ using namespace std;
 AdminInterface::AdminInterface(Admin* admin, Auth* auth)
     : currentAdmin(admin), authSystem(auth), isRunning(true) {}
 
+//Admin dashboarde info display kore
 void AdminInterface::displayAdminDashboard() {
     clearScreen();
     displayHeader("ADMIN DASHBOARD");
@@ -19,7 +20,7 @@ void AdminInterface::displayAdminDashboard() {
     cout << "Email: " << currentAdmin->getEmail() << endl;
     displaySeparator('-', 60);
 }
-
+//Admin er menu options show kore
 void AdminInterface::displayMenu() {
     displayAdminDashboard();
 
@@ -48,7 +49,7 @@ int AdminInterface::getChoice() {
     cin.ignore();
     return choice;
 }
-
+//User er choice onujayi specific function call kore
 void AdminInterface::processChoice(int choice) {
     switch (choice) {
         case 0: {
@@ -77,7 +78,7 @@ void AdminInterface::processChoice(int choice) {
             pauseForInput();
     }
 }
-
+//User management related operations handle kore
 void AdminInterface::handleUserManagement() {
     while (true) {
         clearScreen();
@@ -117,12 +118,11 @@ void AdminInterface::handleUserManagement() {
         }
     }
 }
-
+//Database theke shob user load kore display kore
 void AdminInterface::handleViewAllUsers() {
     clearScreen();
     displayHeader("ALL USERS");
-
-    // Load and display students
+      //Students list
     vector<Student> students = DatabaseManager::loadStudents();
     if (!students.empty()) {
         cout << "\n=== STUDENTS ===" << endl;
@@ -134,7 +134,7 @@ void AdminInterface::handleViewAllUsers() {
         }
     }
 
-    // Load and display teachers
+     //Teacher list
     vector<Teacher> teachers = DatabaseManager::loadTeachers();
     if (!teachers.empty()) {
         cout << "\n=== TEACHERS ===" << endl;
@@ -145,7 +145,7 @@ void AdminInterface::handleViewAllUsers() {
         }
     }
 
-    // Load and display admins
+  
     vector<Admin> admins = DatabaseManager::loadAdmins();
     if (!admins.empty()) {
         cout << "\n=== ADMINS ===" << endl;
@@ -156,7 +156,7 @@ void AdminInterface::handleViewAllUsers() {
         }
     }
 
-    // Load and display dining authorities
+     //Admins list
     vector<DiningAuthority> dining = DatabaseManager::loadDiningAuthorities();
     if (!dining.empty()) {
         cout << "\n=== DINING AUTHORITIES ===" << endl;
@@ -169,7 +169,7 @@ void AdminInterface::handleViewAllUsers() {
 
     pauseForInput();
 }
-
+//Notun admin or dining authority add korar function
 void AdminInterface::handleAddNewUser() {
     clearScreen();
     displayHeader("ADD NEW ADMIN/DINING AUTHORITY");
@@ -193,7 +193,7 @@ void AdminInterface::handleAddNewUser() {
     bool success = false;
 
     if (userType == 1) {
-        // Admin Registration
+        //Admin Registration
         displayInfo("Register a new admin account");
         cout << endl;
 
@@ -216,7 +216,7 @@ void AdminInterface::handleAddNewUser() {
             return;
         }
 
-        AdminType adminType = AdminType::SystemAdmin; // Default
+        AdminType adminType = AdminType::SystemAdmin; //Default
         switch (typeChoice) {
             case 1: adminType = AdminType::PublicRelations; break;
             case 2: adminType = AdminType::SystemAdmin; break;
@@ -226,11 +226,11 @@ void AdminInterface::handleAddNewUser() {
                 return;
         }
 
-        // Use registerAdminByAdmin with current admin's email
+       
         success = registerAdminByAdmin(currentAdmin->getEmail(), name, email, adminType, password);
 
     } else if (userType == 2) {
-        // Dining Authority Registration
+        //Dining Authority Registration
         displayInfo("Register a new dining authority account");
         cout << endl;
 
@@ -286,7 +286,7 @@ void AdminInterface::handleAddNewUser() {
         }
 
         string hallName = hallToString(hall);
-        // Use registerDiningAuthorityByAdmin with current admin's email
+        
         success = registerDiningAuthorityByAdmin(currentAdmin->getEmail(), name, email, hallName, password);
 
     } else {
@@ -295,10 +295,9 @@ void AdminInterface::handleAddNewUser() {
         return;
     }
 
-    // Success message is already displayed by the registration functions
     pauseForInput();
 }
-
+//Specific email diye user khuje ber kore
 void AdminInterface::handleSearchUser() {
     clearScreen();
     displayHeader("SEARCH USER");
@@ -309,7 +308,7 @@ void AdminInterface::handleSearchUser() {
 
     bool found = false;
 
-    // Search in students
+   
     vector<Student> students = DatabaseManager::loadStudents();
     for (const auto& student : students) {
         if (student.getEmail() == email) {
@@ -320,7 +319,7 @@ void AdminInterface::handleSearchUser() {
         }
     }
 
-    // Search in teachers if not found
+  
     if (!found) {
         vector<Teacher> teachers = DatabaseManager::loadTeachers();
         for (const auto& teacher : teachers) {
@@ -333,7 +332,7 @@ void AdminInterface::handleSearchUser() {
         }
     }
 
-    // Search in admins if not found
+    
     if (!found) {
         vector<Admin> admins = DatabaseManager::loadAdmins();
         for (const auto& admin : admins) {
@@ -346,7 +345,7 @@ void AdminInterface::handleSearchUser() {
         }
     }
 
-    // Search in dining authorities if not found
+    
     if (!found) {
         vector<DiningAuthority> dining = DatabaseManager::loadDiningAuthorities();
         for (const auto& auth : dining) {
@@ -365,7 +364,7 @@ void AdminInterface::handleSearchUser() {
 
     pauseForInput();
 }
-
+// Userder statistics display kore
 void AdminInterface::handleUserStatistics() {
     clearScreen();
     displayHeader("USER STATISTICS");
@@ -387,12 +386,12 @@ void AdminInterface::handleUserStatistics() {
     pauseForInput();
 }
 
-
+//Notice create, update, view  operations
 void AdminInterface::handleNoticeManagement() {
     clearScreen();
     displayHeader("NOTICE MANAGEMENT");
 
-    // Load existing notices from database instead of using static local vector
+    
     vector<Notice> notices = DatabaseManager::loadNotices();
 
     while (true) {
@@ -415,10 +414,10 @@ void AdminInterface::handleNoticeManagement() {
 
             Notice n(title, message, Date::getCurrentDate());
 
-            // Save to database
+            
             if (DatabaseManager::addNotice(n)) {
                 displaySuccess("You've created the notice successfully!!!");
-                // Reload notices from database to keep in sync
+                
                 notices = DatabaseManager::loadNotices();
             } else {
                 displayError("Failed to save notice to database!");
@@ -446,7 +445,7 @@ void AdminInterface::handleNoticeManagement() {
                     notices[indx].setTitle(nTitle);
                     notices[indx].setMessage(nMessage);
 
-                    // Update in database
+                    
                     if (DatabaseManager::updateNotice(indx, notices[indx])) {
                         displaySuccess("Notice updated successfully!");
                     } else {
@@ -456,7 +455,7 @@ void AdminInterface::handleNoticeManagement() {
             }
 
         } else if (choice == 3) {
-            // Reload from database to show latest
+           
             notices = DatabaseManager::loadNotices();
 
             if (notices.empty()) {
@@ -481,20 +480,20 @@ void AdminInterface::handleNoticeManagement() {
         displayHeader("NOTICE MANAGEMENT");
     }
 }
-
+//Admin er profile dekhay
 void AdminInterface::handleProfile() {
     displayHeader("ADMIN PROFILE");
     currentAdmin->display();
     pauseForInput();
 }
-
+//Logout confirm kore system theke ber hoy
 void AdminInterface::handleLogout() {
     if (confirmAction("Are you sure you want to logout?")) {
         displayInfo("Logged out successfully!");
         isRunning = false;
     }
 }
-
+//Menu continuously run kore
 void AdminInterface::run() {
     while (isRunning) {
         displayMenu();
