@@ -163,11 +163,8 @@ bool Meal::saveMealToDatabase() const {
 }
 
 // Constructors
-Meal::Meal(const string& name, const string& desc, MealType type, double mealPrice,
-           int quantity, const string& dateStr, const string& mealTime, const string& hall)
-    : mealType(type), price(mealPrice), availableQuantity(quantity),
-      isAvailable(quantity > 0), hallName(stringToHalls(hall)) {
-
+Meal::Meal(const string& name, const string& desc, MealType type, double mealPrice,int quantity, const string& dateStr, const string& mealTime, const string& hall)
+    : mealType(type), price(mealPrice), availableQuantity(quantity),isAvailable(quantity > 0), hallName(stringToHalls(hall)) {
     // Initialize char arrays with zeros first
     memset(MealPackage, 0, sizeof(MealPackage));
     memset(date, 0, sizeof(date));

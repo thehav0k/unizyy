@@ -14,16 +14,15 @@
 // how things will work
 // Student can buy tokens only the before they can use
 // While logged in they can see Meal details and price of every type
-// they can choose to buy tokens for breakfast, lunch, dinner or anytype together or individual
+// they can choose to buy tokens for breakfast, lunch, dinner
 // They can buy tokens from other halls as well but they are rocommended to buy from their hall
 // they can take meals by using their tokens
 // After eating they can review meals
-// We'll use Core/models and other classes to make code size as small as possible but readable
 // UI will be managed by Interface folder's classes
 // Dining Authority can publish notice,Add meal details(There will be default meal for every day but they can change it)
 // And Sell tokens, see review
 // I'm using char array for those variable which needs to be written and read in files
-// Also using database manager to reduce code size and manage fineness
+// Also using database manager to reduce code size
 using namespace std;
 
 enum class MealType {
@@ -217,7 +216,6 @@ private:
 public:
     // constructor
     TokenManager();
-
     // tokene er sob functions
     string buyToken(const string& studentEmail, const string& hallName,
                    MealType mealType, const Meal& meal);
