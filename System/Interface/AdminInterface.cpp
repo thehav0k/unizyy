@@ -27,10 +27,10 @@ void AdminInterface::displayMenu() {
     cout << "0. Simulate Date" << endl;
 
     cout << "1. User Management" << endl;
-    cout << "2. System Settings" << endl;
-    cout << "3. Notice Management(create,update,view)" << endl;
-    cout << "4. Profile Settings" << endl;
-    cout << "5. Logout" << endl;
+
+    cout << "2. Notice Management(create,update,view)" << endl;
+    cout << "3. View Profile" << endl;
+    cout << "4. Logout" << endl;
     displaySeparator('-', 40);
 }
 
@@ -64,15 +64,12 @@ void AdminInterface::processChoice(int choice) {
             handleUserManagement();
             break;
         case 2:
-            handleSystemSettings();
-            break;
-        case 3:
             handleNoticeManagement();
             break;
-        case 4:
+        case 3:
             handleProfile();
             break;
-        case 5:
+        case 4:
             handleLogout();
             break;
         default:
@@ -409,15 +406,6 @@ void AdminInterface::handleUserStatistics() {
     pauseForInput();
 }
 
-void AdminInterface::handleSystemSettings() {
-    displayHeader("SYSTEM SETTINGS");
-    displayInfo("System settings features:");
-    cout << "-> Configure meal time windows" << endl;
-    cout << "-> Set system-wide policies" << endl;
-    cout << "-> Manage hall configurations" << endl;
-    cout << "-> Update system parameters" << endl;
-    pauseForInput();
-}
 
 void AdminInterface::handleNoticeManagement() {
     clearScreen();
