@@ -9,20 +9,21 @@
 #include <iostream>
 
 using namespace std;
+//Database initialize korar function
 void initializeDatabase() {
     DatabaseManager::initializeDatabase();
 }
-
+//Database initialize korar function
 void loadDataFromFiles() {
     DatabaseManager::initializeDatabase();
 }
-
+//File theke data load korar jonno function 
 void saveDataToFiles() {
     cout << "Data synchronized with database." << endl;
 }
-
+//Ei function ta existing System Admin ke allow kore notun Admin register korte
 bool registerAdminByAdmin(const string& currentAdminEmail, const string& name, const string& email, AdminType adminType, const string& password) {
-    // system admin kina check
+    //System admin kina check
     Admin* currentAdmin = DatabaseManager::findAdminByEmail(currentAdminEmail);
     if (!currentAdmin || currentAdmin->getAdminType() != AdminType::SystemAdmin) {
         cout << "Error: Only System Admins can register new admins." << endl;
@@ -51,6 +52,7 @@ bool registerAdminByAdmin(const string& currentAdminEmail, const string& name, c
         cout << "Error: Email already exists." << endl;
         return false;
     }
+    //Admin create kore database e add kora hocche
     Admin newAdmin(email, password, name, adminType);
     DatabaseManager::addAdmin(newAdmin);
 
@@ -61,15 +63,16 @@ bool registerAdminByAdmin(const string& currentAdminEmail, const string& name, c
     }
     return true;
 }
-
+//Only System Admin jeno Dining Authority register korte pare
 bool registerDiningAuthorityByAdmin(const string& currentAdminEmail, const string& name, const string& email, const string& hallName, const string& password) {
-    // Only System Admins can register dining authorities
+    
     Admin* currentAdmin = DatabaseManager::findAdminByEmail(currentAdminEmail);
     if (!currentAdmin || currentAdmin->getAdminType() != AdminType::SystemAdmin) {
         cout << "Error: Only System Admins can register dining authorities." << endl;
         return false;
     }
-
+    
+ // Basic input validation
     if (name.empty() || hallName.empty()) {
         cout << "Error: Name and Hall cannot be empty." << endl;
         return false;
@@ -89,7 +92,7 @@ bool registerDiningAuthorityByAdmin(const string& currentAdminEmail, const strin
         cout << "Error: Email already exists." << endl;
         return false;
     }
-
+//Dining Authority object create kore add kora hocche
     DiningAuthority newAuth(email, password, name, hallName);
     DatabaseManager::addDiningAuthority(newAuth);
 
@@ -193,7 +196,7 @@ bool Auth::registerStudent(const string &studentID, const string &name, const st
         cout << "Error: Age must be between 16 and 35." << endl;
         return false;
     }
-
+//Student object create kore database e add kora hocche
     Student newStudent(email, password, name, age, studentID, classRoll, dept, batch, hall);
     DatabaseManager::addStudent(newStudent);
 
@@ -251,6 +254,7 @@ bool Auth::registerAdmin(const string &name, const string &email, AdminType admi
         cout << "Error: Email already exists." << endl;
         return false;
     }
+    //Special case e PublicRelations admin handle kora 
     if (adminType == AdminType::PublicRelations) {
         PublicRelationsAdmin newAdmin(email, password, name);
         DatabaseManager::addAdmin(newAdmin);
@@ -287,6 +291,7 @@ bool Auth::isEmailRegistered(const string &email) {
 DiningAuthority* Auth::getDiningAuthorityByEmail(const string& email) {
     return DatabaseManager::findDiningAuthorityByEmail(email);
 }
+//Prottek user jonno diplay 
 void Auth::displayAllUsers() {
     cout << "\n=== ALL REGISTERED USERS ===" << endl;
 
@@ -294,7 +299,7 @@ void Auth::displayAllUsers() {
     vector<Teacher> teachers = DatabaseManager::loadTeachers();
     vector<Admin> admins = DatabaseManager::loadAdmins();
     vector<DiningAuthority> diningAuthorities = DatabaseManager::loadDiningAuthorities();
-
+  //Student list print
     cout << "\n--- STUDENTS ---" << endl;
     if (students.empty()) {
         cout << "No students registered." << endl;
@@ -305,6 +310,7 @@ void Auth::displayAllUsers() {
             cout << "---" << endl;
         }
     }
+     //Teacher list print
     cout << "\n--- TEACHERS ---" << endl;
     if (teachers.empty()) {
         cout << "No teachers registered." << endl;
@@ -315,6 +321,7 @@ void Auth::displayAllUsers() {
             cout << "---" << endl;
         }
     }
+    //Admin list print
     cout << "\n--- ADMINS ---" << endl;
     if (admins.empty()) {
         cout << "No admins registered." << endl;
@@ -325,6 +332,7 @@ void Auth::displayAllUsers() {
             cout << "---" << endl;
         }
     }
+    //Dining authority list print
     cout << "\n--- DINING AUTHORITIES ---" << endl;
     if (diningAuthorities.empty()) {
         cout << "No dining authorities registered." << endl;
@@ -338,7 +346,7 @@ void Auth::displayAllUsers() {
     DatabaseManager::displayDatabaseStats();
 }
 
-// input validation er jnno helper functions
+//Input validation er jnno helper functions
 string Auth::getValidatedEmail() {
     string email;
     bool isValid = false;
