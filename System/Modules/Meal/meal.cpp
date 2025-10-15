@@ -267,7 +267,7 @@ void Meal::displayMeal() const {
     cout << "Meal: " << getMealName() << endl;
     cout << "Description: " << getDescription() << endl;
     cout << "Type: " << mealTypeToString(mealType) << endl;
-    cout << "Price: ৳" << fixed << setprecision(2) << price << " BDT" << endl;
+    cout << "Price: " << fixed << setprecision(2) << price << " BDT" << endl;
     cout << "Available Quantity: " << availableQuantity << endl;
     cout << "Date: " << getDate() << endl;
     cout << "Time: " << getTime() << endl;

@@ -15,7 +15,7 @@ void Student::display() const {
     cout << "Batch: " << batch << endl;
     cout << "Hall: " << hallToString(hall) << endl;
     cout << "Gender: " << getGenderString() << endl;
-    cout << "Balance: ৳" << fixed << setprecision(2) << balance << " BDT" << endl;
+    cout << "Balance: " << fixed << setprecision(2) << balance << " BDT" << endl;
     //2 decimal point e show kore
 }
 
