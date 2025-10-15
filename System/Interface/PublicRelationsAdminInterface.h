@@ -25,10 +25,8 @@ private:
     //Notice operations
     void handleCreateNotice();
     void handleViewAllNotices();
-    void handleEditNotice();
     void handleDeleteNotice();
     void handleViewNoticeDetails();
-    void handleSearchNotices();
     void handleNoticeStatistics();
     void handleViewProfile();
     void handleChangePassword();
@@ -36,4 +34,3 @@ private:
 };
 
 #endif // PUBLICRELATIONSADMININTERFACE_H
-

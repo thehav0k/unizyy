@@ -1,4 +1,3 @@
-
 #ifndef PUBLICRELATIONSADMIN_H
 #define PUBLICRELATIONSADMIN_H
 
@@ -30,10 +29,8 @@ public:
     //Notice Management Operations
     void createNotice();
     void viewAllNotices() const;
-    void editNotice();
     void deleteNotice();
     void viewNoticeDetails() const;
-    void searchNotices() const;
     void displayNoticeStatistics() const;
 
     //Database operations
@@ -44,4 +41,3 @@ public:
 };
 
 #endif // PUBLICRELATIONSADMIN_H
-

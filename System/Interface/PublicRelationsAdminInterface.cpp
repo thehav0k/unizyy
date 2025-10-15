@@ -26,27 +26,25 @@ void PublicRelationsAdminInterface::displayMenu() {
     cout << "\nNOTICE MANAGEMENT MENU:" << endl;
     cout << "1. Create New Notice" << endl;
     cout << "2. View All Notices" << endl;
-    cout << "3. Edit Notice" << endl;
-    cout << "4. Delete Notice" << endl;
-    cout << "5. View Notice Details" << endl;
-    cout << "6. Search Notices" << endl;
-    cout << "7. Notice Statistics" << endl;
-    cout << "8. View Profile" << endl;
-    cout << "9. Change Password" << endl;
-    cout << "10. Logout" << endl;
+    cout << "3. Delete Notice" << endl;
+    cout << "4. View Notice Details" << endl;
+    cout << "5. Notice Statistics" << endl;
+    cout << "6. View Profile" << endl;
+    cout << "7. Change Password" << endl;
+    cout << "8. Logout" << endl;
     displaySeparator('-', 40);
 }
 
 //User er choice ney
 int PublicRelationsAdminInterface::getChoice() {
     int choice;
-    cout << "Please enter your choice (1-10): ";
+    cout << "Please enter your choice (1-8): ";
 
-    while (!(cin >> choice) || choice < 1 || choice > 10) {
-        displayError("Invalid input! Please enter a number between 1-10.");
+    while (!(cin >> choice) || choice < 1 || choice > 8) {
+        displayError("Invalid input! Please enter a number between 1-8.");
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Please enter your choice (1-10): ";
+        cout << "Please enter your choice (1-8): ";
     }
 
     cin.ignore();
@@ -62,27 +60,21 @@ void PublicRelationsAdminInterface::processChoice(int choice) {
             handleViewAllNotices();
             break;
         case 3:
-            handleEditNotice();
-            break;
-        case 4:
             handleDeleteNotice();
             break;
-        case 5:
+        case 4:
             handleViewNoticeDetails();
             break;
-        case 6:
-            handleSearchNotices();
-            break;
-        case 7:
+        case 5:
             handleNoticeStatistics();
             break;
-        case 8:
+        case 6:
             handleViewProfile();
             break;
-        case 9:
+        case 7:
             handleChangePassword();
             break;
-        case 10:
+        case 8:
             handleLogout();
             break;
         default:
@@ -114,13 +106,6 @@ void PublicRelationsAdminInterface::handleViewAllNotices() {
     currentAdmin->viewAllNotices();
     pauseForInput();
 }
-//Edit Notice
-void PublicRelationsAdminInterface::handleEditNotice() {
-    clearScreen();
-    displayHeader("EDIT NOTICE");
-    currentAdmin->editNotice();
-    pauseForInput();
-}
 //Delete Notice
 void PublicRelationsAdminInterface::handleDeleteNotice() {
     clearScreen();
@@ -134,14 +119,6 @@ void PublicRelationsAdminInterface::handleViewNoticeDetails() {
     clearScreen();
     displayHeader("NOTICE DETAILS");
     currentAdmin->viewNoticeDetails();
-    pauseForInput();
-}
-
-//Search kore notice ber kora
-void PublicRelationsAdminInterface::handleSearchNotices() {
-    clearScreen();
-    displayHeader("SEARCH NOTICES");
-    currentAdmin->searchNotices();
     pauseForInput();
 }
 
@@ -215,4 +192,3 @@ void PublicRelationsAdminInterface::handleLogout() {
         pauseForInput();
     }
 }
-

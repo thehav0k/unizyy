@@ -53,7 +53,7 @@ void PublicRelationsAdmin::viewAllNotices() const {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
     if (notices.empty()) {
-        cout << "\nℹ Info: No notices available." << endl;
+        cout << "\n Info: No notices available." << endl;
         return;
     }
 
@@ -69,72 +69,12 @@ void PublicRelationsAdmin::viewAllNotices() const {
     cout << "\nTotal Notices: " << notices.size() << endl;
 }
 
-//Existing notice editing
-void PublicRelationsAdmin::editNotice() {
-    vector<Notice> notices = DatabaseManager::loadNotices();
-
-    if (notices.empty()) {
-        cout << "\nℹ Info: No notices to edit." << endl;
-        return;
-    }
-
-    //Show all notices first
-    viewAllNotices();
-
-    cout << "\nEnter notice number to edit (0 to cancel): ";
-    int choice;
-    cin >> choice;
-
-    if (choice == 0) {
-        cout << "Operation cancelled." << endl;
-        return;
-    }
-
-    if (choice < 1 || choice > static_cast<int>(notices.size())) {
-        cout << "\nError: Invalid notice number!" << endl;
-        return;
-    }
-
-    int index = choice - 1;
-    Notice& notice = notices[index];
-
-    cout << "\n=== EDIT NOTICE ===" << endl;
-    cout << string(70, '=') << endl;
-    cout << "Current Title: " << notice.getTitle() << endl;
-    cout << "Current Message: " << notice.getMessage() << endl;
-
-    cin.ignore();
-    cout << "\nEnter new title (or press Enter to keep current): ";
-    string newTitle;
-    getline(cin, newTitle);
-    if (!newTitle.empty()) {
-        notice.setTitle(newTitle);
-    }
-
-    cout << "Enter new message (or press Enter to keep current): ";
-    string newMessage;
-    getline(cin, newMessage);
-    if (!newMessage.empty()) {
-        notice.setMessage(newMessage);
-    }
-
-    //Update date and set to current date
-    notice.setDate(Date::getCurrentDate());
-
-    if (DatabaseManager::updateNotice(index, notice)) {
-        cout << "\n Success: Notice updated successfully!" << endl;
-        cout << "   Updated on: " << Date::getCurrentDate().toString() << endl;
-    } else {
-        cout << "\nError: Failed to update notice." << endl;
-    }
-}
-
 //Deleting notice
 void PublicRelationsAdmin::deleteNotice() {
     vector<Notice> notices = DatabaseManager::loadNotices();
 
     if (notices.empty()) {
-        cout << "\nℹ Info: No notices to delete." << endl;
+        cout << "\n Info: No notices to delete." << endl;
         return;
     }
 
@@ -206,54 +146,6 @@ void PublicRelationsAdmin::viewNoticeDetails() const {
 }
 
 
-void PublicRelationsAdmin::searchNotices() const {
-    cout << "\nEnter search keyword: ";
-    string keyword;
-    cin.ignore();
-    getline(cin, keyword);
-
-    if (keyword.empty()) {
-        cout << "\nError: Search keyword cannot be empty!" << endl;
-        return;
-    }
-
-    vector<Notice> notices = DatabaseManager::loadNotices();
-    vector<Notice> results;
-
-    //keyword ke lowercase e convert kore compare kora
-    transform(keyword.begin(), keyword.end(), keyword.begin(), ::tolower);
-
-    for (const auto& notice : notices) {
-        string title = notice.getTitle();
-        string message = notice.getMessage();
-
-
-        transform(title.begin(), title.end(), title.begin(), ::tolower);
-        transform(message.begin(), message.end(), message.begin(), ::tolower);
-
-        //title and message diye searching
-        if (title.find(keyword) != string::npos || message.find(keyword) != string::npos) {
-            results.push_back(notice);
-        }
-    }
-
-    if (results.empty()) {
-        cout << "\nℹ Info: No matching notices found." << endl;
-        return;
-    }
-
-    cout << "\n=== SEARCH RESULTS ===" << endl;
-    cout << string(70, '=') << endl;
-
-    for (size_t i = 0; i < results.size(); i++) {
-        cout << "\n[" << (i + 1) << "] " << results[i].getTitle() << endl;
-        cout << "    Date: " << results[i].getDate().toString() << endl;
-        cout << string(70, '-') << endl;
-    }
-
-    cout << "\nFound " << results.size() << " matching notice(s)." << endl;
-}
-
 //Display statistics
 void PublicRelationsAdmin::displayNoticeStatistics() const {
     vector<Notice> notices = DatabaseManager::loadNotices();
@@ -312,4 +204,3 @@ bool PublicRelationsAdmin::updateNoticeInDB(int index, const Notice& updatedNoti
 void PublicRelationsAdmin::saveNoticesToDB(const vector<Notice>& notices) {
     DatabaseManager::saveNotices(notices);
 }
-
