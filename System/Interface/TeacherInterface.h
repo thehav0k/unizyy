@@ -24,9 +24,6 @@ public:
 
 private:
     void displayTeacherDashboard();
-    void handleCourseManagement();
-    void handleStudentGrading();
-    void handleAttendance();
     void handleProfile();
     void handleLogout();
 };

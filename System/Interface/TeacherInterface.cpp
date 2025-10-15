@@ -27,24 +27,21 @@ void TeacherInterface::displayMenu() {
 
     cout << "0. Simulate Date" << endl;
     cout << "\nTEACHER MENU OPTIONS:" << endl;
-    cout << "1. Course Management" << endl;
-    cout << "2. Student Grading" << endl;
-    cout << "3. Attendance Management" << endl;
-    cout << "4. Profile Settings" << endl;
-    cout << "5. Logout" << endl;
+    cout << "1. View Profile" << endl;
+    cout << "2. Logout" << endl;
     displaySeparator('-', 40);
 }
 
 //User theke input ney
 int TeacherInterface::getChoice() {
     int choice;
-    cout << "Please enter your choice (0-5): ";
+    cout << "Please enter your choice (0-2): ";
 
-    while (!(cin >> choice) || choice < 0 || choice > 5) {
-        displayError("Invalid input! Please enter a number between 0-5.");
+    while (!(cin >> choice) || choice < 0 || choice > 2) {
+        displayError("Invalid input! Please enter a number between 0-2.");
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Please enter your choice (0-5): ";
+        cout << "Please enter your choice (0-2): ";
     }
 
     cin.ignore();
@@ -60,65 +57,30 @@ void TeacherInterface::processChoice(int choice) {
             string input;
             getline(cin, input);
             if (input.empty()) {
-                Date::resetSimulation(); displaySuccess("Simulation reset to current date.");
+                Date::resetSimulation();
+                displaySuccess("Simulation reset to current date.");
             } else {
                 Date d(input);
-                if (!d.isValid()) displayError("Invalid date format.");
-                else { Date::setSimulatedDate(d); displaySuccess("Simulation date set to " + d.toString()); }
+                if (!d.isValid()) {
+                    displayError("Invalid date format.");
+                } else {
+                    Date::setSimulatedDate(d);
+                    displaySuccess("Simulation date set to " + d.toString());
+                }
             }
             pauseForInput();
-        } break;
+            break;
+        }
         case 1:
-            handleCourseManagement();
-            break;
-        case 2:
-            handleStudentGrading();
-            break;
-        case 3:
-            handleAttendance();
-            break;
-        case 4:
             handleProfile();
             break;
-        case 5:
+        case 2:
             handleLogout();
             break;
         default:
             displayError("Invalid choice!");
             pauseForInput();
     }
-}
-
-//Course management
-void TeacherInterface::handleCourseManagement() {
-    displayHeader("COURSE MANAGEMENT");
-    displayInfo("Course management features:");
-    cout << "• Create and manage course content" << endl;
-    cout << "• Set course schedules and assignments" << endl;
-    cout << "• View enrolled students" << endl;
-    cout << "• Manage course materials" << endl;
-    pauseForInput();
-}
-
-//Student Grading
-void TeacherInterface::handleStudentGrading() {
-    displayHeader("STUDENT GRADING");
-    displayInfo("Grading system features:");
-    cout << "• Grade student assignments and exams" << endl;
-    cout << "• View student performance analytics" << endl;
-    cout << "• Generate grade reports" << endl;
-    cout << "• Manage assessment criteria" << endl;
-    pauseForInput();
-}
-
-void TeacherInterface::handleAttendance() {
-    displayHeader("ATTENDANCE MANAGEMENT");
-    displayInfo("Attendance tracking features:");
-    cout << "• Record daily attendance" << endl;
-    cout << "• View attendance reports" << endl;
-    cout << "• Generate attendance analytics" << endl;
-    cout << "• Send notifications for low attendance" << endl;
-    pauseForInput();
 }
 
 void TeacherInterface::handleProfile() {
