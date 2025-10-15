@@ -67,9 +67,9 @@ public:
     static void resetSimulation(); // Reset simulation to current real date/time
     static bool isSimulationActive(); // Check if simulation is currently active
 
-    // New time methods for MenuInterface
-    static string getCurrentTimeString(); // Returns YYYY-MM-DD HH:MM format (no seconds)
-    static string getCurrentDateTimeString(); // Returns YYYY-MM-DD HH:MM:SS format
+    // interface e display korar jnno
+    static string getCurrentTimeString();
+    static string getCurrentDateTimeString();
     friend ostream& operator<<(ostream& os, const Date& date);
 
 };

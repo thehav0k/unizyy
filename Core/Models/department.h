@@ -21,27 +21,5 @@ static inline const char* toString(department dept) {
         default: return "Unknown Department";
     }
 }
-//eita nao lagte pare
-static inline department stringToDepartmentEnum(const std::string& deptStr) {
-    if (deptStr == "Computer Science and Engineering" ||
-        deptStr == "CSE" ||
-        deptStr == "Computer Science" ||
-        deptStr == "Department_of_Computer_Science_and_Engineering") {
-        return department::Department_of_Computer_Science_and_Engineering;
-    }
-    else if (deptStr == "Physics" ||
-             deptStr == "Department_of_physics" ||
-             deptStr == "PHY") {
-        return department::Department_of_physics;
-    }
-    else if (deptStr == "Mathematics" ||
-             deptStr == "Math" ||
-             deptStr == "Department_of_Mathematics" ||
-             deptStr == "MATH") {
-        return department::Department_of_Mathematics;
-    }
-    // Default case - return CSE as default
-    return department::Department_of_Computer_Science_and_Engineering;
-}
 
 #endif //DEPARTMENT_H
