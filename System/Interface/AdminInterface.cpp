@@ -91,8 +91,8 @@ void AdminInterface::handleUserManagement() {
         cout << "2. Add New User" << endl;
         cout << "3. Search User by Email" << endl;
         cout << "4. User Statistics" << endl;
-        cout << "5. Deactivate/Activate User" << endl;
-        cout << "6. Back to Admin Menu" << endl;
+
+        cout << "5. Back to Admin Menu" << endl;
         cout << "----------------------------------------" << endl;
 
         cout << "Please enter your choice (1-6): ";
@@ -114,9 +114,6 @@ void AdminInterface::handleUserManagement() {
                 handleUserStatistics();
                 break;
             case 5:
-                handleUserActivation();
-                break;
-            case 6:
                 return; // Back to admin menu
             default:
                 displayError("Invalid choice! Please enter 1-6.");
@@ -409,13 +406,6 @@ void AdminInterface::handleUserStatistics() {
     cout << "----------------------------------------" << endl;
     cout << "Total Users: " << totalUsers << endl;
 
-    pauseForInput();
-}
-
-void AdminInterface::handleUserActivation() {
-    displayHeader("USER ACTIVATION/DEACTIVATION");
-    displayInfo("This feature will be implemented to manage user account status.");
-    displayInfo("Future implementation: Enable/disable user accounts as needed.");
     pauseForInput();
 }
 
