@@ -11,7 +11,6 @@ private:
     char courseCode[20];
     double totalMarks;
 public:
-    //Parameterized Constructor(3)
     Course(const string& courseName, const string& courseCode, double totalMarks)
         : totalMarks(totalMarks) {
         StringHelper::stringToCharArray(courseName, this->courseName);//used this pointer

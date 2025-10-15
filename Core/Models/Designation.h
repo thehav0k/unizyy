@@ -8,7 +8,7 @@ enum class designation {
     Lecturer
 };
 
-static inline const char* toString(designation des) {
+inline const char* toString(designation des) {
     switch (des) {
         case designation::Professor: return "Professor";
         case designation::AssociateProfessor: return "Associate Professor";
@@ -16,8 +16,5 @@ static inline const char* toString(designation des) {
         case designation::Lecturer: return "Lecturer";
         default: return "Unknown";
     }
-}
-static inline const char* toEnum(designation des) {
-    return toString(des);
 }
 #endif //DESIGNATION_H

@@ -5,7 +5,7 @@
 #include "../../Core/Database/DatabaseManager.h"
 
 using namespace std;
-//Parameter constructor
+//Parameter wala constructor
 Teacher::Teacher(const string &email, const string &password, const string &name,
                  const department &dept, designation desg)
     : User(email, password), dg(desg) {

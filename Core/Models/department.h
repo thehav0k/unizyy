@@ -12,7 +12,7 @@ enum class department {
 };
 //header file execute kora jay na, eikhane inline use kora hoise jaate code gula
 //executable function e directly copy paste hoy
-static inline const char* toString(department dept) {
+inline const char* toString(department dept) {
     switch (dept) {
         case department::Department_of_Computer_Science_and_Engineering: return "Computer Science and Engineering";
         case department::Department_of_physics: return "Physics";

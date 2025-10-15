@@ -135,7 +135,6 @@ void DiningAuthorityInterface::handleCreateMeal() {
 
 void DiningAuthorityInterface::handleUpdateMeal() {
     displayHeader("UPDATE MEAL");
-
     currentAuthority->viewAllMeals();
 
     cout << "\nEnter meal ID to update: ";

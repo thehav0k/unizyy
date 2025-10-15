@@ -10,7 +10,7 @@ enum class AdminType {
 };
 
 // AdminType ke string e convert korar helper function
-static inline const char* toString(AdminType type) {
+inline const char* toString(AdminType type) {
     switch (type) {
         case AdminType::Transport: return "Transport";
         case AdminType::HallDining: return "Hall Dining";

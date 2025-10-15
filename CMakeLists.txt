@@ -13,7 +13,7 @@ include_directories(System/Authentication)
 include_directories(System/Modules/Meal)
 include_directories(System/Interface)
 
-# Collect all source files (excluding main.cpp for library)
+# Collect all source files
 set(LIBRARY_SOURCES
         Core/Models/date.cpp
         Core/Models/Notice.cpp
@@ -41,9 +41,6 @@ add_library(unizyy_lib STATIC ${LIBRARY_SOURCES})
 add_executable(unizyy main.cpp)
 target_link_libraries(unizyy unizyy_lib)
 
-# Create test executable (separate main if needed)
-# add_executable(test_token_review_persistence test_main.cpp)
-# target_link_libraries(test_token_review_persistence unizyy_lib)
 
 # Modern C++17 filesystem support
 target_compile_features(unizyy_lib PUBLIC cxx_std_17)

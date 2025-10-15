@@ -24,15 +24,11 @@ public:
 private:
     void displayAdminDashboard();
     void handleUserManagement();
-
     void handleViewAllUsers();
     void handleAddNewUser();
     void handleSearchUser();
     void handleUserStatistics();
- 
-
     void handleNoticeManagement();
-
     void handleProfile();
     void handleLogout();
 };
