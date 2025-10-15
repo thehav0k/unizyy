@@ -62,6 +62,42 @@ bool registerAdminByAdmin(const string& currentAdminEmail, const string& name, c
     return true;
 }
 
+bool registerDiningAuthorityByAdmin(const string& currentAdminEmail, const string& name, const string& email, const string& hallName, const string& password) {
+    // Only System Admins can register dining authorities
+    Admin* currentAdmin = DatabaseManager::findAdminByEmail(currentAdminEmail);
+    if (!currentAdmin || currentAdmin->getAdminType() != AdminType::SystemAdmin) {
+        cout << "Error: Only System Admins can register dining authorities." << endl;
+        return false;
+    }
+
+    if (name.empty() || hallName.empty()) {
+        cout << "Error: Name and Hall cannot be empty." << endl;
+        return false;
+    }
+
+    if (!StringHelper::validateEmail(email)) {
+        cout << "Error: Invalid email format." << endl;
+        return false;
+    }
+
+    if (!StringHelper::validatePassword(password)) {
+        cout << "Error: Password must be at least 6 characters long." << endl;
+        return false;
+    }
+
+    if (DatabaseManager::emailExists(email)) {
+        cout << "Error: Email already exists." << endl;
+        return false;
+    }
+
+    DiningAuthority newAuth(email, password, name, hallName);
+    DatabaseManager::addDiningAuthority(newAuth);
+
+    cout << "Dining Authority registration by admin successful!" << endl;
+    cout << "New Dining Authority created for " << hallName << endl;
+    return true;
+}
+
 bool isAnyAdminRegistered() {
     return DatabaseManager::getAdminCount() > 0;
 }

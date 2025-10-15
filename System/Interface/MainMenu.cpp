@@ -1,5 +1,3 @@
-
-
 #include "MainMenu.h"
 #include "../Authentication/auth.h"
 #include "StudentInterface.h"
@@ -18,7 +16,7 @@ MainMenu::MainMenu(Auth* auth) : authSystem(auth), isRunning(true) {}
 
 void MainMenu::displayWelcomeBanner() {
     clearScreen();
-    cout << "\nUNIZY : JAHANGIRNAGAR UNIVERSITY MANAGEMENT SYSTEM" << endl;
+    cout << "\nUNIZY : JAHANGIR UNIVERSITY MANAGEMENT SYSTEM" << endl;
     cout << "==========================================================" << endl;
     cout<< Date::getCurrentDateTimeString() << endl;
     cout << "==========================================================" << endl;
@@ -319,20 +317,15 @@ void MainMenu::handleRegistration() {
 
                 int typeChoice;
                 cout << "Select Admin Type:" << endl;
-                cout << "1. Transport" << endl;
-                cout << "2. Hall Dining" << endl;
-                cout << "3. Public Relations" << endl;
-                cout << "4. Department" << endl;
-                cout << "5. System Admin" << endl;
-                cout << "Enter choice (1-5): ";
+                cout << "1. Public Relations" << endl;
+                cout << "2. System Admin" << endl;
+                cout << "Enter choice (1-2): ";
                 cin >> typeChoice;
                 cin.ignore();
 
-                AdminType adminType = AdminType::Transport;
-                if (typeChoice == 2) adminType = AdminType::HallDining;
-                else if (typeChoice == 3) adminType = AdminType::PublicRelations;
-                else if (typeChoice == 4) adminType = AdminType::Department;
-                else if (typeChoice == 5) adminType = AdminType::SystemAdmin;
+                AdminType adminType = AdminType::SystemAdmin; // Default
+                if (typeChoice == 1) adminType = AdminType::PublicRelations;
+                else if (typeChoice == 2) adminType = AdminType::SystemAdmin;
 
                 success = authSystem->registerAdmin(name, email, adminType, password);
                 break;

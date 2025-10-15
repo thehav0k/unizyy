@@ -36,13 +36,13 @@ void AdminInterface::displayMenu() {
 
 int AdminInterface::getChoice() {
     int choice;
-    cout << "Please enter your choice (0-5): ";
+    cout << "Please enter your choice (0-4): ";
 
-    while (!(cin >> choice) || choice < 0 || choice > 5) {
-        displayError("Invalid input! Please enter a number between 0-5.");
+    while (!(cin >> choice) || choice < 0 || choice > 4) {
+        displayError("Invalid input! Please enter a number between 0-4.");
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Please enter your choice (0-5): ";
+        cout << "Please enter your choice (0-4): ";
     }
 
     cin.ignore();
@@ -85,14 +85,13 @@ void AdminInterface::handleUserManagement() {
 
         cout << "USER MANAGEMENT OPTIONS:" << endl;
         cout << "1. View All Users" << endl;
-        cout << "2. Add New User" << endl;
+        cout << "2. Add New Admin" << endl;
         cout << "3. Search User by Email" << endl;
         cout << "4. User Statistics" << endl;
-
         cout << "5. Back to Admin Menu" << endl;
         cout << "----------------------------------------" << endl;
 
-        cout << "Please enter your choice (1-6): ";
+        cout << "Please enter your choice (1-5): ";
         int choice;
         cin >> choice;
         cin.ignore();
@@ -113,7 +112,7 @@ void AdminInterface::handleUserManagement() {
             case 5:
                 return; // Back to admin menu
             default:
-                displayError("Invalid choice! Please enter 1-6.");
+                displayError("Invalid choice! Please enter 1-5.");
                 pauseForInput();
         }
     }
@@ -173,148 +172,130 @@ void AdminInterface::handleViewAllUsers() {
 
 void AdminInterface::handleAddNewUser() {
     clearScreen();
-    displayHeader("ADD NEW USER");
+    displayHeader("ADD NEW ADMIN/DINING AUTHORITY");
 
     cout << "Select user type to add:" << endl;
-    cout << "1. Student" << endl;
-    cout << "2. Teacher" << endl;
-    cout << "3. Admin" << endl;
-    cout << "4. Dining Authority" << endl;
-    cout << "5. Cancel" << endl;
+    cout << "1. Admin" << endl;
+    cout << "2. Dining Authority" << endl;
+    cout << "3. Cancel" << endl;
+    cout << "Enter choice (1-3): ";
 
     int userType;
-    cout << "Enter choice (1-5): ";
     cin >> userType;
     cin.ignore();
 
-    if (userType == 5) return;
+    if (userType == 3) {
+        displayInfo("Registration cancelled.");
+        pauseForInput();
+        return;
+    }
 
     bool success = false;
-    switch (userType) {
-        case 1: {
-            displayInfo("Adding new student...");
-            // Use the same registration logic from MainMenu
-            string studentID = Auth::getValidatedStudentID();
-            string name = Auth::getValidatedName();
-            string email = Auth::getValidatedEmail();
-            string password = Auth::getValidatedPassword();
 
-            // Get other required fields (simplified for admin)
-            int age = 20; // Default or get from admin
-            int classRoll;
-            cout << "Enter Class Roll: ";
-            cin >> classRoll;
-            cin.ignore();
+    if (userType == 1) {
+        // Admin Registration
+        displayInfo("Register a new admin account");
+        cout << endl;
 
-            // Simplified - use defaults or extend as needed
-            department dept = department::Department_of_Computer_Science_and_Engineering;
-            int batch = 50;
-            Halls hall = Halls::Al_Beruni_Hall;
+        string name = Auth::getValidatedName();
+        string email = Auth::getValidatedEmail();
+        string password = Auth::getValidatedPassword();
 
-            success = authSystem->registerStudent(studentID, name, email, age, classRoll, dept, batch, hall, password);
-            break;
+        int typeChoice;
+        cout << "\nSelect Admin Type:" << endl;
+        cout << "1. Public Relations" << endl;
+        cout << "2. System Admin" << endl;
+        cout << "3. Cancel" << endl;
+        cout << "Enter choice (1-3): ";
+        cin >> typeChoice;
+        cin.ignore();
+
+        if (typeChoice == 3) {
+            displayInfo("Registration cancelled.");
+            pauseForInput();
+            return;
         }
-        case 2: {
-            displayInfo("Adding new teacher...");
-            string name = Auth::getValidatedName();
-            string email = Auth::getValidatedEmail();
-            string password = Auth::getValidatedPassword();
 
-            int dept;
-            cout << "Select Department:" << endl;
-            cout << "1. Computer Science and Engineering" << endl;
-            cout << "2. Physics" << endl;
-            cout << "3. Mathematics" << endl;
-            cout << "Enter choice (1-3): ";
-            cin >> dept;
-
-            cin.ignore();
-
-            department deptchoice = department::Department_of_Computer_Science_and_Engineering;
-            if (dept == 2) deptchoice = department::Department_of_physics;
-            else if (dept == 3) deptchoice = department::Department_of_Mathematics;
-
-            designation des = designation::Lecturer; // Default
-
-            success = authSystem->registerTeacher(name, email, deptchoice, des, password);
-            break;
+        AdminType adminType = AdminType::SystemAdmin; // Default
+        switch (typeChoice) {
+            case 1: adminType = AdminType::PublicRelations; break;
+            case 2: adminType = AdminType::SystemAdmin; break;
+            default:
+                displayError("Invalid admin type selection!");
+                pauseForInput();
+                return;
         }
-        case 3: {
-            displayInfo("Adding new admin...");
-            string name = Auth::getValidatedName();
-            string email = Auth::getValidatedEmail();
-            string password = Auth::getValidatedPassword();
 
-            AdminType adminType = AdminType::SystemAdmin; // Default
+        // Use registerAdminByAdmin with current admin's email
+        success = registerAdminByAdmin(currentAdmin->getEmail(), name, email, adminType, password);
 
-            success = authSystem->registerAdmin(name, email, adminType, password);
-            break;
+    } else if (userType == 2) {
+        // Dining Authority Registration
+        displayInfo("Register a new dining authority account");
+        cout << endl;
+
+        string name = Auth::getValidatedName();
+        string email = Auth::getValidatedEmail();
+        string password = Auth::getValidatedPassword();
+
+        int hallChoice;
+        cout << "\nSelect Assigned Hall:" << endl;
+        cout << "1. Al Beruni Hall" << endl;
+        cout << "2. Meer Mosharraf Hossain Hall" << endl;
+        cout << "3. Shaheed Salam Barkat Hall" << endl;
+        cout << "4. AFM Kamaluddin Hall" << endl;
+        cout << "5. Moulana Bhasani Hall" << endl;
+        cout << "6. Bangabondhu Sheikh Majibur Rahman Hall" << endl;
+        cout << "7. Jatiya Kabi Kazi Nazrul Islam Hall" << endl;
+        cout << "8. Rabindra Nath Tagore Hall" << endl;
+        cout << "9. Shahid Tajuddin Ahmed Hall" << endl;
+        cout << "10. Shahid Sheikh Russel Hall" << endl;
+        cout << "11. Shaheed Rafiq Jabbar Hall" << endl;
+        cout << "12. Nawab Faizunnesa Hall" << endl;
+        cout << "13. Fazilatunnesa Hall" << endl;
+        cout << "14. Jahanara Imam Hall" << endl;
+        cout << "15. Preetilata Hall" << endl;
+        cout << "16. Begum Khaleda Zia Hall" << endl;
+        cout << "17. Sheikh Hasina Hall" << endl;
+        cout << "18. Bir Pratik Taramon Bibi Hall" << endl;
+        cout << "Enter choice (1-18): ";
+        cin >> hallChoice;
+        cin.ignore();
+
+        Halls hall = Halls::Al_Beruni_Hall;
+        switch (hallChoice) {
+            case 1: hall = Halls::Al_Beruni_Hall; break;
+            case 2: hall = Halls::Meer_Mosharraf_Hossain_Hall; break;
+            case 3: hall = Halls::Shaheed_Salam_Barkat_Hall; break;
+            case 4: hall = Halls::AFM_Kamaluddin_Hall; break;
+            case 5: hall = Halls::Moulana_Bhasani_Hall; break;
+            case 6: hall = Halls::Bangabondhu_Sheikh_Majibur_Rahman_Hall; break;
+            case 7: hall = Halls::Jatiya_Kabi_Kazi_Nazrul_Islam_Hall; break;
+            case 8: hall = Halls::Rabindra_Nath_Tagore_Hall; break;
+            case 9: hall = Halls::Shahid_Tajuddin_Ahmed_Hall; break;
+            case 10: hall = Halls::Shahid_Sheikh_Russel_Hall; break;
+            case 11: hall = Halls::Shaheed_Rafiq_Jabbar_Hall; break;
+            case 12: hall = Halls::Nawab_Faizunnesa_Hall; break;
+            case 13: hall = Halls::Fazilatunnesa_Hall; break;
+            case 14: hall = Halls::Jahanara_Imam_Hall; break;
+            case 15: hall = Halls::Preetilata_Hall; break;
+            case 16: hall = Halls::Begum_Khaleda_Zia_Hall; break;
+            case 17: hall = Halls::Sheikh_Hasina_Hall; break;
+            case 18: hall = Halls::Bir_Pratik_Taramon_Bibi_Hall; break;
+            default: hall = Halls::Al_Beruni_Hall; break;
         }
-        case 4: {
-            displayInfo("Adding new dining authority...");
-            string name = Auth::getValidatedName();
-            string email = Auth::getValidatedEmail();
-            string password = Auth::getValidatedPassword();
 
-            int hallChoice;
-            cout << "Select Assigned Hall:" << endl;
-            cout << "1. Al Beruni Hall" << endl;
-            cout << "2. Meer Mosharraf Hossain Hall" << endl;
-            cout << "3. Shaheed Salam Barkat Hall" << endl;
-            cout << "4. AFM Kamaluddin Hall" << endl;
-            cout << "5. Moulana Bhasani Hall" << endl;
-            cout << "6. Bangabondhu Sheikh Majibur Rahman Hall" << endl;
-            cout << "7. Jatiya Kabi Kazi Nazrul Islam Hall" << endl;
-            cout << "8. Rabindra Nath Tagore Hall" << endl;
-            cout << "9. Shahid Tajuddin Ahmed Hall" << endl;
-            cout << "10. Shahid Sheikh Russel Hall" << endl;
-            cout << "11. Shaheed Rafiq Jabbar Hall" << endl;
-            cout << "12. Nawab Faizunnesa Hall" << endl;
-            cout << "13. Fazilatunnesa Hall" << endl;
-            cout << "14. Jahanara Imam Hall" << endl;
-            cout << "15. Preetilata Hall" << endl;
-            cout << "16. Begum Khaleda Zia Hall" << endl;
-            cout << "17. Sheikh Hasina Hall" << endl;
-            cout << "18. Bir Pratik Taramon Bibi Hall" << endl;
-            cout << "Enter choice (1-18): ";
-            cin >> hallChoice;
-            cin.ignore();
+        string hallName = hallToString(hall);
+        // Use registerDiningAuthorityByAdmin with current admin's email
+        success = registerDiningAuthorityByAdmin(currentAdmin->getEmail(), name, email, hallName, password);
 
-            Halls hall = Halls::Al_Beruni_Hall;
-            switch (hallChoice) {
-                case 1: hall = Halls::Al_Beruni_Hall; break;
-                case 2: hall = Halls::Meer_Mosharraf_Hossain_Hall; break;
-                case 3: hall = Halls::Shaheed_Salam_Barkat_Hall; break;
-                case 4: hall = Halls::AFM_Kamaluddin_Hall; break;
-                case 5: hall = Halls::Moulana_Bhasani_Hall; break;
-                case 6: hall = Halls::Bangabondhu_Sheikh_Majibur_Rahman_Hall; break;
-                case 7: hall = Halls::Jatiya_Kabi_Kazi_Nazrul_Islam_Hall; break;
-                case 8: hall = Halls::Rabindra_Nath_Tagore_Hall; break;
-                case 9: hall = Halls::Shahid_Tajuddin_Ahmed_Hall; break;
-                case 10: hall = Halls::Shahid_Sheikh_Russel_Hall; break;
-                case 11: hall = Halls::Shaheed_Rafiq_Jabbar_Hall; break;
-                case 12: hall = Halls::Nawab_Faizunnesa_Hall; break;
-                case 13: hall = Halls::Fazilatunnesa_Hall; break;
-                case 14: hall = Halls::Jahanara_Imam_Hall; break;
-                case 15: hall = Halls::Preetilata_Hall; break;
-                case 16: hall = Halls::Begum_Khaleda_Zia_Hall; break;
-                case 17: hall = Halls::Sheikh_Hasina_Hall; break;
-                case 18: hall = Halls::Bir_Pratik_Taramon_Bibi_Hall; break;
-                default: hall = Halls::Al_Beruni_Hall; break;
-            }
-
-            string hallName = hallToString(hall);
-            success = authSystem->registerDiningAuthority(name, email, hallName, password);
-            break;
-        }
-    }
-
-    if (success) {
-        displaySuccess("User added successfully!");
     } else {
-        displayError("Failed to add user. Please try again.");
+        displayError("Invalid selection!");
+        pauseForInput();
+        return;
     }
 
+    // Success message is already displayed by the registration functions
     pauseForInput();
 }
 

@@ -43,6 +43,7 @@ public:
 
 // only system admin onno admin der registration korte parbe
 bool registerAdminByAdmin(const string &currentAdminEmail, const string &name, const string &email, AdminType adminType, const string &password);
+bool registerDiningAuthorityByAdmin(const string &currentAdminEmail, const string &name, const string &email, const string &hallName, const string &password);
 
 //Helper functions
 // mainly DatabaseManager er static methods call korbe
