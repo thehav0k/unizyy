@@ -5,7 +5,8 @@
 #include "../Users/Admin.h"
 // Forward declaration
 class Auth;
-
+//ekhane inheritance use kora hoyeche (4)
+//AdminInterface class MenuInterface theke derive kora
 class AdminInterface : public MenuInterface {
 private:
     Admin* currentAdmin;

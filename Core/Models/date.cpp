@@ -10,7 +10,7 @@ static Date simulatedDate;
 static bool isSimulating = false;
 static int simulatedHour = -1; // -1 means use real time
 
-// Constructors
+//Constructors
 Date::Date() {
     time_t now = time(nullptr);
     tm* ltm = localtime(&now);
@@ -27,17 +27,17 @@ Date::Date(const string& dateStr) {
     year = stoi(dateStr.substr(6, 4));
 }
 
-// Getters
+//Getters
 int Date::getDay() const { return day; }
 int Date::getMonth() const { return month; }
 int Date::getYear() const { return year; }
 
-// Setters
+//Setters
 void Date::setDay(int d) { day = d; }
 void Date::setMonth(int m) { month = m; }
 void Date::setYear(int y) { year = y; }
 
-// Utility functions
+//Utility functions
 string Date::toString() const {
     stringstream ss;
     ss << *this;  // Uses operator<<
@@ -49,7 +49,7 @@ bool Date::isValid() const {
     if (month < 1 || month > 12) return false;
     if (day < 1) return false;
 
-    // Use the helper function
+    //Use the helper function
     int maxDays = getDaysInMonth(month, year);
     return day <= maxDays;
 }
@@ -73,7 +73,7 @@ Date Date::getNextDay() const {
     Date nextDay = *this;
     nextDay.day++;
 
-    // Use the helper function
+    //Use the helper function
     int maxDays = getDaysInMonth(month, year);
 
     if (nextDay.day > maxDays) {

@@ -5,14 +5,15 @@
 #include "../Users/DiningAuthority.h"
 #include "../Modules/Meal/meal.h"
 
-// Forward declaration
+// Forward declaration kora hoyeche
 class Auth;
 
 class DiningAuthorityInterface : public MenuInterface {
 private:
+    //Ei class e DiningAuthority,Auth and TokenManager er shathe association ache
     DiningAuthority* currentAuthority;
     Auth* authSystem;
-    TokenManager* tokenManager; // may be unused now
+    TokenManager* tokenManager; //pore use kora hobe
     bool isRunning;
 
 public:

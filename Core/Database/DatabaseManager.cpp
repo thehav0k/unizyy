@@ -1,3 +1,4 @@
+//Ei program ta multi-file program,karon onek file include kore ekshathe kaj korche(6)
 #include "DatabaseManager.h"
 #include "../Users/student.h"
 #include "../Users/Teacher.h"
@@ -8,7 +9,7 @@
 
 using namespace std;
 
-// dat file gular location
+//dat file gular location
 const string DatabaseManager::STUDENTS_DB = "Database/students.dat";
 const string DatabaseManager::TEACHERS_DB = "Database/teachers.dat";
 const string DatabaseManager::ADMINS_DB = "Database/admins.dat";
@@ -21,8 +22,9 @@ const string DatabaseManager::NOTICES_DB = "Database/notices.dat";
 const string DatabaseManager::DATABASE_DIR = "Database";
 
 
-// login korar shathe auto data gula file theke load hoye jabe
-// then vector e save thakbe jate easily shob access kora jay
+//login korar shathe auto data gula file theke load hoye jabe
+//then vector e save thakbe jate easily shob access kora jay..
+//Stl use kora hoyeche(13)
 vector<Student> DatabaseManager::cachedStudents;
 vector<Teacher> DatabaseManager::cachedTeachers;
 vector<Admin> DatabaseManager::cachedAdmins;
@@ -200,7 +202,7 @@ bool DatabaseManager::deleteDiningAuthority(const string& email) {
     return deleteObject<DiningAuthority, string>(cachedDiningAuthorities, email, DINING_AUTH_DB, &DiningAuthority::getEmail);
 }
 
-// ActiveToken operations
+//ActiveToken operations
 vector<MealToken> DatabaseManager::loadActiveTokens() {
     return loadObjects<MealToken>(ACTIVE_TOKENS_DB);
 }
@@ -226,7 +228,7 @@ bool DatabaseManager::deleteActiveToken(const string& tokenID) {
     return deleteObject(cachedActiveTokens, tokenID, ACTIVE_TOKENS_DB, &MealToken::getTokenNumber);
 }
 
-// UsedToken operations
+//UsedToken operations
 vector<MealToken> DatabaseManager::loadUsedTokens() {
     return loadObjects<MealToken>(USED_TOKENS_DB);
 }
@@ -252,7 +254,7 @@ bool DatabaseManager::deleteUsedToken(const string& tokenID) {
     return deleteObject(cachedUsedTokens, tokenID, USED_TOKENS_DB, &MealToken::getTokenNumber);
 }
 
-// Review operations
+//Review operations
 vector<MealReview> DatabaseManager::loadReviews() {
     return loadObjects<MealReview>(REVIEWS_DB);
 }
@@ -267,17 +269,17 @@ bool DatabaseManager::addReview(const MealReview& review) {
 }
 
 MealReview* DatabaseManager::findReviewByID(const string& reviewID) {
-    // MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
+    //MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
     return findObjectByKey<MealReview, string>(cachedReviews, reviewID, &MealReview::getTokenNumber);
 }
 
 bool DatabaseManager::updateReview(const string& reviewID, const MealReview& updatedReview) {
-    /// MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
+    ///MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
     return updateObject<MealReview, string>(cachedReviews, reviewID, updatedReview, REVIEWS_DB, &MealReview::getTokenNumber);
 }
 
 bool DatabaseManager::deleteReview(const string& reviewID) {
-    /// MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
+    ///MealReview tokenNumber ke identifier hishabe use kore, reviewID hishabe na.
     return deleteObject<MealReview, string>(cachedReviews, reviewID, REVIEWS_DB, &MealReview::getTokenNumber);
 }
 

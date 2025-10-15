@@ -45,6 +45,7 @@ private:
     static vector<Notice> cachedNotices;
 
 public:
+    //user-made template and file stream use kora hoyeche(13)
     // direct object writing & reading er jnno template method
     // jate jekono object same method diye read write kora jay
     // Man I love templates, code size 70% komaya diche

@@ -2,7 +2,9 @@
 #include "../Utils/StringHelper.h"
 #include <iostream>
 using namespace std;
-
+// Ei code e string use kora hoyeche noticeTitle,msg er jonno(11) ebong
+// indirectly pointer use hoyeche(10)
+// this keyword diye object er member access korar jonno
 Notice::Notice(string noticeTitle, string msg, const Date &d)
     : date(d) {
     StringHelper::stringToCharArray(noticeTitle, this->title);

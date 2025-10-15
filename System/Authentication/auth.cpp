@@ -66,6 +66,9 @@ bool isAnyAdminRegistered() {
     return DatabaseManager::getAdminCount() > 0;
 }
 
+//ekhane pointer use kora hoyeche — karon ei function gulo Student*, Teacher*, and Admin*
+//type pointer return kore
+//mane memory address of object pathay
 Student* getStudentByEmail(const string& email) {
     return DatabaseManager::findStudentByEmail(email);
 }

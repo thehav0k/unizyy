@@ -8,7 +8,7 @@
 
 // Forward declaration
 class Auth;
-
+//StudentInterface class ta MenuInterface theke inherit hoyeche
 class StudentInterface : public MenuInterface {
 private:
     Student* currentStudent;  //Ei student er current login info
@@ -18,6 +18,7 @@ private:
 public:
     //Constructor
     StudentInterface(Student* student, Auth* auth);
+    //runtime polymorphism(dynamic binding) use hoyeche(7)
     void displayMenu() override;
     int getChoice() override;
     void processChoice(int choice) override;

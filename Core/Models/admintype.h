@@ -1,7 +1,7 @@
 #ifndef ADMINTYPE_H
 #define ADMINTYPE_H
 
-// AdminType(used in enum defining) different admin role gula represent korte help kore
+//Eta ekta enum class ja diye fixed admin type gulo define kora hoy.(11)
 enum class AdminType {
     Transport,
     HallDining,

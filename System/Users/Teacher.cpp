@@ -1,5 +1,3 @@
-
-
 #include "Teacher.h"
 #include <iostream>
 #include "../../Core/Models/department.h"

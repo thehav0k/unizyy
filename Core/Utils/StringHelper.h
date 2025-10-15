@@ -7,6 +7,7 @@
 using namespace std;
 class StringHelper {
 public:
+    //user-made template use kora hoyeche(13)
     // Basically string ekta class tai shorashori object writing kora jayna file e
     // ejnno sob class e string er jaygay char array use korsi
 

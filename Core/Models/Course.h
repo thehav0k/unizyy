@@ -11,13 +11,13 @@ private:
     char courseCode[20];
     double totalMarks;
 public:
-    //Parameter Constructor
+    //Parameterized Constructor(3)
     Course(const string& courseName, const string& courseCode, double totalMarks)
         : totalMarks(totalMarks) {
         StringHelper::stringToCharArray(courseName, this->courseName);//used this pointer
         StringHelper::stringToCharArray(courseCode, this->courseCode);//used this pointer
     }
-    // Default constructor
+    //Default constructor(3)
     Course() : totalMarks(0.0) {
         courseName[0] = '\0';
         courseCode[0] = '\0';

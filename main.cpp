@@ -1,4 +1,5 @@
 #include <iostream>
+//Ei program ta multi-file program,karon onek file include kore ekshathe kaj korche(6)
 #include "System/Authentication/auth.h"
 #include "System/Interface/MainMenu.h"
 
@@ -6,7 +7,7 @@ using namespace std;
 
 int main() {
     try {
-        Auth authSystem;
+        Auth authSystem; //Auth class er ekta object authSystem create hoyeche(3)
         MainMenu mainMenu(&authSystem);
         mainMenu.run();
 

@@ -8,6 +8,8 @@ using namespace std;
 
 class MenuInterface {
 public:
+    //Ei code e pure virtual functions use kora hoyeche(8)
+    //Mane MenuInterface ekta abstract base class.
     virtual ~MenuInterface() = default;
 
     virtual void displayMenu() = 0;
